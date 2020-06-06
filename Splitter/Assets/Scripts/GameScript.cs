@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public enum GameStatus
 {
@@ -576,24 +577,32 @@ public class GameScript : MonoBehaviour
             var hidden = map.GetObjects(ItemType.Cover | ItemType.Border).Count();
             var percent = (total - hidden) * 100f / total;
             text.text = $"{total-hidden}/{total} ({percent:0.00}%)";
-            if (percent > 80)
+            if (percent > 1)
             {
-                OnWon();
+                StartCoroutine(OnWon());
             }
         }
     }
 
-    void OnWon()
+    IEnumerator OnWon()
     {
         status = GameStatus.Won;
+        UpdateMap();
+        Object.Destroy(player.gameObject);
+        player = null;
+        foreach (var enemy in enemyList)
+        {
+            enemy.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+        }
+
+        yield return new WaitForSeconds(2);
 
         foreach (var enemy in enemyList)
         {
             Object.Destroy(enemy.gameObject);
         }
         enemyList.Clear();
+
         UpdateMap();
-        Object.Destroy(player.gameObject);
-        player = null;
     }
 }
