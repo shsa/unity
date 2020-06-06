@@ -577,7 +577,7 @@ public class GameScript : MonoBehaviour
             var hidden = map.GetObjects(ItemType.Cover | ItemType.Border).Count();
             var percent = (total - hidden) * 100f / total;
             text.text = $"{total-hidden}/{total} ({percent:0.00}%)";
-            if (percent > 1)
+            if (percent > 80)
             {
                 StartCoroutine(OnWon());
             }
