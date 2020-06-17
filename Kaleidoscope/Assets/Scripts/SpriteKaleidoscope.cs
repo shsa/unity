@@ -41,8 +41,22 @@ public class SpriteKaleidoscope : MonoBehaviour
     {
         _texture = texture;
         _pixelsPerUnit = pixelsPerUnit;
-        var rect = new Rect(0, 0, texture.width / 2, texture.height / 2);
-        var t = texture;
+
+        while (transform.childCount > 0)
+        {
+            DestroyImmediate(transform.GetChild(0).gameObject);
+        }
+        CreateObjects(radius);
+        //tri = CreateObject(stack, tri, Vector2Int.left, Vector2.zero, sqrRadius);
+        //tri = CreateObject(stack, tri, Vector2Int.left, Vector2.zero, sqrRadius);
+        //tri = CreateObject(stack, tri, Vector2Int.left, Vector2.zero, sqrRadius);
+        //tri = CreateObject(stack, tri, Vector2Int.up, Vector2.zero, sqrRadius);
+
+        SetRect(new Rect(0, 0, texture.width, texture.height));
+    }
+
+    public void SetRect(Rect rect)
+    {
         var center = new Vector2(rect.width * 0.5f, rect.height * 0.5f);
         a = new Vector2(0.0f, Mathf.Min(center.x, center.y));
         b = Quaternion.Euler(0.0f, 0.0f, 120.0f) * a;
@@ -52,17 +66,13 @@ public class SpriteKaleidoscope : MonoBehaviour
         c += center;
 
         //_sprite = Sprite.Create(t, rect, new Vector2(0.5f, 0.5f), pixelsPerUnit);
-        _sprite = Sprite.Create(t, rect, new Vector2(0.5f, 0.5f), pixelsPerUnit);
+        _sprite = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f), pixelsPerUnit);
         _sprite.OverrideGeometry(new Vector2[]
         {
                 a, b, c
         }, new ushort[] {
                 0, 1, 2
         });
-        while (transform.childCount > 0)
-        {
-            DestroyImmediate(transform.GetChild(0).gameObject);
-        }
 
         center = new Vector2(rect.width * 0.5f / pixelsPerUnit, rect.height * 0.5f / pixelsPerUnit);
         a = new Vector2(0.0f, Mathf.Min(center.x, center.y));
@@ -75,11 +85,12 @@ public class SpriteKaleidoscope : MonoBehaviour
         h = len * Mathf.Sqrt(3) * 0.5f; // h = a * sqrt(3) / 2
         r = h / 3; // r = a * sqrt(3) / 6
 
-        CreateObjects(radius);
-        //tri = CreateObject(stack, tri, Vector2Int.left, Vector2.zero, sqrRadius);
-        //tri = CreateObject(stack, tri, Vector2Int.left, Vector2.zero, sqrRadius);
-        //tri = CreateObject(stack, tri, Vector2Int.left, Vector2.zero, sqrRadius);
-        //tri = CreateObject(stack, tri, Vector2Int.up, Vector2.zero, sqrRadius);
+        foreach (var tri in cache.Values)
+        {
+            tri.transform.localPosition = CalcCenter(tri.index);
+            var sr = tri.GetComponent<SpriteRenderer>();
+            sr.sprite = _sprite;
+        }
     }
 
     Vector2 CalcCenter(Vector3Int index)
@@ -136,17 +147,6 @@ public class SpriteKaleidoscope : MonoBehaviour
         return index;
     }
 
-    void UpdateObject(TriangleComponent tri)
-    {
-        var pos = CalcCenter(tri.index);
-        var rotation = CalcRotation(tri.index);
-        CreateArrow(pos, rotation, tri.name);
-
-        tri.transform.localScale = Vector3.one;
-        tri.transform.localPosition = pos;
-        tri.transform.localRotation = Quaternion.Euler(rotation);
-    }
-
     void CreateObjects(int radius)
     {
         var level = new HashSet<Vector3Int>();
@@ -195,14 +195,15 @@ public class SpriteKaleidoscope : MonoBehaviour
             idx++;
             var name = "t " + idx.ToString() + " ";
             var obj = new GameObject(name);
-            var sr = obj.AddComponent<SpriteRenderer>();
-            sr.sprite = _sprite;
+            obj.AddComponent<SpriteRenderer>();
             obj.transform.SetParent(transform);
             var tri = obj.AddComponent<TriangleComponent>();
             tri.index = index;
             tri.level = level;
 
-            UpdateObject(tri);
+            var rotation = CalcRotation(tri.index);
+            tri.transform.localScale = Vector3.one;
+            tri.transform.localRotation = Quaternion.Euler(rotation);
 
             cache.Add(index, tri);
         }

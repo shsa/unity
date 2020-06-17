@@ -132,6 +132,7 @@ GameObject:
   - component: {fileID: 516730374}
   - component: {fileID: 516730373}
   - component: {fileID: 516730375}
+  - component: {fileID: 516730376}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -151,9 +152,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d493e3e33f981e4a85ddf5e2345f34a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  texture: {fileID: 2800000, guid: c077788d36aca614483c3242044cfdb0, type: 3}
+  texture: {fileID: 2800000, guid: cc081843d7dd2cf4baea883689a24922, type: 3}
   Size: 5
-  pixelsPerUnit: 1
+  pixelsPerUnit: 100
   radius: 10
 --- !u!4 &516730374
 Transform:
@@ -163,8 +164,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 516730372}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -13.741, y: 2.872, z: 0}
-  m_LocalScale: {x: 31.152372, y: 31.559477, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2229939308549745843}
   - {fileID: 1507382898}
@@ -187,6 +188,18 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.5
+--- !u!114 &516730376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 516730372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b6048a773ac8774aa1bc9eb047c58ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
