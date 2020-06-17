@@ -26,6 +26,9 @@ public class SpriteKaleidoscope : MonoBehaviour
     Vector2 b;
     Vector2 c;
     int idx = 0;
+    float len;
+    float h; // h = len * sqrt(3) / 2
+    float r; // r = len * sqrt(3) / 6 => r = h / 3
 
     // Start is called before the first frame update
     void Start()
@@ -47,7 +50,6 @@ public class SpriteKaleidoscope : MonoBehaviour
         a += center;
         b += center;
         c += center;
-        var l = (b - a).magnitude;
 
         //_sprite = Sprite.Create(t, rect, new Vector2(0.5f, 0.5f), pixelsPerUnit);
         _sprite = Sprite.Create(t, rect, new Vector2(0.5f, 0.5f), pixelsPerUnit);
@@ -67,177 +69,143 @@ public class SpriteKaleidoscope : MonoBehaviour
         b = Quaternion.Euler(0.0f, 0.0f, 120.0f) * a;
         c = Quaternion.Euler(0.0f, 0.0f, 120.0f) * b;
 
-        var obj = new GameObject("t");
-        var sr = obj.AddComponent<SpriteRenderer>();
-        sr.sprite = _sprite;
-        obj.transform.SetParent(transform);
-        var tri = obj.AddComponent<TriangleComponent>();
-        tri.center = Vector2.zero - a;
-        tri.rotation = Vector3Int.zero;
-        tri.index = Vector3Int.zero;
-        cache.Add(tri.index, tri);
-        idx = 0;
-        UpdateObject(tri);
+        // https://youclever.org/book/ravnostoronnij-treugolnik-1
+        //len = (a - b).magnitude * 1.5f;
+        len = (a - b).magnitude;
+        h = len * Mathf.Sqrt(3) * 0.5f; // h = a * sqrt(3) / 2
+        r = h / 3; // r = a * sqrt(3) / 6
 
-        var stack = new Stack<TriangleComponent>();
-        stack.Push(tri);
-
-        var sqrH = (b - a).sqrMagnitude * 0.75f; // h = a * sqrt(3) / 2 => h^2 = a^2 * 3 / 4
-
-        var sqrRadius = radius * sqrH;
-        var coll = GetComponent<CircleCollider2D>();
-        coll.radius = Mathf.Sqrt(sqrRadius);
-        CreateObject(stack, Vector2.zero, sqrRadius);
+        CreateObjects(radius);
         //tri = CreateObject(stack, tri, Vector2Int.left, Vector2.zero, sqrRadius);
         //tri = CreateObject(stack, tri, Vector2Int.left, Vector2.zero, sqrRadius);
         //tri = CreateObject(stack, tri, Vector2Int.left, Vector2.zero, sqrRadius);
         //tri = CreateObject(stack, tri, Vector2Int.up, Vector2.zero, sqrRadius);
     }
 
-    void UpdateObject(TriangleComponent tri)
+    Vector2 CalcCenter(Vector3Int index)
     {
-        // https://youclever.org/book/ravnostoronnij-treugolnik-1
-        var len = (a - b).magnitude * 1.2f;
-        var h = len * Mathf.Sqrt(3) * 0.5f; // // h = a * sqrt(3) / 2
-        var r = len * Mathf.Sqrt(3) / 6; // // r = a * sqrt(3) / 6
-        var pos = new Vector2(
-            tri.index.x * len + (tri.index.y + tri.index.z) * len * 0.5f,
-            tri.index.y * h + tri.index.z * r) - a;
-        var zMod = (tri.index.x - (tri.index.y + tri.index.z)) % 3;
+        return new Vector2(
+            index.x * len + (index.y + index.z) * len * 0.5f,
+            index.y * h + index.z * r) - a;
+    }
+
+    Vector3 CalcRotation(Vector3Int index)
+    {
+        var zMod = (index.x - (index.y + index.z)) % 3;
         var rZ = zMod * -120;
-        var rX = tri.index.z * -180f;
-        var rotation = new Vector3(
-            rX, 
-            0, 
-            rZ
-            );
-        CreateArrow(pos, rotation, tri.name);
-
-        tri.transform.localScale = Vector3.one;
-        //tri.transform.localPosition = tri.center;
-        //tri.transform.localRotation = Quaternion.Euler(tri.rotation);
-        tri.transform.localPosition = pos;
-        tri.transform.localRotation = Quaternion.Euler(rotation);
+        var rX = index.z * -180f;
+        return new Vector3(rX, 0, rZ);
     }
 
-    void CreateObject(Stack<TriangleComponent> stack, Vector2 center, float sqrRadius)
+    /// <summary>
+    /// directions:
+    ///       0               0
+    ///       |               |
+    ///       a         5 -c --- b- 1
+    ///  5 -/   \- 1     4 -\   /-2
+    /// 4 -c ___ b- 2         a
+    ///       |               |
+    ///       3               3
+    /// </summary>
+    Vector3Int CalcIndex(Vector3Int index, int dir)
     {
-        while (stack.Count > 0)
+        if (index.z == 0)
         {
-            var tri = stack.Pop();
-            CreateObject(stack, tri, Vector2Int.up, center, sqrRadius);
-            CreateObject(stack, tri, Vector2Int.down, center, sqrRadius);
-            CreateObject(stack, tri, Vector2Int.left, center, sqrRadius);
-            CreateObject(stack, tri, Vector2Int.right, center, sqrRadius);
-        }
-    }
-
-    TriangleComponent CreateObject(Stack<TriangleComponent> stack, TriangleComponent start, Vector2Int dir, Vector2 center, float sqrRadius)
-    {
-        var scale = 1.2f;
-        var tri0 = start.GetComponent<TriangleComponent>();
-        var top = a * scale;
-        var c = Vector2.zero;
-        var r = Vector3Int.zero;
-        var index = tri0.index;
-        idx++;
-        var name = "t " + idx.ToString() + " ";
-        if (tri0.index.z == 0)
-        {
-            if (dir == Vector2Int.left)
+            switch (dir)
             {
-                c = tri0.center + (Vector2)(Quaternion.Euler(0, 0, 60) * top);
-                r = new Vector3Int(tri0.rotation.x, tri0.rotation.y - 180, tri0.rotation.z + 60);
-                index = new Vector3Int(index.x - 1, index.y, 1);
-                name += "left";
-            }
-            else
-            if (dir == Vector2Int.right)
-            {
-                c = tri0.center + (Vector2)(Quaternion.Euler(0, 0, -60) * top);
-                r = new Vector3Int(tri0.rotation.x, tri0.rotation.y - 180, tri0.rotation.z - 60);
-                index = new Vector3Int(index.x, index.y, 1);
-                name += "right";
-            }
-            else
-            if (dir == Vector2Int.down)
-            {
-                c = tri0.center + (Vector2)(Quaternion.Euler(0, 0, 180) * top);
-                r = new Vector3Int(tri0.rotation.x - 180, tri0.rotation.y, tri0.rotation.z);
-                index = new Vector3Int(index.x, index.y - 1, 1);
-                name += "down";
-            }
-            else
-            {
-                return null;
+                case 0: return new Vector3Int(index.x - 1, index.y + 1, 1);
+                case 1: return new Vector3Int(index.x, index.y, 1);
+                case 2: return new Vector3Int(index.x + 1, index.y - 1, 1);
+                case 3: return new Vector3Int(index.x, index.y - 1, 1);
+                case 4: return new Vector3Int(index.x - 1, index.y - 1, 1);
+                case 5: return new Vector3Int(index.x - 1, index.y, 1);
             }
         }
         else
         {
-            if (dir == Vector2Int.left)
+            switch (dir)
             {
-                c = tri0.center + (Vector2)(Quaternion.Euler(0, 0, 120) * top);
-                r = new Vector3Int(tri0.rotation.x, tri0.rotation.y - 180, tri0.rotation.z + 60);
-                index = new Vector3Int(index.x, index.y, 0);
-                name += "left";
-            }
-            else
-            if (dir == Vector2Int.right)
-            {
-                c = tri0.center + (Vector2)(Quaternion.Euler(0, 0, -120) * top);
-                r = new Vector3Int(tri0.rotation.x, tri0.rotation.y - 180, tri0.rotation.z - 60);
-                index = new Vector3Int(index.x + 1, index.y, 0);
-                name += "right";
-            }
-            else
-            if (dir == Vector2Int.up)
-            {
-                c = tri0.center + top;
-                r = new Vector3Int(tri0.rotation.x - 180, tri0.rotation.y, tri0.rotation.z);
-                index = new Vector3Int(index.x, index.y + 1, 0);
-                name += "up";
-            }
-            else
-            {
-                return null;
+                case 0: return new Vector3Int(index.x, index.y + 1, 0);
+                case 1: return new Vector3Int(index.x + 1, index.y + 1, 0);
+                case 2: return new Vector3Int(index.x + 1, index.y, 0);
+                case 3: return new Vector3Int(index.x + 1, index.y - 1, 0);
+                case 4: return new Vector3Int(index.x, index.y, 0);
+                case 5: return new Vector3Int(index.x - 1, index.y + 1, 0);
             }
         }
-
-        if (cache.TryGetValue(index, out var tri))
-        {
-            return null;
-        }
-
-        var q = Quaternion.Euler(r);
-        Vector2 a0 = q * top;
-        Vector2 b0 = Quaternion.Euler(0, 0, 120) * a0;
-        Vector2 c0 = Quaternion.Euler(0, 0, 120) * b0;
-
-        if ((c + a0 - center).sqrMagnitude > sqrRadius && (c + b0 - center).sqrMagnitude > sqrRadius && (c + c0 - center).sqrMagnitude > sqrRadius)
-        {
-            return null;
-        }
-
-        var obj = new GameObject(name);
-        var sr = obj.AddComponent<SpriteRenderer>();
-        sr.sprite = _sprite;
-        obj.transform.SetParent(transform);
-        tri = obj.AddComponent<TriangleComponent>();
-        tri.index = index;
-        tri.center = c;
-        tri.rotation = r;
-
-        UpdateObject(tri);
-
-        cache.Add(index, tri);
-        stack.Push(tri);
-
-        return tri;
+        return index;
     }
 
-    void CreateObject(Vector3Int pos)
+    void UpdateObject(TriangleComponent tri)
     {
+        var pos = CalcCenter(tri.index);
+        var rotation = CalcRotation(tri.index);
+        CreateArrow(pos, rotation, tri.name);
 
+        tri.transform.localScale = Vector3.one;
+        tri.transform.localPosition = pos;
+        tri.transform.localRotation = Quaternion.Euler(rotation);
+    }
+
+    void CreateObjects(int radius)
+    {
+        var level = new HashSet<Vector3Int>();
+        var r = 0;
+        {
+            var index = new Vector3Int(0, 0, 0);
+            level.Add(index);
+            index = CalcIndex(index, 5);
+            level.Add(index);
+            index = CalcIndex(index, 0);
+            level.Add(index);
+            index = CalcIndex(index, 1);
+            level.Add(index);
+            index = CalcIndex(index, 2);
+            level.Add(index);
+            index = CalcIndex(index, 3);
+            level.Add(index);
+
+            CreateObjects(level, r);
+            r++;
+        }
+        while (r < radius)
+        {
+            var nextLevel = new HashSet<Vector3Int>();
+            foreach (var index in level)
+            {
+                for (int i = 0; i < 6; i++)
+                {
+                    var newIndex = CalcIndex(index, i);
+                    if (!cache.ContainsKey(newIndex))
+                    {
+                        nextLevel.Add(newIndex);
+                    }
+                }
+            }
+            CreateObjects(nextLevel, r);
+            level = nextLevel;
+            r++;
+        }
+    }
+
+    void CreateObjects(HashSet<Vector3Int> indices, int level)
+    {
+        foreach (var index in indices)
+        {
+            idx++;
+            var name = "t " + idx.ToString() + " ";
+            var obj = new GameObject(name);
+            var sr = obj.AddComponent<SpriteRenderer>();
+            sr.sprite = _sprite;
+            obj.transform.SetParent(transform);
+            var tri = obj.AddComponent<TriangleComponent>();
+            tri.index = index;
+            tri.level = level;
+
+            UpdateObject(tri);
+
+            cache.Add(index, tri);
+        }
     }
 
     void CreateDot(Vector2 pos, string name)
