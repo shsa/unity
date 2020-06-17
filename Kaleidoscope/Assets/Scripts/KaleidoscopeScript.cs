@@ -13,7 +13,7 @@ public class KaleidoscopeScript : MonoBehaviour
         var sk = GetComponent<SpriteKaleidoscope>();
         rect = new Rect(0, 0, 300, 300);
         textureRect = new Rect(0, 0, sk.texture.width, sk.texture.height);
-        sk.SetRect(rect);
+        sk.rect = rect;
         dir = new Vector2(0.1f, 0.1f);
     }
 
@@ -36,8 +36,11 @@ public class KaleidoscopeScript : MonoBehaviour
         {
             dir = new Vector2(dir.x, -dir.y);
         }
-        rect = new Rect(rect.x + dir.x, rect.y + dir.y, rect.width, rect.height);
+        rect.position = rect.position + dir;
         var sk = GetComponent<SpriteKaleidoscope>();
-        sk.SetRect(rect);
+        if ((rect.position - sk.rect.position).sqrMagnitude >= 1)
+        {
+            sk.rect = rect;
+        }
     }
 }

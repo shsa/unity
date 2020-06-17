@@ -52,44 +52,51 @@ public class SpriteKaleidoscope : MonoBehaviour
         //tri = CreateObject(stack, tri, Vector2Int.left, Vector2.zero, sqrRadius);
         //tri = CreateObject(stack, tri, Vector2Int.up, Vector2.zero, sqrRadius);
 
-        SetRect(new Rect(0, 0, texture.width, texture.height));
+        rect = new Rect(0, 0, texture.width, texture.height);
     }
 
-    public void SetRect(Rect rect)
+    private Rect _rect;
+    public Rect rect
     {
-        var center = new Vector2(rect.width * 0.5f, rect.height * 0.5f);
-        a = new Vector2(0.0f, Mathf.Min(center.x, center.y));
-        b = Quaternion.Euler(0.0f, 0.0f, 120.0f) * a;
-        c = Quaternion.Euler(0.0f, 0.0f, 120.0f) * b;
-        a += center;
-        b += center;
-        c += center;
+        get {
+            return _rect;
+        }
+        set {
+            _rect = value;
+            var center = new Vector2(_rect.width * 0.5f, _rect.height * 0.5f);
+            a = new Vector2(0.0f, Mathf.Min(center.x, center.y));
+            b = Quaternion.Euler(0.0f, 0.0f, 120.0f) * a;
+            c = Quaternion.Euler(0.0f, 0.0f, 120.0f) * b;
+            a += center;
+            b += center;
+            c += center;
 
-        //_sprite = Sprite.Create(t, rect, new Vector2(0.5f, 0.5f), pixelsPerUnit);
-        _sprite = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f), pixelsPerUnit);
-        _sprite.OverrideGeometry(new Vector2[]
-        {
+            //_sprite = Sprite.Create(t, rect, new Vector2(0.5f, 0.5f), pixelsPerUnit);
+            _sprite = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f), pixelsPerUnit);
+            _sprite.OverrideGeometry(new Vector2[]
+            {
                 a, b, c
-        }, new ushort[] {
+            }, new ushort[] {
                 0, 1, 2
-        });
+            });
 
-        center = new Vector2(rect.width * 0.5f / pixelsPerUnit, rect.height * 0.5f / pixelsPerUnit);
-        a = new Vector2(0.0f, Mathf.Min(center.x, center.y));
-        b = Quaternion.Euler(0.0f, 0.0f, 120.0f) * a;
-        c = Quaternion.Euler(0.0f, 0.0f, 120.0f) * b;
+            center = new Vector2(rect.width * 0.5f / pixelsPerUnit, rect.height * 0.5f / pixelsPerUnit);
+            a = new Vector2(0.0f, Mathf.Min(center.x, center.y));
+            b = Quaternion.Euler(0.0f, 0.0f, 120.0f) * a;
+            c = Quaternion.Euler(0.0f, 0.0f, 120.0f) * b;
 
-        // https://youclever.org/book/ravnostoronnij-treugolnik-1
-        //len = (a - b).magnitude * 1.5f;
-        len = (a - b).magnitude;
-        h = len * Mathf.Sqrt(3) * 0.5f; // h = a * sqrt(3) / 2
-        r = h / 3; // r = a * sqrt(3) / 6
+            // https://youclever.org/book/ravnostoronnij-treugolnik-1
+            //len = (a - b).magnitude * 1.5f;
+            len = (a - b).magnitude;
+            h = len * Mathf.Sqrt(3) * 0.5f; // h = a * sqrt(3) / 2
+            r = h / 3; // r = a * sqrt(3) / 6
 
-        foreach (var tri in cache.Values)
-        {
-            tri.transform.localPosition = CalcCenter(tri.index);
-            var sr = tri.GetComponent<SpriteRenderer>();
-            sr.sprite = _sprite;
+            foreach (var tri in cache.Values)
+            {
+                tri.transform.localPosition = CalcCenter(tri.index);
+                var sr = tri.GetComponent<SpriteRenderer>();
+                sr.sprite = _sprite;
+            }
         }
     }
 
