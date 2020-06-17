@@ -14,6 +14,7 @@ public class SpriteKaleidoscope : MonoBehaviour
     public int Size = 4;
     int _pixelsPerUnit = 100;
     public int pixelsPerUnit = 100;
+    public int radius = 3;
 
     Sprite _sprite;
     /// <summary>
@@ -37,11 +38,10 @@ public class SpriteKaleidoscope : MonoBehaviour
     {
         _texture = texture;
         _pixelsPerUnit = pixelsPerUnit;
-
-        var t = new Texture2D(texture.width, texture.height);
-        Graphics.ConvertTexture(texture, t);
-        var center = new Vector2(texture.width * 0.5f, texture.height * 0.5f);
-        a = new Vector2(0.0f, center.y);
+        var rect = new Rect(0, 0, texture.width / 2, texture.height / 2);
+        var t = texture;
+        var center = new Vector2(rect.width * 0.5f, rect.height * 0.5f);
+        a = new Vector2(0.0f, Mathf.Min(center.x, center.y));
         b = Quaternion.Euler(0.0f, 0.0f, 120.0f) * a;
         c = Quaternion.Euler(0.0f, 0.0f, 120.0f) * b;
         a += center;
@@ -49,21 +49,21 @@ public class SpriteKaleidoscope : MonoBehaviour
         c += center;
         var l = (b - a).magnitude;
 
-        _sprite = Sprite.Create(t, new Rect(0, 0, t.width, t.height), new Vector2(0.5f, 0.5f), pixelsPerUnit);
+        //_sprite = Sprite.Create(t, rect, new Vector2(0.5f, 0.5f), pixelsPerUnit);
+        _sprite = Sprite.Create(t, rect, new Vector2(0.5f, 0.5f), pixelsPerUnit);
         _sprite.OverrideGeometry(new Vector2[]
         {
                 a, b, c
         }, new ushort[] {
                 0, 1, 2
         });
-
         while (transform.childCount > 0)
         {
             DestroyImmediate(transform.GetChild(0).gameObject);
         }
 
-        center = new Vector2(_sprite.rect.width * 0.5f / pixelsPerUnit, _sprite.rect.height * 0.5f / pixelsPerUnit);
-        a = new Vector2(0.0f, center.y);
+        center = new Vector2(rect.width * 0.5f / pixelsPerUnit, rect.height * 0.5f / pixelsPerUnit);
+        a = new Vector2(0.0f, Mathf.Min(center.x, center.y));
         b = Quaternion.Euler(0.0f, 0.0f, 120.0f) * a;
         c = Quaternion.Euler(0.0f, 0.0f, 120.0f) * b;
 
@@ -84,22 +84,40 @@ public class SpriteKaleidoscope : MonoBehaviour
 
         var sqrH = (b - a).sqrMagnitude * 0.75f; // h = a * sqrt(3) / 2 => h^2 = a^2 * 3 / 4
 
-        var radius = 3;
-        var sqrRadius = radius * sqrH - sqrH / 2;
+        var sqrRadius = radius * sqrH;
         var coll = GetComponent<CircleCollider2D>();
         coll.radius = Mathf.Sqrt(sqrRadius);
-        //CreateObject(stack, Vector2.zero, sqrRadius);
-        tri = CreateObject(stack, tri, Vector2Int.left, Vector2.zero, sqrRadius);
-        tri = CreateObject(stack, tri, Vector2Int.left, Vector2.zero, sqrRadius);
-        tri = CreateObject(stack, tri, Vector2Int.left, Vector2.zero, sqrRadius);
-        tri = CreateObject(stack, tri, Vector2Int.up, Vector2.zero, sqrRadius);
+        CreateObject(stack, Vector2.zero, sqrRadius);
+        //tri = CreateObject(stack, tri, Vector2Int.left, Vector2.zero, sqrRadius);
+        //tri = CreateObject(stack, tri, Vector2Int.left, Vector2.zero, sqrRadius);
+        //tri = CreateObject(stack, tri, Vector2Int.left, Vector2.zero, sqrRadius);
+        //tri = CreateObject(stack, tri, Vector2Int.up, Vector2.zero, sqrRadius);
     }
 
     void UpdateObject(TriangleComponent tri)
     {
+        // https://youclever.org/book/ravnostoronnij-treugolnik-1
+        var len = (a - b).magnitude * 1.2f;
+        var h = len * Mathf.Sqrt(3) * 0.5f; // // h = a * sqrt(3) / 2
+        var r = len * Mathf.Sqrt(3) / 6; // // r = a * sqrt(3) / 6
+        var pos = new Vector2(
+            tri.index.x * len + (tri.index.y + tri.index.z) * len * 0.5f,
+            tri.index.y * h + tri.index.z * r) - a;
+        var zMod = (tri.index.x - (tri.index.y + tri.index.z)) % 3;
+        var rZ = zMod * -120;
+        var rX = tri.index.z * -180f;
+        var rotation = new Vector3(
+            rX, 
+            0, 
+            rZ
+            );
+        CreateArrow(pos, rotation, tri.name);
+
         tri.transform.localScale = Vector3.one;
-        tri.transform.localPosition = tri.center;
-        tri.transform.localRotation = Quaternion.Euler(tri.rotation);
+        //tri.transform.localPosition = tri.center;
+        //tri.transform.localRotation = Quaternion.Euler(tri.rotation);
+        tri.transform.localPosition = pos;
+        tri.transform.localRotation = Quaternion.Euler(rotation);
     }
 
     void CreateObject(Stack<TriangleComponent> stack, Vector2 center, float sqrRadius)
@@ -116,8 +134,9 @@ public class SpriteKaleidoscope : MonoBehaviour
 
     TriangleComponent CreateObject(Stack<TriangleComponent> stack, TriangleComponent start, Vector2Int dir, Vector2 center, float sqrRadius)
     {
+        var scale = 1.2f;
         var tri0 = start.GetComponent<TriangleComponent>();
-        var top = a;
+        var top = a * scale;
         var c = Vector2.zero;
         var r = Vector3Int.zero;
         var index = tri0.index;
@@ -191,13 +210,13 @@ public class SpriteKaleidoscope : MonoBehaviour
 
         var q = Quaternion.Euler(r);
         Vector2 a0 = q * top;
-        Vector2 b0 = Quaternion.Euler(0, 0, 60) * a0;
-        Vector2 c0 = Quaternion.Euler(0, 0, 60) * b0;
+        Vector2 b0 = Quaternion.Euler(0, 0, 120) * a0;
+        Vector2 c0 = Quaternion.Euler(0, 0, 120) * b0;
 
         if ((c + a0 - center).sqrMagnitude > sqrRadius && (c + b0 - center).sqrMagnitude > sqrRadius && (c + c0 - center).sqrMagnitude > sqrRadius)
         {
             return null;
-        }    
+        }
 
         var obj = new GameObject(name);
         var sr = obj.AddComponent<SpriteRenderer>();
@@ -219,6 +238,25 @@ public class SpriteKaleidoscope : MonoBehaviour
     void CreateObject(Vector3Int pos)
     {
 
+    }
+
+    void CreateDot(Vector2 pos, string name)
+    {
+        var t = Resources.Load<GameObject>("dot");
+        var obj = Object.Instantiate(t, transform);
+        obj.transform.localScale = Vector3.one;
+        obj.transform.localPosition = pos;
+        obj.name = "dot " + name;
+    }
+
+    void CreateArrow(Vector2 pos, Vector3 rotation, string name)
+    {
+        var t = Resources.Load<GameObject>("arrow");
+        var obj = Object.Instantiate(t, transform);
+        obj.transform.localScale = Vector3.one;
+        obj.transform.localPosition = pos;
+        obj.transform.localRotation = Quaternion.Euler(rotation);
+        obj.name = "arrow " + name;
     }
 
     void Update()
