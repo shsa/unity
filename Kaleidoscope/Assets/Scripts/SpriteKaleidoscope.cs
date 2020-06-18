@@ -9,12 +9,9 @@ public class SpriteKaleidoscope : MonoBehaviour
 {
     static Dictionary<Vector3Int, TriangleComponent> cache = new Dictionary<Vector3Int, TriangleComponent>();
 
-    Texture2D _texture;
-    public Texture2D texture;
     public int Size = 4;
-    int _pixelsPerUnit = 100;
-    public int pixelsPerUnit = 100;
     public int radius = 3;
+    Vector2 center;
 
     Sprite _sprite;
     /// <summary>
@@ -30,17 +27,49 @@ public class SpriteKaleidoscope : MonoBehaviour
     float h; // h = len * sqrt(3) / 2
     float r; // r = len * sqrt(3) / 6 => r = h / 3
 
+    [SerializeField]
+    Texture2D _texture;
+    public Texture2D texture {
+        get {
+            return _texture;
+        }
+        set {
+            _texture = value;
+            CreateSprite();
+        }
+    }
+
+    [SerializeField]
+    int _pixelsPerUnit = 100;
+    public int pixelsPerUnit {
+        get {
+            return _pixelsPerUnit;
+        }
+        set {
+            _pixelsPerUnit = value;
+            CreateSprite();
+        }
+    }
+
+    void CreateSprite()
+    {
+        _sprite = Sprite.Create(_texture, new Rect(0, 0, _texture.width, _texture.height), new Vector2(0, 0), pixelsPerUnit);
+    }
+
+    public SpriteKaleidoscope()
+    {
+        texture = new Texture2D(1, 1);
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log("Start");
         Build();
     }
 
     void Build()
     {
-        _texture = texture;
-        _pixelsPerUnit = pixelsPerUnit;
+        CreateSprite();
 
         while (transform.childCount > 0)
         {
@@ -63,25 +92,24 @@ public class SpriteKaleidoscope : MonoBehaviour
         }
         set {
             _rect = value;
-            var center = new Vector2(_rect.width * 0.5f, _rect.height * 0.5f);
+            center = new Vector2(_rect.width * 0.5f, _rect.height * 0.5f);
             a = new Vector2(0.0f, Mathf.Min(center.x, center.y));
             b = Quaternion.Euler(0.0f, 0.0f, 120.0f) * a;
             c = Quaternion.Euler(0.0f, 0.0f, 120.0f) * b;
-            a += center;
-            b += center;
-            c += center;
+            a += _rect.center;
+            b += _rect.center;
+            c += _rect.center;
 
-            //_sprite = Sprite.Create(t, rect, new Vector2(0.5f, 0.5f), pixelsPerUnit);
-            _sprite = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f), pixelsPerUnit);
             _sprite.OverrideGeometry(new Vector2[]
             {
                 a, b, c
             }, new ushort[] {
                 0, 1, 2
             });
+            center = _rect.center / pixelsPerUnit;
 
-            center = new Vector2(rect.width * 0.5f / pixelsPerUnit, rect.height * 0.5f / pixelsPerUnit);
-            a = new Vector2(0.0f, Mathf.Min(center.x, center.y));
+            var center0 = new Vector2(rect.width * 0.5f / pixelsPerUnit, rect.height * 0.5f / pixelsPerUnit);
+            a = new Vector2(0.0f, Mathf.Min(center0.x, center0.y));
             b = Quaternion.Euler(0.0f, 0.0f, 120.0f) * a;
             c = Quaternion.Euler(0.0f, 0.0f, 120.0f) * b;
 
@@ -93,7 +121,12 @@ public class SpriteKaleidoscope : MonoBehaviour
 
             foreach (var tri in cache.Values)
             {
-                tri.transform.localPosition = CalcCenter(tri.index);
+                tri.transform.localPosition = CalcCenter(tri.index) - center;
+                var rot = CalcRotation(tri.index);
+                tri.transform.localRotation = Quaternion.identity;
+                var pos = tri.transform.TransformPoint(center);
+                tri.transform.RotateAround(pos, Vector3.forward, rot.z);
+                tri.transform.RotateAround(pos, Vector3.right, rot.x);
                 var sr = tri.GetComponent<SpriteRenderer>();
                 sr.sprite = _sprite;
             }

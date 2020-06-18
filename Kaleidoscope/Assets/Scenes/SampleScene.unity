@@ -133,6 +133,7 @@ GameObject:
   - component: {fileID: 516730373}
   - component: {fileID: 516730375}
   - component: {fileID: 516730376}
+  - component: {fileID: 516730377}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -152,10 +153,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d493e3e33f981e4a85ddf5e2345f34a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  texture: {fileID: 2800000, guid: cc081843d7dd2cf4baea883689a24922, type: 3}
   Size: 5
-  pixelsPerUnit: 100
-  radius: 10
+  radius: 5
+  _texture: {fileID: 2800000, guid: cc081843d7dd2cf4baea883689a24922, type: 3}
+  _pixelsPerUnit: 100
 --- !u!4 &516730374
 Transform:
   m_ObjectHideFlags: 0
@@ -198,6 +199,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b6048a773ac8774aa1bc9eb047c58ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &516730377
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 516730372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2493ea002f2eb5746aca442d9c0ea818, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &519420028
