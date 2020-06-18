@@ -10,10 +10,11 @@ public class KaleidoscopeScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        var sk = GetComponent<SpriteKaleidoscope>();
+        var ka = GetComponent<KaleidoscopeAnimator>();
+        var ks = GetComponent<KaleidoscopeSprite>();
+        ks.texture = ka.texture;
         rect = new Rect(0, 0, 300, 300);
-        textureRect = new Rect(0, 0, sk.texture.width, sk.texture.height);
-        sk.rect = rect;
+        textureRect = new Rect(0, 0, ks.texture.width, ks.texture.height);
         dir = new Vector2(0.1f, 0.1f);
     }
 
@@ -37,10 +38,6 @@ public class KaleidoscopeScript : MonoBehaviour
             dir = new Vector2(dir.x, -dir.y);
         }
         rect.position = rect.position + dir;
-        var sk = GetComponent<SpriteKaleidoscope>();
-        if ((rect.position - sk.rect.position).sqrMagnitude >= 1)
-        {
-            sk.rect = rect;
-        }
+        var sk = GetComponent<KaleidoscopeSprite>();
     }
 }

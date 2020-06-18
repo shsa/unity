@@ -5,15 +5,12 @@ using UnityEditor;
 #endif
 
 //[ExecuteInEditMode]
-public class SpriteKaleidoscope : MonoBehaviour
+public class KaleidoscopeSprite : MonoBehaviour
 {
     static Dictionary<Vector3Int, TriangleComponent> cache = new Dictionary<Vector3Int, TriangleComponent>();
 
-    public int Size = 4;
     public int radius = 3;
-    Vector2 center;
 
-    Sprite _sprite;
     /// <summary>
     ///     a
     ///   /   \
@@ -27,7 +24,6 @@ public class SpriteKaleidoscope : MonoBehaviour
     float h; // h = len * sqrt(3) / 2
     float r; // r = len * sqrt(3) / 6 => r = h / 3
 
-    [SerializeField]
     Texture2D _texture;
     public Texture2D texture {
         get {
@@ -53,23 +49,50 @@ public class SpriteKaleidoscope : MonoBehaviour
 
     void CreateSprite()
     {
-        _sprite = Sprite.Create(_texture, new Rect(0, 0, _texture.width, _texture.height), new Vector2(0, 0), pixelsPerUnit);
-    }
-
-    public SpriteKaleidoscope()
-    {
-        texture = new Texture2D(1, 1);
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
         Build();
+
+        var rect = new Rect(0, 0, texture.width, texture.height);
+        var sprite = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f), pixelsPerUnit);
+
+        var center = new Vector2(rect.width * 0.5f, rect.height * 0.5f);
+        a = new Vector2(0.0f, Mathf.Min(center.x, center.y));
+        b = Quaternion.Euler(0.0f, 0.0f, 120.0f) * a;
+        c = Quaternion.Euler(0.0f, 0.0f, 120.0f) * b;
+        a += center;
+        b += center;
+        c += center;
+
+        sprite.OverrideGeometry(new Vector2[]
+        {
+                a, b, c
+        }, new ushort[] {
+                0, 1, 2
+        });
+        center = rect.center / pixelsPerUnit;
+        a = new Vector2(0.0f, Mathf.Min(center.x, center.y));
+        b = Quaternion.Euler(0.0f, 0.0f, 120.0f) * a;
+        c = Quaternion.Euler(0.0f, 0.0f, 120.0f) * b;
+
+        // https://youclever.org/book/ravnostoronnij-treugolnik-1
+        //len = (a - b).magnitude * 1.5f;
+        len = (a - b).magnitude;
+        h = len * Mathf.Sqrt(3) * 0.5f; // h = a * sqrt(3) / 2
+        r = h / 3; // r = a * sqrt(3) / 6
+
+        foreach (var tri in cache.Values)
+        {
+            tri.transform.localPosition = CalcCenter(tri.index);
+            var sr = tri.GetComponent<SpriteRenderer>();
+            sr.sprite = sprite;
+        }
     }
 
     void Build()
     {
-        CreateSprite();
+        if (cache.Count > 0)
+        {
+            return;
+        }
 
         while (transform.childCount > 0)
         {
@@ -80,57 +103,10 @@ public class SpriteKaleidoscope : MonoBehaviour
         //tri = CreateObject(stack, tri, Vector2Int.left, Vector2.zero, sqrRadius);
         //tri = CreateObject(stack, tri, Vector2Int.left, Vector2.zero, sqrRadius);
         //tri = CreateObject(stack, tri, Vector2Int.up, Vector2.zero, sqrRadius);
-
-        rect = new Rect(0, 0, texture.width, texture.height);
     }
 
-    private Rect _rect;
-    public Rect rect
+    void UpdateTexture()
     {
-        get {
-            return _rect;
-        }
-        set {
-            _rect = value;
-            center = new Vector2(_rect.width * 0.5f, _rect.height * 0.5f);
-            a = new Vector2(0.0f, Mathf.Min(center.x, center.y));
-            b = Quaternion.Euler(0.0f, 0.0f, 120.0f) * a;
-            c = Quaternion.Euler(0.0f, 0.0f, 120.0f) * b;
-            a += _rect.center;
-            b += _rect.center;
-            c += _rect.center;
-
-            _sprite.OverrideGeometry(new Vector2[]
-            {
-                a, b, c
-            }, new ushort[] {
-                0, 1, 2
-            });
-            center = _rect.center / pixelsPerUnit;
-
-            var center0 = new Vector2(rect.width * 0.5f / pixelsPerUnit, rect.height * 0.5f / pixelsPerUnit);
-            a = new Vector2(0.0f, Mathf.Min(center0.x, center0.y));
-            b = Quaternion.Euler(0.0f, 0.0f, 120.0f) * a;
-            c = Quaternion.Euler(0.0f, 0.0f, 120.0f) * b;
-
-            // https://youclever.org/book/ravnostoronnij-treugolnik-1
-            //len = (a - b).magnitude * 1.5f;
-            len = (a - b).magnitude;
-            h = len * Mathf.Sqrt(3) * 0.5f; // h = a * sqrt(3) / 2
-            r = h / 3; // r = a * sqrt(3) / 6
-
-            foreach (var tri in cache.Values)
-            {
-                tri.transform.localPosition = CalcCenter(tri.index) - center;
-                var rot = CalcRotation(tri.index);
-                tri.transform.localRotation = Quaternion.identity;
-                var pos = tri.transform.TransformPoint(center);
-                tri.transform.RotateAround(pos, Vector3.forward, rot.z);
-                tri.transform.RotateAround(pos, Vector3.right, rot.x);
-                var sr = tri.GetComponent<SpriteRenderer>();
-                sr.sprite = _sprite;
-            }
-        }
     }
 
     Vector2 CalcCenter(Vector3Int index)
