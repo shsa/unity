@@ -1,124 +1,66 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class TestScript : MonoBehaviour
 {
-
-    public class BallScript : MonoBehaviour
-    {
-        // Constant speed of the ball
-        public float speed = 1f;
-
-        // Keep track of the direction in which the ball is moving
-        public Vector2 velocity;
-
-        Rigidbody2D rb;
-
-        void Start()
-        {
-            rb = GetComponent<Rigidbody2D>();
-            velocity = Random.insideUnitCircle.normalized * speed;
-            rb.velocity = velocity;
-        }
-
-        private void OnCollisionEnter2D(Collision2D col)
-        {
-            // Normal
-            Vector3 N = col.contacts[0].normal;
-
-            //Direction
-            Vector3 V = velocity.normalized;
-
-            // Reflection
-            Vector3 R = Vector3.Reflect(V, N).normalized;
-
-            // Assign normalized reflection with the constant speed
-            var rb = this.GetComponent<Rigidbody2D>();
-            velocity = new Vector2(R.x, R.y) * speed;
-            rb.velocity = velocity; 
-        }
-    }
-
+    Scene offscreenScene;
+    Texture2D texture;
+    Camera offscreenCamera;
 
     // Start is called before the first frame update
     void Start()
     {
-        var mat = new PhysicsMaterial2D();
-        mat.bounciness = 1;
-        mat.friction = 0;
-
-        var obj = new GameObject("texture");
-        obj.transform.SetParent(transform);
-        obj.transform.localPosition = Vector3.zero;
-        obj.transform.localScale = Vector3.one;
-        var texture = Resources.Load<Texture2D>("hT0XCMSooWBEY0");
-        var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0, 0), 1);
-        var sr = obj.AddComponent<SpriteRenderer>();
+        texture = new Texture2D(100, 100, TextureFormat.RGB24, false);
+        var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), texture.height / 10);
+        var sr = gameObject.AddComponent<SpriteRenderer>();
         sr.sprite = sprite;
 
-        var rb = obj.AddComponent<Rigidbody2D>();
-        rb.bodyType = RigidbodyType2D.Static;
-        //rb.sharedMaterial = mat;
-        var c = obj.AddComponent<CompositeCollider2D>();
-
-        var borderWidth = 10;
-        CreateBorder(obj, new Rect(-borderWidth, -borderWidth, borderWidth, texture.height + 2 * borderWidth), "l");
-        CreateBorder(obj, new Rect(texture.width, -borderWidth, borderWidth, texture.height + 2 * borderWidth), "r");
-        CreateBorder(obj, new Rect(-borderWidth, texture.height, texture.width + 2 * borderWidth, borderWidth), "t");
-        CreateBorder(obj, new Rect(-borderWidth, -borderWidth, texture.width + 2 * borderWidth, borderWidth), "b");
-
-        var box = CreateBox(obj, new Vector3(texture.width * 0.5f, texture.height * 0.5f), new Vector2(100, 100));
-        rb = box.GetComponent<Rigidbody2D>();
-        //rb.sharedMaterial = mat;
-    }
-
-    void CreateBorder(GameObject parent, Rect rect, string name)
-    {
-        var obj = new GameObject(name);
-        obj.transform.SetParent(parent.transform);
-        obj.transform.localScale = Vector3.one;
-        obj.transform.localPosition = rect.center;
-        var bc = obj.AddComponent<BoxCollider2D>();
-        bc.size = rect.size;
-        bc.offset = Vector2.zero;
-        bc.usedByComposite = true;
-
-    }
-
-    GameObject CreateBox(GameObject parent, Vector2 pos, Vector2 size)
-    {
-        var box = new GameObject("box");
-        box.transform.SetParent(parent.transform);
-        box.transform.localScale = Vector3.one;
-        box.transform.localPosition = pos;
-
-        var texture = Resources.Load<Texture2D>("arrow");
-        var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), 1);
-        var sr = box.AddComponent<SpriteRenderer>();
-        sr.sprite = sprite;
-        sr.sortingOrder = 1;
-
-        var cc = box.AddComponent<CircleCollider2D>();
-        cc.radius = (size * 0.5f).magnitude;
-
-        var bc = box.AddComponent<BoxCollider2D>();
-        bc.size = size;
-
-        var rb = box.AddComponent<Rigidbody2D>();
-        rb.gravityScale = 0;
-        //rb.angularDrag = 0;
-        //rb.interpolation = RigidbodyInterpolation2D.Interpolate;
-        rb.simulated = true;
-        //rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-
-        box.AddComponent<BallScript>();
-
-        return box;
+        offscreenScene = SceneManager.GetSceneByName("New Scene 2");
+        //offscreenScene.isSubScene = true;
+        offscreenCamera = null;
+        foreach (var obj in offscreenScene.GetRootGameObjects())
+        {
+            if (offscreenCamera == null)
+            {
+                offscreenCamera = obj.GetComponent<Camera>();
+            }
+            obj.transform.position -= new Vector3(0, 0, 1000);
+        }
+        if (offscreenCamera != null)
+        {
+            //offscreenCamera.targetTexture = new RenderTexture(100, 100, 0);
+            var rb = offscreenCamera.GetComponent<Rigidbody2D>();
+            rb.velocity = new Vector2(4, 4);
+            rb.angularVelocity = 10;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (offscreenCamera != null)
+        {
+            // https://gist.githubusercontent.com/danielbierwirth/10965844fecc38243007f0cd21843d90/raw/06282b4660149fb716a5c08c604ed6fb4750f5d5/OffscreenRendering.cs%2520
+            RenderTexture currentRT = RenderTexture.active;
+            // Set target texture as active render texture. 			
+            RenderTexture.active = offscreenCamera.targetTexture;
+            // Render to texture 			
+            offscreenCamera.Render();
+            // Read offscreen texture 			
+            //Texture2D offscreenTexture = new Texture2D(100, 100, TextureFormat.RGB24, false);
+            //offscreenTexture.ReadPixels(new Rect(0, 0, 100, 100), 0, 0, false);
+            //offscreenTexture.Apply();
+
+            texture.ReadPixels(new Rect(0, 0, offscreenCamera.targetTexture.width, offscreenCamera.targetTexture.height), 0, 0, false);
+            texture.Apply();
+            // Reset previous render texture. 			
+            RenderTexture.active = currentRT;
+
+            // Delete textures. 			
+            //UnityEngine.Object.Destroy(offscreenTexture);
+        }
     }
 }
