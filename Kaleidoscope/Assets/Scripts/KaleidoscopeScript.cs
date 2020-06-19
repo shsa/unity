@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class KaleidoscopeScript : MonoBehaviour
 {
-    Rect rect;
+    Rect rect, oldRect;
     Rect textureRect;
     Vector2 dir;
     // Start is called before the first frame update
@@ -12,10 +12,12 @@ public class KaleidoscopeScript : MonoBehaviour
     {
         var ka = GetComponent<KaleidoscopeAnimator>();
         var ks = GetComponent<KaleidoscopeSprite>();
-        ks.texture = ka.texture;
-        rect = new Rect(0, 0, 300, 300);
-        textureRect = new Rect(0, 0, ks.texture.width, ks.texture.height);
+        //ks.texture = dstTexture;
+        rect = new Rect(0, 0, 100, 100);
+        oldRect = rect;
+        textureRect = new Rect(0, 0, 100, 100);
         dir = new Vector2(0.1f, 0.1f);
+
     }
 
     // Update is called once per frame
@@ -38,6 +40,13 @@ public class KaleidoscopeScript : MonoBehaviour
             dir = new Vector2(dir.x, -dir.y);
         }
         rect.position = rect.position + dir;
-        var sk = GetComponent<KaleidoscopeSprite>();
+        if ((rect.position - oldRect.position).sqrMagnitude >= 1)
+        {
+            //var sk = GetComponent<KaleidoscopeSprite>();
+            //var cc = srcTexture.GetPixels((int)rect.x, (int)rect.y, (int)rect.width, (int)rect.height);
+            //dstTexture.SetPixels(cc);
+            //dstTexture.Apply();
+            //oldRect = rect;
+        }
     }
 }

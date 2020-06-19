@@ -30,8 +30,11 @@ public class KaleidoscopeSprite : MonoBehaviour
             return _texture;
         }
         set {
-            _texture = value;
-            CreateSprite();
+            if (_texture != value)
+            {
+                _texture = value;
+                CreateSprite();
+            }
         }
     }
 
@@ -47,28 +50,32 @@ public class KaleidoscopeSprite : MonoBehaviour
         }
     }
 
+    [SerializeField]
+    Vector3 _rotation = Vector3.zero;
+    public Vector3 rotation {
+        get {
+            return _rotation;
+        }
+        set {
+            if (_rotation != value)
+            {
+                _rotation = value;
+                CreateSprite();
+            }
+        }
+    }
+
+    Sprite sprite;
+
     void CreateSprite()
     {
         Build();
 
         var rect = new Rect(0, 0, texture.width, texture.height);
-        var sprite = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f), pixelsPerUnit);
+        sprite = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f), pixelsPerUnit);
+        UpdateSprite();
 
-        var center = new Vector2(rect.width * 0.5f, rect.height * 0.5f);
-        a = new Vector2(0.0f, Mathf.Min(center.x, center.y));
-        b = Quaternion.Euler(0.0f, 0.0f, 120.0f) * a;
-        c = Quaternion.Euler(0.0f, 0.0f, 120.0f) * b;
-        a += center;
-        b += center;
-        c += center;
-
-        sprite.OverrideGeometry(new Vector2[]
-        {
-                a, b, c
-        }, new ushort[] {
-                0, 1, 2
-        });
-        center = rect.center / pixelsPerUnit;
+        var center = rect.center / pixelsPerUnit;
         a = new Vector2(0.0f, Mathf.Min(center.x, center.y));
         b = Quaternion.Euler(0.0f, 0.0f, 120.0f) * a;
         c = Quaternion.Euler(0.0f, 0.0f, 120.0f) * b;
@@ -84,6 +91,30 @@ public class KaleidoscopeSprite : MonoBehaviour
             tri.transform.localPosition = CalcCenter(tri.index);
             var sr = tri.GetComponent<SpriteRenderer>();
             sr.sprite = sprite;
+        }
+    }
+
+    void UpdateSprite()
+    {
+        var center = new Vector2(sprite.rect.width * 0.5f, sprite.rect.height * 0.5f);
+        a = Quaternion.Euler(-rotation) * new Vector2(0.0f, Mathf.Min(center.x, center.y));
+        b = Quaternion.Euler(0.0f, 0.0f, 120.0f) * a;
+        c = Quaternion.Euler(0.0f, 0.0f, 120.0f) * b;
+        a += center;
+        b += center;
+        c += center;
+
+        sprite.OverrideGeometry(new Vector2[]
+        {
+                a, b, c
+        }, new ushort[] {
+                0, 1, 2
+        });
+
+        foreach (var tri in cache.Values)
+        {
+            var r = CalcRotation(tri.index);
+            tri.transform.localEulerAngles = rotation + r;
         }
     }
 
