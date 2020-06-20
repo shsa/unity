@@ -226,10 +226,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   kaleidoscopeSprite: {fileID: 516730373}
-  _texture: {fileID: 2800000, guid: cc081843d7dd2cf4baea883689a24922, type: 3}
-  _windowSize: {x: 100, y: 100}
-  _speed: 50
-  _angularVelocity: 90
+  sceneName: New Scene 2
+  window:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 100
+    height: 100
+  interval: 0.05
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0

@@ -150,6 +150,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95a815e3f2bf2754199439dbfe3aad58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sceneName: New Scene 2
+  window:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 100
+    height: 100
+  interval: 0.02
 --- !u!4 &1029479509
 Transform:
   m_ObjectHideFlags: 0
