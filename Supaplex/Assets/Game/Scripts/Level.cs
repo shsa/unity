@@ -8,122 +8,125 @@ using Unity.Collections;
 using UnityEditor;
 using UnityEngine;
 
-public class LevelObject
+namespace Game.Logic
 {
-    public Vector2Int position;
-    public ObjectType type;
-}
-
-public class Wall : LevelObject
-{
-
-}
-
-public class Stone : LevelObject
-{
-
-}
-
-public class Level : IEnumerable<LevelObject>
-{
-    struct LevelData
+    public class LevelObject
     {
-        public string[] lines;
+        public Vector2Int position;
+        public ObjectType type;
     }
 
-    Dictionary<Vector2Int, LevelObject> data = new Dictionary<Vector2Int, LevelObject>();
+    public class Wall : LevelObject
+    {
 
-    public LevelObject this[Vector2Int index] {
-        get {
-            return data[index];
-        }
     }
 
-    public static Level Load(string name)
+    public class Stone : LevelObject
     {
-        var level = new Level();
-        var text = Resources.Load<TextAsset>("Levels/" + name);
-        var levelData = JsonUtility.FromJson<LevelData>(text.text);
 
-        for (int j = 0; j < levelData.lines.Length; j++)
+    }
+
+    public class Level : IEnumerable<LevelObject>
+    {
+        struct LevelData
         {
-            var line = levelData.lines[j];
-            var y = levelData.lines.Length - j - 1;
-            for (int x = 0; x < line.Length; x++)
+            public string[] lines;
+        }
+
+        Dictionary<Vector2Int, LevelObject> data = new Dictionary<Vector2Int, LevelObject>();
+
+        public LevelObject this[Vector2Int index] {
+            get {
+                return data[index];
+            }
+        }
+
+        public static Level Load(string name)
+        {
+            var level = new Level();
+            var text = Resources.Load<TextAsset>("Levels/" + name);
+            var levelData = JsonUtility.FromJson<LevelData>(text.text);
+
+            for (int j = 0; j < levelData.lines.Length; j++)
             {
-                switch (line[x])
+                var line = levelData.lines[j];
+                var y = levelData.lines.Length - j - 1;
+                for (int x = 0; x < line.Length; x++)
                 {
-                    case '#':
-                        {
-                            var obj = new Wall();
-                            obj.position = new Vector2Int(x, y);
-                            obj.type = ObjectType.Wall;
-                            level.data.Add(obj.position, obj);
-                        }
-                        break;
-                    case 'o':
-                        {
-                            var obj = new Stone();
-                            obj.position = new Vector2Int(x, y);
-                            obj.type = ObjectType.Stone;
-                            level.data.Add(obj.position, obj);
-                        }
-                        break;
+                    switch (line[x])
+                    {
+                        case '#':
+                            {
+                                var obj = new Wall();
+                                obj.position = new Vector2Int(x, y);
+                                obj.type = ObjectType.Wall;
+                                level.data.Add(obj.position, obj);
+                            }
+                            break;
+                        case 'o':
+                            {
+                                var obj = new Stone();
+                                obj.position = new Vector2Int(x, y);
+                                obj.type = ObjectType.Stone;
+                                level.data.Add(obj.position, obj);
+                            }
+                            break;
+                    }
+                }
+            }
+
+            return level;
+        }
+
+        IEnumerator<LevelObject> IEnumerable<LevelObject>.GetEnumerator()
+        {
+            return data.Values.GetEnumerator();
+        }
+
+        public IEnumerable<LevelObject> GetEnumerator(ObjectType type)
+        {
+            foreach (var obj in data.Values)
+            {
+                if (obj.type == type)
+                {
+                    yield return obj;
                 }
             }
         }
 
-        return level;
-    }
-
-    IEnumerator<LevelObject> IEnumerable<LevelObject>.GetEnumerator()
-    {
-        return data.Values.GetEnumerator();
-    }
-
-    public IEnumerable<LevelObject> GetEnumerator(ObjectType type)
-    {
-        foreach (var obj in data.Values)
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            if (obj.type == type)
+            return data.Values.GetEnumerator();
+        }
+
+        public bool IsEmpty(Vector2Int pos)
+        {
+            if (data.TryGetValue(pos, out var obj))
             {
-                yield return obj;
+                return obj.type == ObjectType.Empty;
             }
+            return true;
         }
-    }
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return data.Values.GetEnumerator();
-    }
-
-    public bool IsEmpty(Vector2Int pos)
-    {
-        if (data.TryGetValue(pos, out var obj))
+        public LevelObject Move(Vector2Int from, Vector2Int to)
         {
-            return obj.type == ObjectType.Empty;
+            if (data.TryGetValue(from, out var obj))
+            {
+                Remove(to);
+                data.Add(to, obj);
+                return obj;
+            }
+            return null;
         }
-        return true;
-    }
 
-    public LevelObject Move(Vector2Int from, Vector2Int to)
-    {
-        if (data.TryGetValue(from, out var obj))
+        public LevelObject Remove(Vector2Int pos)
         {
-            Remove(to);
-            data.Add(to, obj);
-            return obj;
+            if (data.TryGetValue(pos, out var obj))
+            {
+                data.Remove(pos);
+                return obj;
+            }
+            return null;
         }
-        return null;
-    }
-
-    public LevelObject Remove(Vector2Int pos)
-    {
-        if (data.TryGetValue(pos, out var obj))
-        {
-            data.Remove(pos);
-            return obj;
-        }
-        return null;
     }
 }

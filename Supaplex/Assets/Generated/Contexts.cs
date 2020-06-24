@@ -58,21 +58,31 @@ public partial class Contexts : Entitas.IContexts {
 //------------------------------------------------------------------------------
 public partial class Contexts {
 
-    public const string Position = "Position";
+    public const string GameChunkPosition = "GameChunkPosition";
+    public const string GamePositionInt = "GamePositionInt";
 
     [Entitas.CodeGeneration.Attributes.PostConstructor]
     public void InitializeEntityIndices() {
         game.AddEntityIndex(new Entitas.EntityIndex<GameEntity, UnityEngine.Vector2Int>(
-            Position,
-            game.GetGroup(GameMatcher.Position),
-            (e, c) => ((PositionComponent)c).value));
+            GameChunkPosition,
+            game.GetGroup(GameMatcher.GameChunkPosition),
+            (e, c) => ((Game.ChunkPositionComponent)c).value));
+
+        game.AddEntityIndex(new Entitas.EntityIndex<GameEntity, UnityEngine.Vector2Int>(
+            GamePositionInt,
+            game.GetGroup(GameMatcher.GamePositionInt),
+            (e, c) => ((Game.PositionIntComponent)c).value));
     }
 }
 
 public static class ContextsExtensions {
 
-    public static System.Collections.Generic.HashSet<GameEntity> GetEntitiesWithPosition(this GameContext context, UnityEngine.Vector2Int value) {
-        return ((Entitas.EntityIndex<GameEntity, UnityEngine.Vector2Int>)context.GetEntityIndex(Contexts.Position)).GetEntities(value);
+    public static System.Collections.Generic.HashSet<GameEntity> GetEntitiesWithGameChunkPosition(this GameContext context, UnityEngine.Vector2Int value) {
+        return ((Entitas.EntityIndex<GameEntity, UnityEngine.Vector2Int>)context.GetEntityIndex(Contexts.GameChunkPosition)).GetEntities(value);
+    }
+
+    public static System.Collections.Generic.HashSet<GameEntity> GetEntitiesWithGamePositionInt(this GameContext context, UnityEngine.Vector2Int value) {
+        return ((Entitas.EntityIndex<GameEntity, UnityEngine.Vector2Int>)context.GetEntityIndex(Contexts.GamePositionInt)).GetEntities(value);
     }
 }
 //------------------------------------------------------------------------------

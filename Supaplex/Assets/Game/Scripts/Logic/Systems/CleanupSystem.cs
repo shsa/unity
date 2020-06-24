@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Entitas;
 using UnityEngine;
 
-namespace Logic
+namespace Game.Logic
 {
     public class CleanupSystem : ICleanupSystem
     {
@@ -12,14 +12,16 @@ namespace Logic
         public CleanupSystem(Contexts contexts)
         {
             this.contexts = contexts;
-            objectStates = contexts.game.GetGroup(GameMatcher.ObjectState);
+            //objectStates = contexts.game.GetGroup(GameMatcher.ObjectState);
+            throw new System.NotImplementedException();
         }
 
         public void Cleanup()
         {
             foreach (var obj in objectStates.GetEntities())
             {
-                obj.ReplaceObjectState(ObjectState.None);
+                //obj.ReplaceObjectState(ObjectState.None);
+                throw new NotImplementedException();
             }
         }
     }

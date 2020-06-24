@@ -8,24 +8,33 @@
 //------------------------------------------------------------------------------
 public static class GameComponentsLookup {
 
-    public const int ObjectState = 0;
-    public const int ObjectType = 1;
-    public const int Position = 2;
-    public const int View = 3;
+    public const int GameChunkPosition = 0;
+    public const int GameObjectState = 1;
+    public const int GameObjectType = 2;
+    public const int GamePlayer = 3;
+    public const int GamePosition = 4;
+    public const int GamePositionInt = 5;
+    public const int GameView = 6;
 
-    public const int TotalComponents = 4;
+    public const int TotalComponents = 7;
 
     public static readonly string[] componentNames = {
-        "ObjectState",
-        "ObjectType",
-        "Position",
-        "View"
+        "GameChunkPosition",
+        "GameObjectState",
+        "GameObjectType",
+        "GamePlayer",
+        "GamePosition",
+        "GamePositionInt",
+        "GameView"
     };
 
     public static readonly System.Type[] componentTypes = {
-        typeof(ObjectStateComponent),
-        typeof(ObjectTypeComponent),
-        typeof(PositionComponent),
-        typeof(ViewComponent)
+        typeof(Game.ChunkPositionComponent),
+        typeof(Game.ObjectStateComponent),
+        typeof(Game.ObjectTypeComponent),
+        typeof(Game.PlayerComponent),
+        typeof(Game.PositionComponent),
+        typeof(Game.PositionIntComponent),
+        typeof(Game.ViewComponent)
     };
 }

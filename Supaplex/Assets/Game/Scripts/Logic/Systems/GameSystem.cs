@@ -1,6 +1,7 @@
 ﻿using Entitas;
+using UnityEngine;
 
-namespace Logic
+namespace Game.Logic
 {
     public class GameSystem : IInitializeSystem, IExecuteSystem
     {
@@ -13,6 +14,10 @@ namespace Logic
 
         public void Initialize()
         {
+            //var player = contexts.game.CreateEntity();
+            //player.isPlayer = true;
+            //player.AddPosition(Vector2.zero);
+            throw new System.NotImplementedException();
         }
 
         public void Execute()

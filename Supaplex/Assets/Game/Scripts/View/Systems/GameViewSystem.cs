@@ -1,6 +1,6 @@
 ﻿using Entitas;
 
-namespace View
+namespace Game.View
 {
     public class GameViewSystem : IInitializeSystem
     {

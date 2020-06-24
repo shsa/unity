@@ -4,16 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public enum ObjectType
+namespace Game
 {
-    Empty,
-    Wall,
-    Stone
-}
+    public enum ObjectType
+    {
+        Empty,
+        Wall,
+        Stone
+    }
 
-public enum ObjectState
-{
-    None,
-    Init,
-    Move
+    public enum ObjectState
+    {
+        None,
+        Init,
+        Move
+    }
 }

@@ -2,7 +2,7 @@
 using Entitas;
 using UnityEngine;
 
-namespace View
+namespace Game.View
 {
     public class CreateViewSystem : ReactiveSystem<GameEntity>
     {
@@ -14,7 +14,8 @@ namespace View
 
         protected override ICollector<GameEntity> GetTrigger(IContext<GameEntity> context)
         {
-            return context.CreateCollector(GameMatcher.ObjectType.Added());
+            //return context.CreateCollector(GameMatcher.ObjectType.Added());
+            throw new System.NotImplementedException();
         }
 
         protected override bool Filter(GameEntity entity)
@@ -27,25 +28,27 @@ namespace View
             foreach (var gameEntity in entities)
             {
                 GameObject view = null;
-                switch (gameEntity.objectType.value)
-                {
-                    case ObjectType.Stone:
-                        {
-                            view = GameObject.Instantiate(View.StonePrefab, View.stones.transform);
-                        }
-                        break;
-                    case ObjectType.Wall:
-                        {
-                            view = GameObject.Instantiate(View.WallPrefab, View.walls.transform);
-                        }
-                        break;
-                }
-                if (view != null)
-                {
-                    view.transform.localScale = Vector3.one;
-                    view.transform.localPosition = gameEntity.position.value.ToVector3();
-                    gameEntity.AddView(view);
-                }
+                //gameEntity.AddView(view);
+                //switch (gameEntity.objectType.value)
+                //{
+                //    case ObjectType.Stone:
+                //        {
+                //            view = GameObject.Instantiate(View.StonePrefab, View.stones.transform);
+                //        }
+                //        break;
+                //    case ObjectType.Wall:
+                //        {
+                //            view = GameObject.Instantiate(View.WallPrefab, View.walls.transform);
+                //        }
+                //        break;
+                //}
+                //if (view != null)
+                //{
+                //    view.transform.localScale = Vector3.one;
+                //    view.transform.localPosition = gameEntity.positionInt.value.ToVector3();
+                //    gameEntity.AddView(view);
+                //}
+                throw new System.NotImplementedException();
             }
         }
     }
