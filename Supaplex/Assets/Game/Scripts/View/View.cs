@@ -15,5 +15,6 @@ namespace Game.View
         public static GameObject root;
         public static GameObject walls;
         public static GameObject stones;
+        public static GameObject pool;
     }
 }

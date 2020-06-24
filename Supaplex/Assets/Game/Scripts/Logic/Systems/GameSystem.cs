@@ -14,10 +14,9 @@ namespace Game.Logic
 
         public void Initialize()
         {
-            //var player = contexts.game.CreateEntity();
-            //player.isPlayer = true;
-            //player.AddPosition(Vector2.zero);
-            throw new System.NotImplementedException();
+            var player = contexts.game.CreateEntity();
+            player.isPlayer = true;
+            player.AddPosition(Vector2.zero);
         }
 
         public void Execute()

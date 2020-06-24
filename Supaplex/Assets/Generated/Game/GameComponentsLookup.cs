@@ -8,33 +8,39 @@
 //------------------------------------------------------------------------------
 public static class GameComponentsLookup {
 
-    public const int GameChunkPosition = 0;
-    public const int GameObjectState = 1;
-    public const int GameObjectType = 2;
-    public const int GamePlayer = 3;
-    public const int GamePosition = 4;
-    public const int GamePositionInt = 5;
-    public const int GameView = 6;
+    public const int Chunk = 0;
+    public const int ChunkPosition = 1;
+    public const int Destroyed = 2;
+    public const int ObjectState = 3;
+    public const int ObjectType = 4;
+    public const int Player = 5;
+    public const int Position = 6;
+    public const int PositionInt = 7;
+    public const int View = 8;
 
-    public const int TotalComponents = 7;
+    public const int TotalComponents = 9;
 
     public static readonly string[] componentNames = {
-        "GameChunkPosition",
-        "GameObjectState",
-        "GameObjectType",
-        "GamePlayer",
-        "GamePosition",
-        "GamePositionInt",
-        "GameView"
+        "Chunk",
+        "ChunkPosition",
+        "Destroyed",
+        "ObjectState",
+        "ObjectType",
+        "Player",
+        "Position",
+        "PositionInt",
+        "View"
     };
 
     public static readonly System.Type[] componentTypes = {
-        typeof(Game.ChunkPositionComponent),
-        typeof(Game.ObjectStateComponent),
-        typeof(Game.ObjectTypeComponent),
-        typeof(Game.PlayerComponent),
-        typeof(Game.PositionComponent),
-        typeof(Game.PositionIntComponent),
-        typeof(Game.ViewComponent)
+        typeof(ChunkComponent),
+        typeof(ChunkPositionComponent),
+        typeof(DestroyedComponent),
+        typeof(ObjectStateComponent),
+        typeof(ObjectTypeComponent),
+        typeof(PlayerComponent),
+        typeof(PositionComponent),
+        typeof(PositionIntComponent),
+        typeof(ViewComponent)
     };
 }

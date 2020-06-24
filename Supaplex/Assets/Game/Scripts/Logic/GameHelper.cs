@@ -8,9 +8,8 @@ namespace Game.Logic
     {
         public static IEnumerable<GameEntity> GetObjects(this Contexts contexts, Vector2Int position)
         {
-            //return contexts.game.GetEntitiesWithPositionInt(position)
-            //    .Where(e => e.hasObjectType);
-            throw new System.NotImplementedException();
+            return contexts.game.GetEntitiesWithPositionInt(position)
+                .Where(e => e.hasObjectType);
         }
 
         public static bool IsEmpty(this Contexts contexts, Vector2Int position)

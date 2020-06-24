@@ -8,5 +8,6 @@ namespace Game.Logic
 {
     public class Chunk
     {
+        public float time;
     }
 }

@@ -4,17 +4,17 @@ using Entitas;
 
 namespace Game.View
 {
-    public class PositionViewSystem : ReactiveSystem<GameEntity>
+    public class DestroyViewSystem : ReactiveSystem<GameEntity>
     {
         Contexts contexts;
-        public PositionViewSystem(Contexts contexts) : base(contexts.game)
+        public DestroyViewSystem(Contexts contexts) : base(contexts.game)
         {
             this.contexts = contexts;
         }
 
         protected override ICollector<GameEntity> GetTrigger(IContext<GameEntity> context)
         {
-            return context.CreateCollector(GameMatcher.Position.Added());
+            return context.CreateCollector(GameMatcher.Destroyed.Added());
         }
 
         protected override bool Filter(GameEntity entity)
@@ -26,10 +26,7 @@ namespace Game.View
         {
             foreach (var gameEntity in entities)
             {
-                if (gameEntity.objectState.value == ObjectState.Init)
-                {
-                    gameEntity.view.value.transform.localPosition = gameEntity.position.value;
-                }
+                CreateView.Pool(gameEntity.view.value);
             }
         }
     }

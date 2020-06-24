@@ -8,6 +8,7 @@ public class GameScript : MonoBehaviour
 {
     public GameObject stone;
     public GameObject wall;
+    public GameObject gamePool;
 
     Systems systems = null;
     Game.Logic.Level level;
@@ -18,6 +19,7 @@ public class GameScript : MonoBehaviour
         Game.View.View.root = gameObject;
         Game.View.View.StonePrefab = stone;
         Game.View.View.WallPrefab = wall;
+        Game.View.View.pool = gamePool;
 
         var contexts = new Contexts();
         systems = createSystems(contexts);
@@ -36,15 +38,6 @@ public class GameScript : MonoBehaviour
         stones.transform.SetParent(transform);
         stones.transform.localPosition = Vector3.zero;
         stones.transform.localScale = Vector3.one;
-
-        foreach (var obj in level)
-        {
-            var e = contexts.game.CreateEntity();
-            //e.AddPositionInt(obj.position);
-            //e.AddObjectType(obj.type);
-            //e.AddObjectState(Game.ObjectState.Init);
-            throw new System.NotImplementedException();
-        }
     }
 
     void Awake()
@@ -54,11 +47,6 @@ public class GameScript : MonoBehaviour
 
     void Update()
     {
-        if (systems == null)
-        {
-            Start();
-        }
-
         systems.Execute();
         systems.Cleanup();
     }
@@ -66,6 +54,7 @@ public class GameScript : MonoBehaviour
     Systems createSystems(Contexts contexts)
     {
         return new Feature("Systems")
+            .Add(new Game.InputSystem(contexts))
             .Add(new Feature("Logic")
                 .Add(new Game.Logic.GameSystem(contexts))
                 .Add(new Game.Logic.PlayerPositionSystem(contexts))
@@ -74,7 +63,11 @@ public class GameScript : MonoBehaviour
             .Add(new Feature("View")
                 .Add(new Game.View.CreateViewSystem(contexts))
                 .Add(new Game.View.PositionViewSystem(contexts))
+                .Add(new Game.View.PlayerPositionViewSystem(contexts))
+
+                .Add(new Game.View.DestroyViewSystem(contexts))
             )
+            .Add(new Game.Logic.CleanupSystem(contexts))
             ;
     }
 }

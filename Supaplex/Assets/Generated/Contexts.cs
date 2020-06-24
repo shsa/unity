@@ -58,31 +58,41 @@ public partial class Contexts : Entitas.IContexts {
 //------------------------------------------------------------------------------
 public partial class Contexts {
 
-    public const string GameChunkPosition = "GameChunkPosition";
-    public const string GamePositionInt = "GamePositionInt";
+    public const string Chunk = "Chunk";
+    public const string ChunkPosition = "ChunkPosition";
+    public const string PositionInt = "PositionInt";
 
     [Entitas.CodeGeneration.Attributes.PostConstructor]
     public void InitializeEntityIndices() {
         game.AddEntityIndex(new Entitas.EntityIndex<GameEntity, UnityEngine.Vector2Int>(
-            GameChunkPosition,
-            game.GetGroup(GameMatcher.GameChunkPosition),
-            (e, c) => ((Game.ChunkPositionComponent)c).value));
+            Chunk,
+            game.GetGroup(GameMatcher.Chunk),
+            (e, c) => ((ChunkComponent)c).position));
 
         game.AddEntityIndex(new Entitas.EntityIndex<GameEntity, UnityEngine.Vector2Int>(
-            GamePositionInt,
-            game.GetGroup(GameMatcher.GamePositionInt),
-            (e, c) => ((Game.PositionIntComponent)c).value));
+            ChunkPosition,
+            game.GetGroup(GameMatcher.ChunkPosition),
+            (e, c) => ((ChunkPositionComponent)c).value));
+
+        game.AddEntityIndex(new Entitas.EntityIndex<GameEntity, UnityEngine.Vector2Int>(
+            PositionInt,
+            game.GetGroup(GameMatcher.PositionInt),
+            (e, c) => ((PositionIntComponent)c).value));
     }
 }
 
 public static class ContextsExtensions {
 
-    public static System.Collections.Generic.HashSet<GameEntity> GetEntitiesWithGameChunkPosition(this GameContext context, UnityEngine.Vector2Int value) {
-        return ((Entitas.EntityIndex<GameEntity, UnityEngine.Vector2Int>)context.GetEntityIndex(Contexts.GameChunkPosition)).GetEntities(value);
+    public static System.Collections.Generic.HashSet<GameEntity> GetEntitiesWithChunk(this GameContext context, UnityEngine.Vector2Int position) {
+        return ((Entitas.EntityIndex<GameEntity, UnityEngine.Vector2Int>)context.GetEntityIndex(Contexts.Chunk)).GetEntities(position);
     }
 
-    public static System.Collections.Generic.HashSet<GameEntity> GetEntitiesWithGamePositionInt(this GameContext context, UnityEngine.Vector2Int value) {
-        return ((Entitas.EntityIndex<GameEntity, UnityEngine.Vector2Int>)context.GetEntityIndex(Contexts.GamePositionInt)).GetEntities(value);
+    public static System.Collections.Generic.HashSet<GameEntity> GetEntitiesWithChunkPosition(this GameContext context, UnityEngine.Vector2Int value) {
+        return ((Entitas.EntityIndex<GameEntity, UnityEngine.Vector2Int>)context.GetEntityIndex(Contexts.ChunkPosition)).GetEntities(value);
+    }
+
+    public static System.Collections.Generic.HashSet<GameEntity> GetEntitiesWithPositionInt(this GameContext context, UnityEngine.Vector2Int value) {
+        return ((Entitas.EntityIndex<GameEntity, UnityEngine.Vector2Int>)context.GetEntityIndex(Contexts.PositionInt)).GetEntities(value);
     }
 }
 //------------------------------------------------------------------------------

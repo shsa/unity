@@ -10,7 +10,7 @@ namespace Game.Logic
         /// var minPos = new Vector2Int(pos.x - Game.window.x, pos.y - Game.window.y);
         /// var maxPos = new Vector2Int(pos.x + Game.window.x, pos.y + Game.window.y);
         /// </summary>
-        public static Vector2Int window = new Vector2Int(100, 100);
+        public static Vector2Int window = new Vector2Int(8, 8);
         public static Level level;
     }
 }

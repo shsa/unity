@@ -10,44 +10,77 @@ namespace Game.Logic
     public class PlayerPositionSystem : ReactiveSystem<GameEntity>
     {
         Contexts contexts;
+        IGroup<GameEntity> chunkEntities;
         public PlayerPositionSystem(Contexts contexts) : base(contexts.game)
         {
             this.contexts = contexts;
+            this.chunkEntities = contexts.game.GetGroup(GameMatcher.Chunk);
         }
 
         protected override ICollector<GameEntity> GetTrigger(IContext<GameEntity> context)
         {
-            //return context.CreateCollector(GameMatcher.Position.Added());
-            throw new System.NotImplementedException();
+            return context.CreateCollector(GameMatcher.Position.Added());
         }
 
         protected override bool Filter(GameEntity entity)
         {
-            //return entity.isPlayer; 
-            throw new System.NotImplementedException();
+            return entity.isPlayer; 
         }
 
-        Hashtable chunks = new Hashtable();
         protected override void Execute(List<GameEntity> entities)
         {
-            //var player = entities.SingleEntity();
-            //var pos = player.position.Floor();
-            //var chunkPos = new Vector2Int(pos.x / Game.chunkSize, pos.y / Game.chunkSize);
-            //var minPos = new Vector2Int(pos.x - Game.window.x, pos.y - Game.window.y);
-            //var maxPos = new Vector2Int(pos.x + Game.window.x, pos.y + Game.window.y);
-            //var minChunkPos = new Vector2Int(minPos.x / Game.chunkSize, minPos.y / Game.chunkSize);
-            //var maxChunkPos = new Vector2Int(maxPos.x / Game.chunkSize, maxPos.y / Game.chunkSize);
+            var player = contexts.game.playerEntity;
+            var pos = player.position.Floor();
+            var minPos = new Vector2Int(pos.x - Game.window.x, pos.y - Game.window.y);
+            var maxPos = new Vector2Int(pos.x + Game.window.x, pos.y + Game.window.y);
+            var minChunkPos = new Vector2Int(minPos.x / Game.chunkSize - 1, minPos.y / Game.chunkSize - 1);
+            var maxChunkPos = new Vector2Int(maxPos.x / Game.chunkSize, maxPos.y / Game.chunkSize);
 
-            //for (int j = minChunkPos.y; j < maxChunkPos.y; j++)
-            //{
-            //    for (int i = minChunkPos.x; i < maxChunkPos.x; i++)
-            //    {
+            for (int j = minChunkPos.y; j <= maxChunkPos.y; j++)
+            {
+                for (int i = minChunkPos.x; i <= maxChunkPos.x; i++)
+                {
+                    var chunkPos = new Vector2Int(i, j);
+                    var chunkEntity = contexts.game.GetEntitiesWithChunk(chunkPos).SingleOrDefault();
+                    if (chunkEntity == null)
+                    {
+                        chunkEntity = contexts.game.CreateEntity();
+                        var newChunk = new Chunk();
+                        chunkEntity.AddChunk(chunkPos, newChunk);
+                        NoiseS3D.seed = 0;
+                        for (int y = 0; y < Game.chunkSize; y++)
+                        {
+                            for (int x = 0; x < Game.chunkSize; x++)
+                            {
+                                var z = NoiseS3D.Noise(x, y);
+                                if (z > 0)
+                                {
+                                    var item = contexts.game.CreateEntity();
+                                    item.AddObjectType(ObjectType.Wall);
+                                    item.AddObjectState(ObjectState.Init);
+                                    item.AddPosition(new Vector2(chunkPos.x * Game.chunkSize + x, chunkPos.y * Game.chunkSize + y));
+                                    item.AddChunkPosition(chunkPos);
+                                }
+                            }
+                        }
+                    }
+                    var chunk = chunkEntity.chunk.value;
+                    chunk.time = Time.time;
+                }
+            }
 
-            //        //var chunkEntity = contexts.game.GetEntitiesWithChunkPosition(new Vector2Int(i, j)).FirstOrDefault();
-            //        //chunkEntity.AddChunkPosition(new Vector2Int(0, 0));
-            //    }
-            //}
-            throw new System.NotImplementedException();
+            foreach (var chunkEntity in chunkEntities)
+            {
+                if (chunkEntity.chunk.value.time != Time.time)
+                {
+                    chunkEntity.isDestroyed = true;
+                    var list = contexts.game.GetEntitiesWithChunkPosition(chunkEntity.chunk.position);
+                    foreach (var listEntity in list)
+                    {
+                        listEntity.isDestroyed = true;
+                    }
+                }
+            }
         }
     }
 }

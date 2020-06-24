@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using Entitas;
+using UnityEngine;
 
 namespace Game.View
 {
-    public class PositionViewSystem : ReactiveSystem<GameEntity>
+    public class PlayerPositionViewSystem : ReactiveSystem<GameEntity>
     {
         Contexts contexts;
-        public PositionViewSystem(Contexts contexts) : base(contexts.game)
+        public PlayerPositionViewSystem(Contexts contexts) : base(contexts.game)
         {
             this.contexts = contexts;
         }
@@ -19,18 +20,13 @@ namespace Game.View
 
         protected override bool Filter(GameEntity entity)
         {
-            return entity.hasView;
+            return entity.isPlayer;
         }
 
         protected override void Execute(List<GameEntity> entities)
         {
-            foreach (var gameEntity in entities)
-            {
-                if (gameEntity.objectState.value == ObjectState.Init)
-                {
-                    gameEntity.view.value.transform.localPosition = gameEntity.position.value;
-                }
-            }
+            var player = contexts.game.playerEntity;
+            Camera.main.transform.localPosition = new Vector3(player.position.value.x, player.position.value.y, Camera.main.transform.localPosition.z);
         }
     }
 }
