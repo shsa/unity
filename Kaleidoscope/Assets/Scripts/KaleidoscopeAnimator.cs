@@ -46,7 +46,7 @@ public class KaleidoscopeAnimator : MonoBehaviour
         }
         if (offscreenCamera != null)
         {
-            offscreenCamera.targetTexture = new RenderTexture(kaleidoscopeSprite.texture.width, kaleidoscopeSprite.texture.height, 0);
+            offscreenCamera.targetTexture = new RenderTexture((int)window.width, (int)window.height, 0);
             StartCoroutine(UpdateTexture());
         }
     }
@@ -61,7 +61,7 @@ public class KaleidoscopeAnimator : MonoBehaviour
             // Set target texture as active render texture. 			
             RenderTexture.active = offscreenCamera.targetTexture;
             // Render to texture 			
-            offscreenCamera.Render();
+            //offscreenCamera.Render();
             // Read offscreen texture 			
             //Texture2D offscreenTexture = new Texture2D(100, 100, TextureFormat.RGB24, false);
             //offscreenTexture.ReadPixels(new Rect(0, 0, 100, 100), 0, 0, false);

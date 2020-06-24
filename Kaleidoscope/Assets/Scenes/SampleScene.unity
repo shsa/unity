@@ -135,6 +135,7 @@ GameObject:
   - component: {fileID: 516730376}
   - component: {fileID: 516730377}
   - component: {fileID: 516730378}
+  - component: {fileID: 516730379}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -220,13 +221,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 516730372}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 249007b113a985243a49ec07f4d33573, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   kaleidoscopeSprite: {fileID: 516730373}
-  sceneName: New Scene 2
+  sceneName: ImageAnimation
   window:
     serializedVersion: 2
     x: 0
@@ -234,6 +235,27 @@ MonoBehaviour:
     width: 100
     height: 100
   interval: 0.05
+--- !u!114 &516730379
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 516730372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 249007b113a985243a49ec07f4d33573, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  kaleidoscopeSprite: {fileID: 516730373}
+  sceneName: 3DAnimation
+  window:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 500
+    height: 500
+  interval: 0.1
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
