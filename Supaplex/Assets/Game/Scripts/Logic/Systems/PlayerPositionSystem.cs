@@ -52,13 +52,14 @@ namespace Game.Logic
                         {
                             for (int x = 0; x < Game.chunkSize; x++)
                             {
-                                var z = NoiseS3D.Noise(x, y);
-                                if (z > 0)
+                                var p = new Vector2(chunkPos.x * Game.chunkSize + x, chunkPos.y * Game.chunkSize + y);
+                                var z = NoiseS3D.Noise(p.x, p.y);
+                                if (z > -0.3)
                                 {
                                     var item = contexts.game.CreateEntity();
                                     item.AddObjectType(ObjectType.Wall);
                                     item.AddObjectState(ObjectState.Init);
-                                    item.AddPosition(new Vector2(chunkPos.x * Game.chunkSize + x, chunkPos.y * Game.chunkSize + y));
+                                    item.AddPosition(p);
                                     item.AddChunkPosition(chunkPos);
                                 }
                             }

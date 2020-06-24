@@ -219,6 +219,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stone: {fileID: 8974676982471248492, guid: 8e59cb72aa1011c409dca5bb2bd03045, type: 3}
   wall: {fileID: 3738758908458419035, guid: 8494ce26eb19db84da3ac3ac23ea357a, type: 3}
+  gamePool: {fileID: 1445288096}
 --- !u!4 &584002581
 Transform:
   m_ObjectHideFlags: 0
