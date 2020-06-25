@@ -12,5 +12,7 @@ namespace Game.Logic
         /// </summary>
         public static Vector2Int window = new Vector2Int(8, 8);
         public static Level level;
+
+        public static Chunks chunks;
     }
 }

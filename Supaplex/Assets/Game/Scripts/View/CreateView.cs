@@ -13,14 +13,17 @@ namespace Game.View
             var view = pool.Pop(name);
             if (view != null)
             {
-                view.transform.SetParent(View.stones.transform);
+                view.transform.SetParent(View.setup.gameRoot.transform);
             }
             else
             {
                 switch (entity.objectType.value)
                 {
                     case ObjectType.Wall:
-                        view = GameObject.Instantiate(View.WallPrefab, View.stones.transform);
+                        view = GameObject.Instantiate(View.setup.wallPrefab, View.setup.gameRoot.transform);
+                        break;
+                    case ObjectType.Stone:
+                        view = GameObject.Instantiate(View.setup.stonePrefab, View.setup.gameRoot.transform);
                         break;
                     default: return null;
                 }
@@ -34,7 +37,7 @@ namespace Game.View
         public static void Pool(GameObject view)
         {
             pool.Push(view.name, view);
-            view.transform.SetParent(View.pool.transform);
+            view.transform.SetParent(View.setup.gamePool.transform);
         }
     }
 }

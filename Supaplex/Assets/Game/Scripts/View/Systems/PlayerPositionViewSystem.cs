@@ -25,8 +25,9 @@ namespace Game.View
 
         protected override void Execute(List<GameEntity> entities)
         {
-            var player = contexts.game.playerEntity;
-            Camera.main.transform.localPosition = new Vector3(player.position.value.x, player.position.value.y, Camera.main.transform.localPosition.z);
+            var playerEntity = contexts.game.playerEntity;
+            var playerObject = View.setup.player;
+            playerObject.transform.localPosition = new Vector3(playerEntity.position.value.x, playerEntity.position.value.y, playerObject.transform.localPosition.z);
         }
     }
 }
