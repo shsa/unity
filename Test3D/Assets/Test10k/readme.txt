@@ -1,0 +1,1 @@
+Project Settings -> Player -> Dynamic Batching = True
