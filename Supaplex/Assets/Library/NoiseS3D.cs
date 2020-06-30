@@ -1,14 +1,15 @@
 ﻿using System;
 using UnityEngine;
 
-public static class NoiseS3D {
+public class NoiseS3D 
+{
 	
-	private static int seed_;
+	private int seed_;
 	
 	/// <summary> 
 	///  The seed for the noise function. Randomized at startup by default.
 	/// </summary>
-	public static int seed {
+	public int seed {
 		get {
 			return seed_;
 		}
@@ -19,11 +20,11 @@ public static class NoiseS3D {
 		}
 	}
 	
-	private static int[][] grad3 = {new int[]{1,1,0}, new int[]{-1,1,0}, new int[]{1,-1,0}, new int[]{-1,-1,0},
+	private int[][] grad3 = {new int[]{1,1,0}, new int[]{-1,1,0}, new int[]{1,-1,0}, new int[]{-1,-1,0},
 		new int[]{1,0,1}, new int[]{-1,0,1}, new int[]{1,0,-1}, new int[]{-1,0,-1},
 		new int[]{0,1,1}, new int[]{0,-1,1}, new int[]{0,1,-1}, new int[]{0,-1,-1}};
 	
-	private static int[][] grad4 = {new int[]{0,1,1,1}, new int[]{0,1,1,-1},  new int[]{0,1,-1,1},  new int[]{0,1,-1,-1},
+	private int[][] grad4 = {new int[]{0,1,1,1}, new int[]{0,1,1,-1},  new int[]{0,1,-1,1},  new int[]{0,1,-1,-1},
 		new int[]{0,-1,1,1},new int[] {0,-1,1,-1},new int[] {0,-1,-1,1},new int[] {0,-1,-1,-1},
 		new int[]{1,0,1,1}, new int[]{1,0,1,-1},  new int[]{1,0,-1,1},  new int[]{1,0,-1,-1},
 		new int[]{-1,0,1,1},new int[] {-1,0,1,-1},new int[] {-1,0,-1,1},new int[] {-1,0,-1,-1},
@@ -32,10 +33,10 @@ public static class NoiseS3D {
 		new int[]{1,1,1,0}, new int[]{1,1,-1,0},  new int[]{1,-1,1,0},  new int[]{1,-1,-1,0},
 		new int[]{-1,1,1,0},new int[] {-1,1,-1,0},new int[] {-1,-1,1,0},new int[] {-1,-1,-1,0}};
 	
-	private static int[] p = null;
+	private int[] p = null;
 	
-	private static int[] perm_ = null;
-	private static int[] perm {
+	private int[] perm_ = null;
+	private int[] perm {
 		get {
 			if(perm_ == null)
 				SetupNoise();
@@ -46,7 +47,7 @@ public static class NoiseS3D {
 		}
 	}
 	
-	private static void SetupNoise() {
+	private void SetupNoise() {
 		p = new int[256];
 		for(int i = 0; i < 256; i++) p[i] = Mathf.FloorToInt(UnityEngine.Random.value * 256);
 		
@@ -55,7 +56,7 @@ public static class NoiseS3D {
 	}
 	
 	
-	private static int[][] simplex = {
+	private int[][] simplex = {
 		new int[]{0,1,2,3}, new int[]{0,1,3,2}, new int[]{0,0,0,0}, new int[]{0,2,3,1}, new int[]{0,0,0,0}, new int[]{0,0,0,0}, new int[]{0,0,0,0}, new int[]{1,2,3,0},
 		new int[]{0,2,1,3}, new int[]{0,0,0,0}, new int[]{0,3,1,2}, new int[]{0,3,2,1}, new int[]{0,0,0,0}, new int[]{0,0,0,0}, new int[]{0,0,0,0}, new int[]{1,3,2,0},
 		new int[]{0,0,0,0}, new int[]{0,0,0,0}, new int[]{0,0,0,0}, new int[]{0,0,0,0}, new int[]{0,0,0,0}, new int[]{0,0,0,0}, new int[]{0,0,0,0}, new int[]{0,0,0,0},
@@ -92,7 +93,7 @@ public static class NoiseS3D {
 	/// <param name="y">y coordinate parameter for the noise function.</param>
 	/// <param name="z">z coordinate parameter for the noise function.</param>
 	/// <param name="w">w coordinate parameter for the noise function.</param>
-	public static double Noise(double x) {
+	public double Noise(double x) {
 		return Noise(x, 0);
 	}
 	
@@ -104,7 +105,7 @@ public static class NoiseS3D {
 	/// <param name="y">y coordinate parameter for the noise function.</param>
 	/// <param name="z">z coordinate parameter for the noise function.</param>
 	/// <param name="w">w coordinate parameter for the noise function.</param>
-	public static double Noise(double x, double y) {
+	public double Noise(double x, double y) {
 		double n0, n1, n2;
 		double F2 = 0.5 * (Math.Sqrt(3.0) - 1.0);
 		double s = (x + y) * F2;
@@ -161,7 +162,7 @@ public static class NoiseS3D {
 	/// <param name="y">y coordinate parameter for the noise function.</param>
 	/// <param name="z">z coordinate parameter for the noise function.</param>
 	/// <param name="w">w coordinate parameter for the noise function.</param>
-	public static double Noise(double x, double y, double z) {
+	public double Noise(double x, double y, double z) {
 		double n0, n1, n2, n3;
 		
 		double F3 = 1.0 / 3.0;
@@ -240,7 +241,7 @@ public static class NoiseS3D {
 	/// <param name="y">y coordinate parameter for the noise function.</param>
 	/// <param name="z">z coordinate parameter for the noise function.</param>
 	/// <param name="w">w coordinate parameter for the noise function.</param>
-	public static double Noise(double x, double y, double z, double w) {
+	public double Noise(double x, double y, double z, double w) {
 		
 		double F4 = (Math.Sqrt(5.0) - 1.0) / 4.0;
 		double G4 = (5.0 - Math.Sqrt(5.0)) / 20.0;
@@ -346,14 +347,14 @@ public static class NoiseS3D {
 		return 27.0 * (n0 + n1 + n2 + n3 + n4);
 	}
 	
-	private static int octaves_ = 4;
+	private int octaves_ = 4;
 	
 	
 	/// <summary> 
 	/// Number of octaves to use when generating combined noise octaves, higher number of octaves result in less blurry, more cloudy noise;
 	/// Value is clamped between 1 and 10. Higher values take longer to compute.
 	/// </summary>
-	public static int octaves {
+	public int octaves {
 		get {
 			return octaves_;
 		}
@@ -365,13 +366,13 @@ public static class NoiseS3D {
 	/// <summary> 
 	/// Value that defines how much higher octaves effect the end result in combined noise generation;
 	/// </summary>
-	public static float falloff = 0.5f;
+	public float falloff = 0.5f;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// OCTAVE METHODS DOUBLE
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	private static double CombineNoise(double[] noiseValues) {
+	private double CombineNoise(double[] noiseValues) {
 		double finalNoiseValue = 0.0;
 		double amplitude = 1.0;
 		double totalAmplitude = 0.0;
@@ -385,7 +386,7 @@ public static class NoiseS3D {
 		return finalNoiseValue / totalAmplitude;
 	}
 	
-	private static double[] GetNoiseValues(double x, double y, double z, double w, int dimension) {
+	private double[] GetNoiseValues(double x, double y, double z, double w, int dimension) {
 		double[] noiseValues = new double[octaves];
 		double freq = 1.0;
 		
@@ -429,7 +430,7 @@ public static class NoiseS3D {
 	/// </summary>
 	/// <returns>double</returns>
 	/// <param name="x">x coordinate parameter for the noise function.</param>
-	public static double NoiseCombinedOctaves(double x) {
+	public double NoiseCombinedOctaves(double x) {
 		double[] noiseValues = GetNoiseValues(x, 0, 0, 0, 1);
 		return CombineNoise(noiseValues);
 	}
@@ -442,7 +443,7 @@ public static class NoiseS3D {
 	/// <returns>double</returns>
 	/// <param name="x">x coordinate parameter for the noise function.</param>
 	/// <param name="y">y coordinate parameter for the noise function.</param>
-	public static double NoiseCombinedOctaves(double x, double y) {
+	public double NoiseCombinedOctaves(double x, double y) {
 		double[] noiseValues = GetNoiseValues(x, y, 0, 0, 2);
 		return CombineNoise(noiseValues);
 	}
@@ -456,7 +457,7 @@ public static class NoiseS3D {
 	/// <param name="x">x coordinate parameter for the noise function.</param>
 	/// <param name="y">y coordinate parameter for the noise function.</param>
 	/// <param name="z">z coordinate parameter for the noise function.</param>
-	public static double NoiseCombinedOctaves(double x, double y, double z) {
+	public double NoiseCombinedOctaves(double x, double y, double z) {
 		double[] noiseValues = GetNoiseValues(x, y, z, 0, 3);
 		return CombineNoise(noiseValues);
 	}
@@ -471,7 +472,7 @@ public static class NoiseS3D {
 	/// <param name="y">y coordinate parameter for the noise function.</param>
 	/// <param name="z">z coordinate parameter for the noise function.</param>
 	/// <param name="w">w coordinate parameter for the noise function.</param>
-	public static double NoiseCombinedOctaves(double x, double y, double z, double w) {
+	public double NoiseCombinedOctaves(double x, double y, double z, double w) {
 		double[] noiseValues = GetNoiseValues(x, y, z, w, 4);
 		return CombineNoise(noiseValues);
 	}
@@ -481,9 +482,9 @@ public static class NoiseS3D {
 	// GPU STUFF
 	//
 	
-	static bool needsFakeBuffer = true;
+	bool needsFakeBuffer = true;
 	
-	private static void SetShaderVars(ComputeShader shader, Vector2 noiseOffset, bool normalize, float noiseScale, int kernel) {
+	private void SetShaderVars(ComputeShader shader, Vector2 noiseOffset, bool normalize, float noiseScale, int kernel) {
 		shader.SetInt("octaves", octaves);
 		shader.SetFloat("falloff", falloff);
 		
@@ -502,7 +503,7 @@ public static class NoiseS3D {
 		}
 	}
 	
-	private static Texture2D ToTexture2DNoise(this RenderTexture inTex, bool apply = true, bool release = false, TextureFormat format = TextureFormat.RGBA32) {
+	private Texture2D ToTexture2DNoise(RenderTexture inTex, bool apply = true, bool release = false, TextureFormat format = TextureFormat.RGBA32) {
 		Texture2D tex = new Texture2D(inTex.width, inTex.height, format, false);
 		RenderTexture.active = inTex;
 		tex.ReadPixels(new Rect(0, 0, inTex.width, inTex.height), 0, 0);
@@ -515,8 +516,8 @@ public static class NoiseS3D {
 		return tex;
 	}
 	
-	private static string shaderPath = "Shaders/NoiseS3DGPU";
-	private static string noShaderMsg = "Could not find the noise compute shader. Did you move/rename any of the files?";
+	private string shaderPath = "Shaders/NoiseS3DGPU";
+	private string noShaderMsg = "Could not find the noise compute shader. Did you move/rename any of the files?";
 	
 	/// <summary> 
 	/// Uses the GPU to generate a RenderTexture where the pixels in the texture represent noise.
@@ -529,7 +530,7 @@ public static class NoiseS3D {
 	/// <param name="noiseOffsetY"> Y Coordinate of the offset for the noise on the texture. </param>
 	/// <param name="noiseScale"> Value to scale the noise coordinates by. </param>
 	/// <param name="normalize"> Whether or not to remap the noise from (-1, 1) to (0, 1). </param>
-	public static RenderTexture GetNoiseRenderTexture(int width, int height, float noiseOffsetX = 0, float noiseOffsetY = 0, float noiseScale = 0.01f, bool normalize = true) {
+	public RenderTexture GetNoiseRenderTexture(int width, int height, float noiseOffsetX = 0, float noiseOffsetY = 0, float noiseScale = 0.01f, bool normalize = true) {
 		RenderTexture retTex = new RenderTexture(width, height, 0);
 		retTex.enableRandomWrite = true;
 		retTex.Create();
@@ -569,11 +570,11 @@ public static class NoiseS3D {
 	/// <param name="noiseOffsetY"> Y Coordinate of the offset for the noise on the texture. </param>
 	/// <param name="noiseScale"> Value to scale the noise coordinates by. </param>
 	/// <param name="normalize"> Whether or not to remap the noise from (-1, 1) to (0, 1). </param>
-	public static Texture2D GetNoiseTexture(int width, int height, float noiseOffsetX = 0, float noiseOffsetY = 0, float noiseScale = 0.01f, bool normalize = true) {
+	public Texture2D GetNoiseTexture(int width, int height, float noiseOffsetX = 0, float noiseOffsetY = 0, float noiseScale = 0.01f, bool normalize = true) {
 		
 		RenderTexture renderTex = GetNoiseRenderTexture(width, height, noiseOffsetX, noiseOffsetY, noiseScale, normalize);
 		
-		Texture2D retTex = renderTex.ToTexture2DNoise(true, true);
+		Texture2D retTex = ToTexture2DNoise(renderTex, true, true);
 		
 		return retTex;
 	}
@@ -585,7 +586,7 @@ public static class NoiseS3D {
 	/// <param name="positions"> Array of coordinates to process. </param>
 	/// <param name="noiseScale"> Value to scale the noise coordinates by. </param>
 	/// <param name="normalize"> Whether or not to remap the noise from (-1, 1) to (0, 1). </param>
-	public static float[] NoiseArrayGPU(float[] positions, float noiseScale = 0.01f, bool normalize = true) {
+	public float[] NoiseArrayGPU(float[] positions, float noiseScale = 0.01f, bool normalize = true) {
 		ComputeShader shader = Resources.Load(shaderPath) as ComputeShader;
 		if(shader == null) {
 			Debug.LogError(noShaderMsg);
@@ -626,7 +627,7 @@ public static class NoiseS3D {
 	/// <param name="positions"> Array of coordinates to process. </param>
 	/// <param name="noiseScale"> Value to scale the noise coordinates by. </param>
 	/// <param name="normalize"> Whether or not to remap the noise from (-1, 1) to (0, 1). </param>
-	public static float[] NoiseArrayGPU(Vector2[] positions, float noiseScale = 0.01f, bool normalize = true) {
+	public float[] NoiseArrayGPU(Vector2[] positions, float noiseScale = 0.01f, bool normalize = true) {
 		ComputeShader shader = Resources.Load(shaderPath) as ComputeShader;
 		if(shader == null) {
 			Debug.LogError(noShaderMsg);
@@ -667,7 +668,7 @@ public static class NoiseS3D {
 	/// <param name="positions"> Array of coordinates to process. </param>
 	/// <param name="noiseScale"> Value to scale the noise coordinates by. </param>
 	/// <param name="normalize"> Whether or not to remap the noise from (-1, 1) to (0, 1). </param>
-	public static float[] NoiseArrayGPU(Vector3[] positions, float noiseScale = 0.01f, bool normalize = true) {
+	public float[] NoiseArrayGPU(Vector3[] positions, float noiseScale = 0.01f, bool normalize = true) {
 		ComputeShader shader = Resources.Load(shaderPath) as ComputeShader;
 		if(shader == null) {
 			Debug.LogError(noShaderMsg);
@@ -708,7 +709,7 @@ public static class NoiseS3D {
 	/// <param name="positions"> Array of coordinates to process. </param>
 	/// <param name="noiseScale"> Value to scale the noise coordinates by. </param>
 	/// <param name="normalize"> Whether or not to remap the noise from (-1, 1) to (0, 1). </param>
-	public static float[] NoiseArrayGPU(Vector4[] positions, float noiseScale = 0.01f, bool normalize = true) {
+	public float[] NoiseArrayGPU(Vector4[] positions, float noiseScale = 0.01f, bool normalize = true) {
 		ComputeShader shader = Resources.Load(shaderPath) as ComputeShader;
 		if(shader == null) {
 			Debug.LogError(noShaderMsg);
@@ -741,6 +742,4 @@ public static class NoiseS3D {
 		
 		return outputData;
 	}
-	
-	
 }

@@ -17,6 +17,7 @@ namespace Game.Logic
             var player = contexts.game.CreateEntity();
             player.isPlayer = true;
             player.AddPosition(Vector2.zero);
+            Game.chunks = new Chunks(0);
         }
 
         public void Execute()

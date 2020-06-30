@@ -61,14 +61,13 @@ public class PositionIntComponent : IComponent
 }
 
 [Game]
-public class PositionComponent : IComponent
+public class PositionComponent : ValueComponent<Vector3>, IComponent
 {
-    public Vector2 value;
+}
 
-    public override string ToString()
-    {
-        return value.ToString();
-    }
+[Game]
+public class MatrixComponent : ValueComponent<Matrix4x4>, IComponent
+{
 }
 
 [Game]

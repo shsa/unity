@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Entitas;
+using UnityEngine;
 
 namespace Game.View
 {
@@ -19,16 +20,18 @@ namespace Game.View
 
         protected override bool Filter(GameEntity entity)
         {
-            return entity.hasView;
+            //return entity.hasView;
+            return entity.hasObjectType;
         }
 
         protected override void Execute(List<GameEntity> entities)
         {
             foreach (var gameEntity in entities)
             {
-                if (gameEntity.objectState.value == ObjectState.Init)
+                if (gameEntity.objectType.value == ObjectType.Wall)
                 {
-                    gameEntity.view.value.transform.localPosition = gameEntity.position.value;
+                    //gameEntity.view.value.transform.localPosition = gameEntity.position.value;
+                    //gameEntity.AddMatrix(Matrix4x4.Translate(gameEntity.position.value));
                 }
             }
         }
