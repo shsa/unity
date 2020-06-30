@@ -10,13 +10,13 @@ namespace Game.View
     public class RenderViewSystem : IExecuteSystem
     {
         Contexts contexts;
-        Chunks chunks;
+        World chunks;
         Material material;
         Mesh[] cubeMeshes;
         public RenderViewSystem(Contexts contexts)
         {
             this.contexts = contexts;
-            chunks = new Chunks(1);
+            chunks = new World(1);
             material = new Material(Shader.Find("Standard"));
             material.SetTexture("_MainTex", View.setup.wallTexture);
             material.SetColor("_Color", Color.white);
@@ -50,8 +50,8 @@ namespace Game.View
             int count = 0;
 
             UnityEngine.Profiling.Profiler.BeginSample("Calc planes");
-            RectInt[] zz = new RectInt[Chunks.depth];
-            for (int z = 0; z < Chunks.depth; z++)
+            RectInt[] zz = new RectInt[World.depth];
+            for (int z = 0; z < World.depth; z++)
             {
                 var playerPos = new Vector3(View.setup._camera.transform.position.x, View.setup._camera.transform.position.y, z);
                 // left
@@ -117,8 +117,8 @@ namespace Game.View
 
             var hp = new Plane(Vector3.up, View.setup._camera.transform.position);
             var vp = new Plane(Vector3.right, View.setup._camera.transform.position);
-
-            for (int z = 0; z < Chunks.depth; z++)
+            var temp = new Chunk[16 * 16];
+            for (int z = 0; z < World.depth; z++)
             {
                 minX = zz[z].xMin;
                 minY = zz[z].yMin;
@@ -130,11 +130,18 @@ namespace Game.View
                     for (int x = minX; x <= maxX; x++)
                     {
                         var pp = new Vector3Int(x, y, z);
-                        using (var block = chunks[pp])
+                        var index = (int)((y >> 4) & 0xF) << 4 | (int)((x >> 4) & 0xF);
+                        var chunk = temp[index];
+                        if (chunk == null)
+                        {
+                            chunk = chunks.GetChunk(new Vector2Int(x >> 4, y >> 4));
+                            temp[index] = chunk;
+                        }
+                        using (var block = chunk[pp])
                         {
                             if (block.objectType == ObjectType.Wall)
                             {
-                                if (chunks.IsEmpty(pp + new Vector3Int(0, 0, -1)))
+                                if (block.IsVisible(CubeSide.Forward))
                                 {
                                     Graphics.DrawMesh(cubeMeshes[(int)CubeSide.Forward], pp, Quaternion.identity, material, 0);
                                 }
@@ -143,14 +150,14 @@ namespace Game.View
                                 UnityEngine.Profiling.Profiler.EndSample();
                                 if (b)
                                 {
-                                    if (chunks.IsEmpty(pp + Vector3Int.down))
+                                    if (block.IsVisible(CubeSide.Down))
                                     {
                                         Graphics.DrawMesh(cubeMeshes[(int)CubeSide.Down], pp, Quaternion.identity, material, 0);
                                     }
                                 }
                                 else
                                 {
-                                    if (chunks.IsEmpty(pp + Vector3Int.up))
+                                    if (block.IsVisible(CubeSide.Up))
                                     {
                                         Graphics.DrawMesh(cubeMeshes[(int)CubeSide.Up], pp, Quaternion.identity, material, 0);
                                     }
@@ -161,14 +168,14 @@ namespace Game.View
                                 UnityEngine.Profiling.Profiler.EndSample();
                                 if (b)
                                 {
-                                    if (chunks.IsEmpty(pp + Vector3Int.left))
+                                    if (block.IsVisible(CubeSide.Left))
                                     {
                                         Graphics.DrawMesh(cubeMeshes[(int)CubeSide.Left], pp, Quaternion.identity, material, 0);
                                     }
                                 }
                                 else
                                 {
-                                    if (chunks.IsEmpty(pp + Vector3Int.right))
+                                    if (block.IsVisible(CubeSide.Right))
                                     {
                                         Graphics.DrawMesh(cubeMeshes[(int)CubeSide.Right], pp, Quaternion.identity, material, 0);
                                     }

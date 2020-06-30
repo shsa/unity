@@ -14,7 +14,8 @@ namespace Game.Logic
         Left = 0x04,
         Right = 0x08,
         Up = 0x10,
-        Down = 0x20
+        Down = 0x20,
+        Updated = 0x40,
     }
 
     public class ChunkBlock : IDisposable
@@ -66,8 +67,20 @@ namespace Game.Logic
             }
         }
 
-        public bool IsSide(CubeSide side)
+        public bool IsVisible(CubeSide side)
         {
+            if (!GetState(ChunkBlockState.Updated))
+            {
+                BeginUpdate();
+                SetState(ChunkBlockState.Forward, chunk.world.IsEmpty(position + new Vector3Int(0, 0, -1)));
+                SetState(ChunkBlockState.Back, chunk.world.IsEmpty(position + new Vector3Int(0, 0, 1)));
+                SetState(ChunkBlockState.Left, chunk.world.IsEmpty(position + Vector3Int.left));
+                SetState(ChunkBlockState.Right, chunk.world.IsEmpty(position + Vector3Int.right));
+                SetState(ChunkBlockState.Up, chunk.world.IsEmpty(position + Vector3Int.up));
+                SetState(ChunkBlockState.Down, chunk.world.IsEmpty(position + Vector3Int.down));
+                SetState(ChunkBlockState.Updated, true);
+                EndUpdate();
+            }
             switch (side)
             {
                 case CubeSide.Forward: return GetState(ChunkBlockState.Forward);
@@ -124,7 +137,6 @@ namespace Game.Logic
                 else
                 {
                     block = new ChunkBlock();
-                    pool.Push(block);
                 }
                 block.chunk = chunk;
                 block.position = position;
@@ -136,44 +148,51 @@ namespace Game.Logic
 
     public class Chunk
     {
+        public World world;
         public Vector2Int position;
         int[] data;
 
-        public Chunk()
+        public Chunk(World world)
         {
+            this.world = world;
             data = new int[16 * 16 * 256];
             Array.Clear(data, 0, data.Length);
         }
 
         public ChunkBlock this[Vector3Int pos] {
             get {
-                return ChunkBlock.Get(this, pos, data[(pos.y & 0xF << 12) | (pos.x & 0xF << 8) | (pos.z & 0xFF)]);
+                return ChunkBlock.Get(this, pos, data[BlockIndex(pos)]);
             }
             set {
-                data[(pos.y & 0xF << 12) | (pos.x & 0xF << 8) | (pos.z & 0xFF)] = value.metadata;
+                data[BlockIndex(pos)] = value.metadata;
             }
+        }
+
+        public static int BlockIndex(Vector3Int pos)
+        {
+            return ((int)(pos.y & 0xF) << 12) | ((int)(pos.x & 0xF) << 8) | (pos.z & 0xFF);
         }
     }
 
-    public class Chunks 
+    public class World 
     {
-        public static int depth = 1;
+        public static int depth = 10;
 
         NoiseS3D noiseCore;
         Dictionary<Vector2Int, Chunk> chunks;
 
-        public Chunks(int seed)
+        public World(int seed)
         {
             noiseCore = new NoiseS3D();
             noiseCore.seed = seed;
             chunks = new Dictionary<Vector2Int, Chunk>();
         }
 
-        Chunk GetChunk(Vector2Int pos)
+        public Chunk GetChunk(Vector2Int pos)
         {
             if (!chunks.TryGetValue(pos, out var chunk))
             {
-                chunk = new Chunk();
+                chunk = new Chunk(this);
                 chunk.position = pos;
                 chunks[pos] = chunk;
                 Generate(chunk);
@@ -184,7 +203,7 @@ namespace Game.Logic
         float wallScale = 0.05f;
         public bool IsWall(int x, int y, int z)
         {
-            return (x + y + z) % 2 == 0;
+            //return (x + y) % 2 == 0;
             var n = noiseCore.Noise(x * wallScale, y * wallScale, z * wallScale);
             return n < 0.3;
         }
@@ -227,7 +246,7 @@ namespace Game.Logic
         {
             get {
                 UnityEngine.Profiling.Profiler.BeginSample("get chunk");
-                var chunk = GetChunk(new Vector2Int(pos.x >> 0xF, pos.y >> 0xF));
+                var chunk = GetChunk(new Vector2Int(pos.x >> 4, pos.y >> 4));
                 UnityEngine.Profiling.Profiler.EndSample();
                 UnityEngine.Profiling.Profiler.BeginSample("get pos");
                 var result = chunk[pos];
@@ -236,7 +255,7 @@ namespace Game.Logic
                 return result;
             }
             set {
-                var chunk = GetChunk(new Vector2Int(pos.x >> 0xF, pos.y >> 0xF));
+                var chunk = GetChunk(new Vector2Int(pos.x >> 4, pos.y >> 4));
                 chunk[pos] = value;
             }
         }
