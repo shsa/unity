@@ -4,7 +4,7 @@ namespace Game.Logic
 {
     public static class Game
     {
-        public static int chunkSize = 16;
+        public static int chunkSize = 4;
         /// <summary>
         /// pos = Player position:
         /// var minPos = new Vector2Int(pos.x - Game.window.x, pos.y - Game.window.y);

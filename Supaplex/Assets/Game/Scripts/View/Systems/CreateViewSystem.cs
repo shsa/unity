@@ -26,13 +26,13 @@ namespace Game.View
         {
             foreach (var gameEntity in entities)
             {
-                GameObject view = CreateView.GetView(gameEntity);
-                if (view != null)
-                {
-                    view.transform.localScale = Vector3.one;
-                    view.transform.localPosition = gameEntity.position.value;
-                    gameEntity.AddView(view);
-                }
+                //GameObject view = CreateView.GetView(gameEntity);
+                //if (view != null)
+                //{
+                //    view.transform.localScale = Vector3.one;
+                //    view.transform.localPosition = gameEntity.position.value;
+                //    gameEntity.AddView(view);
+                //}
             }
         }
     }

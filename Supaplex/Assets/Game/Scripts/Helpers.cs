@@ -16,4 +16,9 @@ public static class Helpers
     {
         return new Vector2Int(Floor(v.x), Floor(v.y));
     }
+
+    public static Vector3Int Floor(this Vector3 v)
+    {
+        return new Vector3Int(Floor(v.x), Floor(v.y), Floor(v.z));
+    }
 }

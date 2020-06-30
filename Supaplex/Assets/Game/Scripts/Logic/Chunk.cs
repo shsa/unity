@@ -1,143 +1,259 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEditorInternal;
 using UnityEngine;
+using Game.Logic;
+using Game.View;
 
 namespace Game.Logic
 {
-    public class Chunk
+    public enum ChunkBlockState
     {
-        public Chunks owner;
-        public Vector2Int position;
-        public float time;
+        Forward = 0x01,
+        Back = 0x02,
+        Left = 0x04,
+        Right = 0x08,
+        Up = 0x10,
+        Down = 0x20
+    }
 
-        Dictionary<Vector2Int, ObjectType> data;
+    public class ChunkBlock : IDisposable
+    {
+        static Stack<ChunkBlock> pool = new Stack<ChunkBlock>();
 
-        public Chunk(Chunks owner)
-        {
-            data = new Dictionary<Vector2Int, ObjectType>(Game.chunkSize * Game.chunkSize);
-            this.owner = owner;
-        }
+        bool _keepChanges = false;
+        bool _modified = false;
 
-        public IEnumerable<Vector2Int> GetKeys()
-        {
-            return data.Keys;
-        }
-
-        public ObjectType this[Vector2Int position] {
+        public Chunk chunk;
+        public Vector3Int position;
+        int _metadata;
+        public int metadata {
             get {
-                if (data.TryGetValue(position, out var obj))
-                {
-                    return obj;
-                }
-                return ObjectType.Empty;
+                return _metadata;
             }
             set {
-                data[position] = value;
-            }
-        }
-
-        public void Generate(int seed)
-        {
-            NoiseS3D.seed = seed;
-            for (int y = 0; y < Game.chunkSize; y++)
-            {
-                for (int x = 0; x < Game.chunkSize; x++)
+                if (_metadata != value)
                 {
-                    var p = new Vector2Int(position.x * Game.chunkSize + x, position.y * Game.chunkSize + y);
-                    var z = NoiseS3D.Noise(p.x, p.y);
-                    if (z > -0.3)
-                    {
-                        data[p] = ObjectType.Wall;
-                    }
-                }
-            }
-
-            NoiseS3D.seed = seed + 1;
-            for (int y = 0; y < Game.chunkSize; y++)
-            {
-                for (int x = 0; x < Game.chunkSize; x++)
-                {
-                    var p = new Vector2Int(position.x * Game.chunkSize + x, position.y * Game.chunkSize + y);
-                    var z = NoiseS3D.Noise(p.x, p.y);
-                    if (z > 0)
-                    {
-                        data[p] = ObjectType.Stone;
-                    }
+                    _metadata = value;
+                    OnChanged();
                 }
             }
         }
 
-        public void Destroy()
+        public ObjectType objectType {
+            get {
+                return (ObjectType)((metadata >> 8) & 0xFF);
+            }
+            set {
+                metadata = ((int)value << 8) | (metadata & 0xFF);
+            }
+        }
+
+        public bool GetState(ChunkBlockState state)
         {
-            //owner.Remove(this);
+            return (metadata & (int)state) == (int)state;
+        }
+
+        public void SetState(ChunkBlockState state, bool value)
+        {
+            if (value)
+            {
+                metadata |= (int)state;
+            }
+            else
+            {
+                metadata &= ~(int)state;
+            }
+        }
+
+        public bool IsSide(CubeSide side)
+        {
+            switch (side)
+            {
+                case CubeSide.Forward: return GetState(ChunkBlockState.Forward);
+                case CubeSide.Back: return GetState(ChunkBlockState.Back);
+                case CubeSide.Left: return GetState(ChunkBlockState.Left);
+                case CubeSide.Right: return GetState(ChunkBlockState.Right);
+                case CubeSide.Up: return GetState(ChunkBlockState.Up);
+                case CubeSide.Down: return GetState(ChunkBlockState.Down);
+                default: return false;
+            }
+        }
+
+        public void OnChanged()
+        {
+            if (_keepChanges)
+            {
+                _modified = true;
+            }
+            else
+            {
+                chunk[position] = this;
+            }
+        }
+
+        public void BeginUpdate()
+        {
+            _keepChanges = true;
+        }
+
+        public void EndUpdate()
+        {
+            _keepChanges = false;
+            if (_modified)
+            {
+                OnChanged();
+                _modified = false;
+            }
+        }
+
+        public void Dispose()
+        {
+            pool.Push(this);
+        }
+
+        public static ChunkBlock Get(Chunk chunk, Vector3Int position, int metadata)
+        {
+            lock (pool)
+            {
+                ChunkBlock block = null;
+                if (pool.Count() > 0)
+                {
+                    block = pool.Pop();
+                }
+                else
+                {
+                    block = new ChunkBlock();
+                    pool.Push(block);
+                }
+                block.chunk = chunk;
+                block.position = position;
+                block._metadata = metadata;
+                return block;
+            }
         }
     }
 
-    public class Chunks : IEnumerable<Chunk>
+    public class Chunk
     {
-        public int seed = 0;
+        public Vector2Int position;
+        int[] data;
 
-        Dictionary<Vector2Int, Chunk> chunks = new Dictionary<Vector2Int, Chunk>();
+        public Chunk()
+        {
+            data = new int[16 * 16 * 256];
+            Array.Clear(data, 0, data.Length);
+        }
+
+        public ChunkBlock this[Vector3Int pos] {
+            get {
+                return ChunkBlock.Get(this, pos, data[(pos.y & 0xF << 12) | (pos.x & 0xF << 8) | (pos.z & 0xFF)]);
+            }
+            set {
+                data[(pos.y & 0xF << 12) | (pos.x & 0xF << 8) | (pos.z & 0xFF)] = value.metadata;
+            }
+        }
+    }
+
+    public class Chunks 
+    {
+        public static int depth = 1;
+
+        NoiseS3D noiseCore;
+        Dictionary<Vector2Int, Chunk> chunks;
 
         public Chunks(int seed)
         {
-            this.seed = seed;
+            noiseCore = new NoiseS3D();
+            noiseCore.seed = seed;
+            chunks = new Dictionary<Vector2Int, Chunk>();
         }
 
-        public Chunk this[Vector2Int position] {
-            get {
-                if (chunks.TryGetValue(position, out var chunk))
-                {
-                    return chunk;
-                }
-                return null;
-            }
-        }
-
-        public Chunk CreateChunk(Vector2Int position)
+        Chunk GetChunk(Vector2Int pos)
         {
-            if (chunks.TryGetValue(position, out var chunk))
+            if (!chunks.TryGetValue(pos, out var chunk))
             {
-                return chunk;
+                chunk = new Chunk();
+                chunk.position = pos;
+                chunks[pos] = chunk;
+                Generate(chunk);
             }
-            chunk = new Chunk(this);
-            chunk.position = position;
-            chunk.Generate(seed);
-            chunks.Add(chunk.position, chunk);
             return chunk;
         }
 
-        public void Add(Chunk chunk)
+        float wallScale = 0.05f;
+        public bool IsWall(int x, int y, int z)
         {
-            chunks.Add(chunk.position, chunk);
+            return (x + y + z) % 2 == 0;
+            var n = noiseCore.Noise(x * wallScale, y * wallScale, z * wallScale);
+            return n < 0.3;
         }
 
-        public void Remove(Chunk chunk)
+        void Generate(Chunk chunk)
         {
-            chunks.Remove(chunk.position);
+            var minX = 0;
+            var maxX = 0;
+            var minY = 0;
+            var maxY = 0;
+            minX = chunk.position.x << 4;
+            maxX = (chunk.position.x + 1) << 4;
+            minY = chunk.position.y << 4;
+            maxY = (chunk.position.y + 1) << 4;
+
+            for (int z = 0; z < depth; z++)
+            {
+                for (int x = minX; x < maxX; x++)
+                {
+                    for (int y = minY; y < maxY; y++)
+                    {
+                        var pos = new Vector3Int(x, y, z);
+                        using (var obj = chunk[pos])
+                        {
+                            if (IsWall(x, y, z))
+                            {
+                                obj.objectType = ObjectType.Wall;
+                            }
+                            else
+                            {
+                                obj.objectType = ObjectType.Empty;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
-        public IEnumerator<Chunk> GetEnumerator()
+        public ChunkBlock this[Vector3Int pos]
         {
-            return chunks.Values.GetEnumerator();
+            get {
+                UnityEngine.Profiling.Profiler.BeginSample("get chunk");
+                var chunk = GetChunk(new Vector2Int(pos.x >> 0xF, pos.y >> 0xF));
+                UnityEngine.Profiling.Profiler.EndSample();
+                UnityEngine.Profiling.Profiler.BeginSample("get pos");
+                var result = chunk[pos];
+                UnityEngine.Profiling.Profiler.EndSample();
+
+                return result;
+            }
+            set {
+                var chunk = GetChunk(new Vector2Int(pos.x >> 0xF, pos.y >> 0xF));
+                chunk[pos] = value;
+            }
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
+        public bool IsEmpty(Vector3Int pos)
         {
-            return chunks.Values.GetEnumerator();
-        }
-
-        public IEnumerable<Chunk> GetUpdateEnumerator()
-        {
-            var old = chunks;
-            chunks = new Dictionary<Vector2Int, Chunk>();
-            return old.Values;
+            using (var obj = this[pos])
+            {
+                switch (obj.objectType)
+                {
+                    case ObjectType.Empty:
+                    case ObjectType.None:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
         }
     }
 }

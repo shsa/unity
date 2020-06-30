@@ -7,7 +7,11 @@ public class GameScript : MonoBehaviour
     public GameObject wallPrefab;
     public GameObject gamePool;
     public GameObject player;
+    public Camera _camera;
     public GameObject gameRoot;
+    public Texture wallTexture;
+
+    public int counts;
 
     Systems systems = null;
 
@@ -28,6 +32,8 @@ public class GameScript : MonoBehaviour
     {
         systems.Execute();
         systems.Cleanup();
+
+        counts = gameRoot.transform.childCount;
     }
 
     Systems createSystems(Contexts contexts)
@@ -45,6 +51,8 @@ public class GameScript : MonoBehaviour
                 .Add(new Game.View.PlayerPositionViewSystem(contexts))
 
                 .Add(new Game.View.DestroyViewSystem(contexts))
+
+                .Add(new Game.View.RenderViewSystem(contexts))
             )
             .Add(new Game.Logic.CleanupSystem(contexts))
             ;

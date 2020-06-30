@@ -8,25 +8,25 @@
 //------------------------------------------------------------------------------
 public partial class GameEntity {
 
-    public PositionComponent position { get { return (PositionComponent)GetComponent(GameComponentsLookup.Position); } }
-    public bool hasPosition { get { return HasComponent(GameComponentsLookup.Position); } }
+    public MatrixComponent matrix { get { return (MatrixComponent)GetComponent(GameComponentsLookup.Matrix); } }
+    public bool hasMatrix { get { return HasComponent(GameComponentsLookup.Matrix); } }
 
-    public void AddPosition(UnityEngine.Vector3 newValue) {
-        var index = GameComponentsLookup.Position;
-        var component = (PositionComponent)CreateComponent(index, typeof(PositionComponent));
+    public void AddMatrix(UnityEngine.Matrix4x4 newValue) {
+        var index = GameComponentsLookup.Matrix;
+        var component = (MatrixComponent)CreateComponent(index, typeof(MatrixComponent));
         component.value = newValue;
         AddComponent(index, component);
     }
 
-    public void ReplacePosition(UnityEngine.Vector3 newValue) {
-        var index = GameComponentsLookup.Position;
-        var component = (PositionComponent)CreateComponent(index, typeof(PositionComponent));
+    public void ReplaceMatrix(UnityEngine.Matrix4x4 newValue) {
+        var index = GameComponentsLookup.Matrix;
+        var component = (MatrixComponent)CreateComponent(index, typeof(MatrixComponent));
         component.value = newValue;
         ReplaceComponent(index, component);
     }
 
-    public void RemovePosition() {
-        RemoveComponent(GameComponentsLookup.Position);
+    public void RemoveMatrix() {
+        RemoveComponent(GameComponentsLookup.Matrix);
     }
 }
 
@@ -40,17 +40,17 @@ public partial class GameEntity {
 //------------------------------------------------------------------------------
 public sealed partial class GameMatcher {
 
-    static Entitas.IMatcher<GameEntity> _matcherPosition;
+    static Entitas.IMatcher<GameEntity> _matcherMatrix;
 
-    public static Entitas.IMatcher<GameEntity> Position {
+    public static Entitas.IMatcher<GameEntity> Matrix {
         get {
-            if (_matcherPosition == null) {
-                var matcher = (Entitas.Matcher<GameEntity>)Entitas.Matcher<GameEntity>.AllOf(GameComponentsLookup.Position);
+            if (_matcherMatrix == null) {
+                var matcher = (Entitas.Matcher<GameEntity>)Entitas.Matcher<GameEntity>.AllOf(GameComponentsLookup.Matrix);
                 matcher.componentNames = GameComponentsLookup.componentNames;
-                _matcherPosition = matcher;
+                _matcherMatrix = matcher;
             }
 
-            return _matcherPosition;
+            return _matcherMatrix;
         }
     }
 }

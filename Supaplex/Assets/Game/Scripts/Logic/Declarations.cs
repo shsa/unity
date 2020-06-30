@@ -8,9 +8,10 @@ namespace Game
 {
     public enum ObjectType
     {
-        Empty,
-        Wall,
-        Stone
+        None = 0,
+        Empty = 1,
+        Wall = 2,
+        Stone = 3
     }
 
     public enum ObjectState
