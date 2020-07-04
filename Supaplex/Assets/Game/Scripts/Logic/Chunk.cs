@@ -7,7 +7,7 @@ using Game.View;
 
 namespace Game.Logic
 {
-    public enum ChunkBlockState
+    public enum ChunkCubeState
     {
         Forward = 0x01,
         Back = 0x02,
@@ -18,9 +18,9 @@ namespace Game.Logic
         Updated = 0x40,
     }
 
-    public class ChunkBlock : IDisposable
+    public class ChunkCube : IDisposable
     {
-        static Stack<ChunkBlock> pool = new Stack<ChunkBlock>();
+        static Stack<ChunkCube> pool = new Stack<ChunkCube>();
 
         bool _keepChanges = false;
         bool _modified = false;
@@ -50,12 +50,12 @@ namespace Game.Logic
             }
         }
 
-        public bool GetState(ChunkBlockState state)
+        public bool GetState(ChunkCubeState state)
         {
             return (metadata & (int)state) == (int)state;
         }
 
-        public void SetState(ChunkBlockState state, bool value)
+        public void SetState(ChunkCubeState state, bool value)
         {
             if (value)
             {
@@ -69,26 +69,26 @@ namespace Game.Logic
 
         public bool IsVisible(CubeSide side)
         {
-            if (!GetState(ChunkBlockState.Updated))
+            if (!GetState(ChunkCubeState.Updated))
             {
                 BeginUpdate();
-                SetState(ChunkBlockState.Forward, chunk.world.IsEmpty(position + new Vector3Int(0, 0, -1)));
-                SetState(ChunkBlockState.Back, chunk.world.IsEmpty(position + new Vector3Int(0, 0, 1)));
-                SetState(ChunkBlockState.Left, chunk.world.IsEmpty(position + Vector3Int.left));
-                SetState(ChunkBlockState.Right, chunk.world.IsEmpty(position + Vector3Int.right));
-                SetState(ChunkBlockState.Up, chunk.world.IsEmpty(position + Vector3Int.up));
-                SetState(ChunkBlockState.Down, chunk.world.IsEmpty(position + Vector3Int.down));
-                SetState(ChunkBlockState.Updated, true);
+                SetState(ChunkCubeState.Forward, chunk.world.IsEmpty(position + new Vector3Int(0, 0, -1)));
+                SetState(ChunkCubeState.Back, chunk.world.IsEmpty(position + new Vector3Int(0, 0, 1)));
+                SetState(ChunkCubeState.Left, chunk.world.IsEmpty(position + Vector3Int.left));
+                SetState(ChunkCubeState.Right, chunk.world.IsEmpty(position + Vector3Int.right));
+                SetState(ChunkCubeState.Up, chunk.world.IsEmpty(position + Vector3Int.up));
+                SetState(ChunkCubeState.Down, chunk.world.IsEmpty(position + Vector3Int.down));
+                SetState(ChunkCubeState.Updated, true);
                 EndUpdate();
             }
             switch (side)
             {
-                case CubeSide.Forward: return GetState(ChunkBlockState.Forward);
-                case CubeSide.Back: return GetState(ChunkBlockState.Back);
-                case CubeSide.Left: return GetState(ChunkBlockState.Left);
-                case CubeSide.Right: return GetState(ChunkBlockState.Right);
-                case CubeSide.Up: return GetState(ChunkBlockState.Up);
-                case CubeSide.Down: return GetState(ChunkBlockState.Down);
+                case CubeSide.South: return GetState(ChunkCubeState.Forward);
+                case CubeSide.North: return GetState(ChunkCubeState.Back);
+                case CubeSide.West: return GetState(ChunkCubeState.Left);
+                case CubeSide.East: return GetState(ChunkCubeState.Right);
+                case CubeSide.Up: return GetState(ChunkCubeState.Up);
+                case CubeSide.Down: return GetState(ChunkCubeState.Down);
                 default: return false;
             }
         }
@@ -101,7 +101,7 @@ namespace Game.Logic
             }
             else
             {
-                chunk[position] = this;
+                chunk.SetMetadata(this.position, this.metadata);
             }
         }
 
@@ -125,52 +125,198 @@ namespace Game.Logic
             pool.Push(this);
         }
 
-        public static ChunkBlock Get(Chunk chunk, Vector3Int position, int metadata)
+        public static ChunkCube Get(Chunk chunk, Vector3Int position, int metadata)
         {
             lock (pool)
             {
-                ChunkBlock block = null;
+                ChunkCube cube = null;
                 if (pool.Count() > 0)
                 {
-                    block = pool.Pop();
+                    cube = pool.Pop();
                 }
                 else
                 {
-                    block = new ChunkBlock();
+                    cube = new ChunkCube();
                 }
-                block.chunk = chunk;
-                block.position = position;
-                block._metadata = metadata;
-                return block;
+                cube.chunk = chunk;
+                cube.position = position;
+                cube._metadata = metadata;
+                return cube;
             }
+        }
+
+        public static int GetIndex(Vector3Int pos)
+        {
+            return ((pos.y & 0xF) << 8) | ((pos.x & 0xF) << 4) | (pos.z & 0xF);
+        }
+
+        public static ObjectType GetObjectType(int metadata)
+        {
+            return (ObjectType)((metadata >> 8) & 0xFF);
+        }
+
+        public static int SetObjectType(int metadata, ObjectType value)
+        {
+            return (metadata & ~(0xFF << 8)) | ((int)value << 8);
+        }
+    }
+
+    public struct ChunkPosition
+    {
+        public int x;
+        public int y;
+        public int z;
+
+        public ChunkPosition(int x, int y, int z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+
+        public Vector3Int ToVector3Int()
+        {
+            return new Vector3Int(x << 4, y << 4, z << 4);
+        }
+
+        public Vector3Int Min()
+        {
+            return ToVector3Int();
+        }
+
+        public Vector3Int Max()
+        {
+            return ToVector3Int() + new Vector3Int(15, 15, 15);
+        }
+
+        bool Equals(ChunkPosition obj)
+        {
+            return x == obj.x && y == obj.y && z == obj.z;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals((ChunkPosition)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked // Overflow is fine, just wrap
+            {
+                int hash = 17;
+                // Suitable nullity checks etc, of course :)
+                hash = hash * 23 + x.GetHashCode();
+                hash = hash * 23 + y.GetHashCode();
+                hash = hash * 23 + z.GetHashCode();
+                return hash;
+            }
+        }
+
+        public static bool operator ==(ChunkPosition a, ChunkPosition b)
+        {
+            return Equals(a, b);
+        }
+
+        public static bool operator != (ChunkPosition a, ChunkPosition b)
+        {
+            return !Equals(a, b);
+        }
+
+        public static ChunkPosition From(Vector3Int pos)
+        {
+            return new ChunkPosition(pos.x >> 4, pos.y >> 4, pos.z >> 4);
+        }
+    }
+
+    public class ChunkChangeEvent
+    {
+        public Vector3Int position { get; private set; }
+        public CubeSideSet sides { get; private set; }
+        public int metadata { get; private set; }
+
+        public ChunkChangeEvent(Vector3Int position, CubeSideSet sides, int metadata)
+        {
+            this.position = position;
+            this.sides = sides;
+            this.metadata = metadata;
+        }
+
+        public void Set(Vector3Int position, CubeSideSet sides, int metadata)
+        {
+            this.position = position;
+            this.sides = sides;
+            this.metadata = metadata;
         }
     }
 
     public class Chunk
     {
         public World world;
-        public Vector2Int position;
+        public ChunkPosition position;
         int[] data;
+
+        public event EventHandler<ChunkChangeEvent> cubeChanged;
 
         public Chunk(World world)
         {
             this.world = world;
-            data = new int[16 * 16 * 256];
+            data = new int[16 * 16 * 16];
             Array.Clear(data, 0, data.Length);
         }
 
-        public ChunkBlock this[Vector3Int pos] {
+        public int this[Vector3Int pos] {
             get {
-                return ChunkBlock.Get(this, pos, data[BlockIndex(pos)]);
+                return data[ChunkCube.GetIndex(pos)];
             }
             set {
-                data[BlockIndex(pos)] = value.metadata;
+                data[ChunkCube.GetIndex(pos)] = value;
             }
         }
 
-        public static int BlockIndex(Vector3Int pos)
+        public int GetMetadata(Vector3Int pos)
         {
-            return ((int)(pos.y & 0xF) << 12) | ((int)(pos.x & 0xF) << 8) | (pos.z & 0xFF);
+            return data[ChunkCube.GetIndex(pos)];
+        }
+
+        public void SetMetadata(Vector3Int pos, int value)
+        {
+            var index = ChunkCube.GetIndex(pos);
+            var metadata = data[index];
+            if (metadata != value)
+            {
+                data[index] = value;
+                if (cubeChanged != null)
+                {
+                    var e = new ChunkChangeEvent(pos, CubeSideSet.All, metadata);
+                    cubeChanged(this, e);
+                    for (var side = CubeSide.First; side <= CubeSide.Last; side++)
+                    {
+                        e.Set(pos.Offset(side), side.Opposite().GetSet(), -1);
+                        cubeChanged(this, e);
+                    }
+                }
+            }
+        }
+
+        public ChunkCube GetCube(Vector3Int pos)
+        {
+            return ChunkCube.Get(this, pos, data[ChunkCube.GetIndex(pos)]);
+        }
+
+        public ObjectType GetObjectType(Vector3Int pos)
+        {
+            return ChunkCube.GetObjectType(GetMetadata(pos));
+        }
+
+        public void SetObjectType(Vector3Int pos, ObjectType value)
+        {
+            var index = ChunkCube.GetIndex(pos);
+            data[index] = ChunkCube.SetObjectType(data[index], value);
+        }
+
+        public static Vector3Int GetIndex(Vector3Int pos)
+        {
+            return new Vector3Int(pos.x & ~0xF, pos.y & ~0xF, pos.z & ~0xF);
         }
     }
 
@@ -179,23 +325,31 @@ namespace Game.Logic
         public static int depth = 10;
 
         NoiseS3D noiseCore;
-        Dictionary<Vector2Int, Chunk> chunks;
+        Dictionary<ChunkPosition, Chunk> chunks;
+        Chunk[] chunkCash;
 
         public World(int seed)
         {
             noiseCore = new NoiseS3D();
             noiseCore.seed = seed;
-            chunks = new Dictionary<Vector2Int, Chunk>();
+            chunks = new Dictionary<ChunkPosition, Chunk>();
+            chunkCash = new Chunk[16 * 16 * 16];
         }
 
-        public Chunk GetChunk(Vector2Int pos)
+        public Chunk GetChunk(ChunkPosition pos)
         {
-            if (!chunks.TryGetValue(pos, out var chunk))
+            var index = ((pos.x & 0xF) << 8) | ((pos.y & 0xF) << 4) | (pos.z & 0xF);
+            var chunk = chunkCash[index];
+            if (chunk == null || chunk.position != pos)
             {
-                chunk = new Chunk(this);
-                chunk.position = pos;
-                chunks[pos] = chunk;
-                Generate(chunk);
+                if (!chunks.TryGetValue(pos, out chunk))
+                {
+                    chunk = new Chunk(this);
+                    chunk.position = pos;
+                    chunks[pos] = chunk;
+                    Generate(chunk);
+                }
+                chunkCash[index] = chunk;
             }
             return chunk;
         }
@@ -226,52 +380,51 @@ namespace Game.Logic
                     for (int y = minY; y < maxY; y++)
                     {
                         var pos = new Vector3Int(x, y, z);
-                        using (var obj = chunk[pos])
+                        if (IsWall(x, y, z))
                         {
-                            if (IsWall(x, y, z))
-                            {
-                                obj.objectType = ObjectType.Wall;
-                            }
-                            else
-                            {
-                                obj.objectType = ObjectType.Empty;
-                            }
+                            chunk.SetObjectType(pos, ObjectType.Wall);
+                        }
+                        else
+                        {
+                            chunk.SetObjectType(pos, ObjectType.Empty);
                         }
                     }
                 }
             }
         }
 
-        public ChunkBlock this[Vector3Int pos]
+        public int GetMetadata(Vector3Int pos)
         {
-            get {
-                UnityEngine.Profiling.Profiler.BeginSample("get chunk");
-                var chunk = GetChunk(new Vector2Int(pos.x >> 4, pos.y >> 4));
-                UnityEngine.Profiling.Profiler.EndSample();
-                UnityEngine.Profiling.Profiler.BeginSample("get pos");
-                var result = chunk[pos];
-                UnityEngine.Profiling.Profiler.EndSample();
+            var chunk = GetChunk(ChunkPosition.From(pos));
+            return chunk.GetMetadata(pos);
+        }
 
-                return result;
-            }
-            set {
-                var chunk = GetChunk(new Vector2Int(pos.x >> 4, pos.y >> 4));
-                chunk[pos] = value;
-            }
+        public void SetMetadata(Vector3Int pos, int value)
+        {
+            var chunk = GetChunk(ChunkPosition.From(pos));
+            chunk.SetMetadata(pos, value);
+        }
+
+        public ObjectType GetObjectType(Vector3Int pos)
+        {
+            return ChunkCube.GetObjectType(GetMetadata(pos));
+        }
+
+        public void SetObjectType(Vector3Int pos, ObjectType value)
+        {
+            var chunk = GetChunk(ChunkPosition.From(pos));
+            chunk.SetObjectType(pos, value);
         }
 
         public bool IsEmpty(Vector3Int pos)
         {
-            using (var obj = this[pos])
+            switch (GetObjectType(pos))
             {
-                switch (obj.objectType)
-                {
-                    case ObjectType.Empty:
-                    case ObjectType.None:
-                        return true;
-                    default:
-                        return false;
-                }
+                case ObjectType.Empty:
+                case ObjectType.None:
+                    return true;
+                default:
+                    return false;
             }
         }
     }

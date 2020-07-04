@@ -1,23 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
+using Game.Logic;
 
 namespace Game.View
 {
-    public enum CubeSide : int
-    {
-        Forward = 0,
-        Back = 1,
-        Left = 2,
-        Right = 3,
-        Up = 4,
-        Down = 5
-    }
-
     public static class Geometry
     {
         public static Mesh CreateCubeSide(Rect uvRect)
@@ -92,10 +77,10 @@ namespace Game.View
         public static Mesh[] CreateCube(Rect[] uvSides)
         {
             var mm = new Mesh[6];
-            mm[(int)CubeSide.Forward] = CreateCubeFrontSideMesh(Quaternion.identity, uvSides[(int)CubeSide.Forward]);
-            mm[(int)CubeSide.Back] = CreateCubeFrontSideMesh(Quaternion.Euler(0, 180, 0), uvSides[(int)CubeSide.Back]);
-            mm[(int)CubeSide.Left] = CreateCubeFrontSideMesh(Quaternion.Euler(0, 90, 0), uvSides[(int)CubeSide.Left]);
-            mm[(int)CubeSide.Right] = CreateCubeFrontSideMesh(Quaternion.Euler(0, -90, 0), uvSides[(int)CubeSide.Right]);
+            mm[(int)CubeSide.South] = CreateCubeFrontSideMesh(Quaternion.identity, uvSides[(int)CubeSide.South]);
+            mm[(int)CubeSide.North] = CreateCubeFrontSideMesh(Quaternion.Euler(0, 180, 0), uvSides[(int)CubeSide.North]);
+            mm[(int)CubeSide.West] = CreateCubeFrontSideMesh(Quaternion.Euler(0, 90, 0), uvSides[(int)CubeSide.West]);
+            mm[(int)CubeSide.East] = CreateCubeFrontSideMesh(Quaternion.Euler(0, -90, 0), uvSides[(int)CubeSide.East]);
             mm[(int)CubeSide.Up] = CreateCubeFrontSideMesh(Quaternion.Euler(90, 0, 0), uvSides[(int)CubeSide.Up]);
             mm[(int)CubeSide.Down] = CreateCubeFrontSideMesh(Quaternion.Euler(-90, 0, 0), uvSides[(int)CubeSide.Down]);
             return mm;

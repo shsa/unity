@@ -10,13 +10,15 @@ namespace Game.View
     public class RenderViewSystem : IExecuteSystem
     {
         Contexts contexts;
-        World chunks;
+        World world;
+        RenderChunkProvider renderProvider;
         Material material;
         Mesh[] cubeMeshes;
         public RenderViewSystem(Contexts contexts)
         {
             this.contexts = contexts;
-            chunks = new World(1);
+            world = new World(1);
+            renderProvider = new RenderChunkProvider(world);
             material = new Material(Shader.Find("Standard"));
             material.SetTexture("_MainTex", View.setup.wallTexture);
             material.SetColor("_Color", Color.white);
@@ -35,17 +37,14 @@ namespace Game.View
 
         public void Execute()
         {
-            //var mm = contexts.game.GetEntities(GameMatcher.Position).Where(e => e.hasObjectType && e.objectType.value == ObjectType.Wall).Select(e => e.position.value);
-            var mf = View.setup.wallPrefab.GetComponent<MeshFilter>();
-            var mr = View.setup.wallPrefab.GetComponent<MeshRenderer>();
-
             int minX = 0;
             int maxX = 0;
             int minY = 0;
             int maxY = 0;
 
+            // Ordering: [0] = Left, [1] = Right, [2] = Down, [3] = Up, [4] = Near, [5] = Far
             var planes = GeometryUtility.CalculateFrustumPlanes(View.setup._camera);
-            float enter = 0;
+            float enter;
 
             int count = 0;
 
@@ -117,7 +116,6 @@ namespace Game.View
 
             var hp = new Plane(Vector3.up, View.setup._camera.transform.position);
             var vp = new Plane(Vector3.right, View.setup._camera.transform.position);
-            var temp = new Chunk[16 * 16];
             for (int z = 0; z < World.depth; z++)
             {
                 minX = zz[z].xMin;
@@ -130,34 +128,31 @@ namespace Game.View
                     for (int x = minX; x <= maxX; x++)
                     {
                         var pp = new Vector3Int(x, y, z);
-                        var index = (int)((y >> 4) & 0xF) << 4 | (int)((x >> 4) & 0xF);
-                        var chunk = temp[index];
-                        if (chunk == null)
+                        //var cubeSides = renderProvider[pp];
+
+
+                        var chunk = world.GetChunk(ChunkPosition.From(pp));
+                        using (var cube = chunk.GetCube(pp))
                         {
-                            chunk = chunks.GetChunk(new Vector2Int(x >> 4, y >> 4));
-                            temp[index] = chunk;
-                        }
-                        using (var block = chunk[pp])
-                        {
-                            if (block.objectType == ObjectType.Wall)
+                            if (cube.objectType == ObjectType.Wall)
                             {
-                                if (block.IsVisible(CubeSide.Forward))
+                                if (cube.IsVisible(CubeSide.South))
                                 {
-                                    Graphics.DrawMesh(cubeMeshes[(int)CubeSide.Forward], pp, Quaternion.identity, material, 0);
+                                    Graphics.DrawMesh(cubeMeshes[(int)CubeSide.South], pp, Quaternion.identity, material, 0);
                                 }
                                 UnityEngine.Profiling.Profiler.BeginSample("GetSide");
                                 var b = hp.GetSide(pp);
                                 UnityEngine.Profiling.Profiler.EndSample();
                                 if (b)
                                 {
-                                    if (block.IsVisible(CubeSide.Down))
+                                    if (cube.IsVisible(CubeSide.Down))
                                     {
                                         Graphics.DrawMesh(cubeMeshes[(int)CubeSide.Down], pp, Quaternion.identity, material, 0);
                                     }
                                 }
                                 else
                                 {
-                                    if (block.IsVisible(CubeSide.Up))
+                                    if (cube.IsVisible(CubeSide.Up))
                                     {
                                         Graphics.DrawMesh(cubeMeshes[(int)CubeSide.Up], pp, Quaternion.identity, material, 0);
                                     }
@@ -168,16 +163,16 @@ namespace Game.View
                                 UnityEngine.Profiling.Profiler.EndSample();
                                 if (b)
                                 {
-                                    if (block.IsVisible(CubeSide.Left))
+                                    if (cube.IsVisible(CubeSide.West))
                                     {
-                                        Graphics.DrawMesh(cubeMeshes[(int)CubeSide.Left], pp, Quaternion.identity, material, 0);
+                                        Graphics.DrawMesh(cubeMeshes[(int)CubeSide.West], pp, Quaternion.identity, material, 0);
                                     }
                                 }
                                 else
                                 {
-                                    if (block.IsVisible(CubeSide.Right))
+                                    if (cube.IsVisible(CubeSide.East))
                                     {
-                                        Graphics.DrawMesh(cubeMeshes[(int)CubeSide.Right], pp, Quaternion.identity, material, 0);
+                                        Graphics.DrawMesh(cubeMeshes[(int)CubeSide.East], pp, Quaternion.identity, material, 0);
                                     }
                                 }
                                 count++;
