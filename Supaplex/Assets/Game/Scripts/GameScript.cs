@@ -12,6 +12,7 @@ public class GameScript : MonoBehaviour
     public Texture wallTexture;
 
     public int counts;
+    public Vector3Int viewSize;
 
     Systems systems = null;
 

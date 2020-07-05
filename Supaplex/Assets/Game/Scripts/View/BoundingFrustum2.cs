@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Game.View
 {
-	public class BoundingFrustum
+	public class BoundingFrustum2
 	{
 		#region Public fields 
 

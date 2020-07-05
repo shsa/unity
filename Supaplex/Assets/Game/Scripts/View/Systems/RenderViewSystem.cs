@@ -14,11 +14,12 @@ namespace Game.View
         RenderChunkProvider renderProvider;
         Material material;
         Mesh[] cubeMeshes;
+        Plane[] planes;
         public RenderViewSystem(Contexts contexts)
         {
             this.contexts = contexts;
             world = new World(1);
-            renderProvider = new RenderChunkProvider(world);
+            renderProvider = new RenderChunkProvider(world, View.setup.viewSize);
             material = new Material(Shader.Find("Standard"));
             material.SetTexture("_MainTex", View.setup.wallTexture);
             material.SetColor("_Color", Color.white);
@@ -32,7 +33,7 @@ namespace Game.View
             }
 
             cubeMeshes = Geometry.CreateCube(new Rect[] { R(1, 1), R(1, 3), R(0, 1), R(2, 1), R(1, 2), R(1, 0) });
-            var p = new Plane();
+            planes = new Plane[6];
         }
 
         public void Execute()
@@ -43,18 +44,18 @@ namespace Game.View
             int maxY = 0;
 
             // Ordering: [0] = Left, [1] = Right, [2] = Down, [3] = Up, [4] = Near, [5] = Far
-            var planes = GeometryUtility.CalculateFrustumPlanes(View.setup._camera);
+            GeometryUtility.CalculateFrustumPlanes(View.setup._camera, planes);
             float enter;
-
+            
             int count = 0;
 
             UnityEngine.Profiling.Profiler.BeginSample("Calc planes");
             RectInt[] zz = new RectInt[World.depth];
             for (int z = 0; z < World.depth; z++)
             {
-                var playerPos = new Vector3(View.setup._camera.transform.position.x, View.setup._camera.transform.position.y, z);
+                var calcPos = new Vector3(View.setup._camera.transform.position.x, View.setup._camera.transform.position.y, z);
                 // left
-                var ray = new Ray(playerPos, Vector3.left);
+                var ray = new Ray(calcPos, Vector3.left);
                 if (planes[0].Raycast(ray, out enter))
                 {
                     var point = ray.GetPoint(enter).Floor();
@@ -68,7 +69,7 @@ namespace Game.View
                     }
                 }
                 // right
-                ray = new Ray(playerPos, Vector3.right);
+                ray = new Ray(calcPos, Vector3.right);
                 if (planes[1].Raycast(ray, out enter))
                 {
                     var point = ray.GetPoint(enter).Floor();
@@ -82,7 +83,7 @@ namespace Game.View
                     }
                 }
                 // bottom
-                ray = new Ray(playerPos, Vector3.down);
+                ray = new Ray(calcPos, Vector3.down);
                 if (planes[2].Raycast(ray, out enter))
                 {
                     var point = ray.GetPoint(enter).Floor();
@@ -96,7 +97,7 @@ namespace Game.View
                     }
                 }
                 // top
-                ray = new Ray(playerPos, Vector3.up);
+                ray = new Ray(calcPos, Vector3.up);
                 if (planes[3].Raycast(ray, out enter))
                 {
                     var point = ray.GetPoint(enter).Floor();
@@ -116,6 +117,45 @@ namespace Game.View
 
             var hp = new Plane(Vector3.up, View.setup._camera.transform.position);
             var vp = new Plane(Vector3.right, View.setup._camera.transform.position);
+
+            var playerPos = new Vector3(View.setup._camera.transform.position.x, View.setup._camera.transform.position.y, 0);
+            var queue = new Queue<RenderChunkInfo>();
+            var startChunkPos = ChunkPosition.From(Vector3Int.FloorToInt(playerPos));
+            minX = startChunkPos.x - View.setup.viewSize.x;
+            maxX = startChunkPos.x + View.setup.viewSize.x;
+            minY = startChunkPos.y - View.setup.viewSize.y;
+            maxY = startChunkPos.y + View.setup.viewSize.y;
+            for (int x = minX; x <= maxX; x++)
+            {
+                for (int y = minY; y <= maxY; y++)
+                {
+                    var renderChunk = renderProvider[new ChunkPosition(x, y, 0)];
+                    if (GeometryUtility.TestPlanesAABB(planes, renderChunk.bounds))
+                    {
+                        renderChunk.SetFrameIndex(Time.frameCount);
+                        queue.Enqueue(new RenderChunkInfo(renderChunk, Facing.North));
+                    }
+                }
+            }
+
+            while (queue.Count > 0 && queue.Count < 100)
+            {
+                var renderChunkInfo = queue.Dequeue();
+                DrawBounds(renderChunkInfo.renderChunk.bounds);
+                var facingOpposite = renderChunkInfo.facing.Opposite();
+                for (Facing facing = Facing.First; facing <= Facing.Last; facing++)
+                {
+                    if (facing != facingOpposite)
+                    {
+                        var renderChunk = renderProvider[renderChunkInfo.renderChunk.chunk.position.Offset(facing)];
+                        if (renderChunk != null && GeometryUtility.TestPlanesAABB(planes, renderChunk.bounds) && renderChunk.IsVisible(facing) && renderChunk.SetFrameIndex(Time.frameCount))
+                        {
+                            queue.Enqueue(new RenderChunkInfo(renderChunk, facing));
+                        }
+                    }
+                }
+            }
+
             for (int z = 0; z < World.depth; z++)
             {
                 minX = zz[z].xMin;
@@ -136,25 +176,25 @@ namespace Game.View
                         {
                             if (cube.objectType == ObjectType.Wall)
                             {
-                                if (cube.IsVisible(CubeSide.South))
+                                if (cube.IsVisible(Facing.South))
                                 {
-                                    Graphics.DrawMesh(cubeMeshes[(int)CubeSide.South], pp, Quaternion.identity, material, 0);
+                                    Graphics.DrawMesh(cubeMeshes[(int)Facing.South], pp, Quaternion.identity, material, 0);
                                 }
                                 UnityEngine.Profiling.Profiler.BeginSample("GetSide");
                                 var b = hp.GetSide(pp);
                                 UnityEngine.Profiling.Profiler.EndSample();
                                 if (b)
                                 {
-                                    if (cube.IsVisible(CubeSide.Down))
+                                    if (cube.IsVisible(Facing.Down))
                                     {
-                                        Graphics.DrawMesh(cubeMeshes[(int)CubeSide.Down], pp, Quaternion.identity, material, 0);
+                                        Graphics.DrawMesh(cubeMeshes[(int)Facing.Down], pp, Quaternion.identity, material, 0);
                                     }
                                 }
                                 else
                                 {
-                                    if (cube.IsVisible(CubeSide.Up))
+                                    if (cube.IsVisible(Facing.Up))
                                     {
-                                        Graphics.DrawMesh(cubeMeshes[(int)CubeSide.Up], pp, Quaternion.identity, material, 0);
+                                        Graphics.DrawMesh(cubeMeshes[(int)Facing.Up], pp, Quaternion.identity, material, 0);
                                     }
                                 }
 
@@ -163,16 +203,16 @@ namespace Game.View
                                 UnityEngine.Profiling.Profiler.EndSample();
                                 if (b)
                                 {
-                                    if (cube.IsVisible(CubeSide.West))
+                                    if (cube.IsVisible(Facing.West))
                                     {
-                                        Graphics.DrawMesh(cubeMeshes[(int)CubeSide.West], pp, Quaternion.identity, material, 0);
+                                        Graphics.DrawMesh(cubeMeshes[(int)Facing.West], pp, Quaternion.identity, material, 0);
                                     }
                                 }
                                 else
                                 {
-                                    if (cube.IsVisible(CubeSide.East))
+                                    if (cube.IsVisible(Facing.East))
                                     {
-                                        Graphics.DrawMesh(cubeMeshes[(int)CubeSide.East], pp, Quaternion.identity, material, 0);
+                                        Graphics.DrawMesh(cubeMeshes[(int)Facing.East], pp, Quaternion.identity, material, 0);
                                     }
                                 }
                                 count++;
@@ -203,6 +243,37 @@ namespace Game.View
             //    //}
             //    mm = mm.Skip(1023);
             //}
+        }
+
+        void DrawBounds(Bounds b, float delay = 0)
+        {
+            // bottom
+            var p1 = new Vector3(b.min.x, b.min.y, b.min.z);
+            var p2 = new Vector3(b.max.x, b.min.y, b.min.z);
+            var p3 = new Vector3(b.max.x, b.min.y, b.max.z);
+            var p4 = new Vector3(b.min.x, b.min.y, b.max.z);
+
+            Debug.DrawLine(p1, p2, Color.blue, delay);
+            Debug.DrawLine(p2, p3, Color.red, delay);
+            Debug.DrawLine(p3, p4, Color.yellow, delay);
+            Debug.DrawLine(p4, p1, Color.magenta, delay);
+
+            // top
+            var p5 = new Vector3(b.min.x, b.max.y, b.min.z);
+            var p6 = new Vector3(b.max.x, b.max.y, b.min.z);
+            var p7 = new Vector3(b.max.x, b.max.y, b.max.z);
+            var p8 = new Vector3(b.min.x, b.max.y, b.max.z);
+
+            Debug.DrawLine(p5, p6, Color.blue, delay);
+            Debug.DrawLine(p6, p7, Color.red, delay);
+            Debug.DrawLine(p7, p8, Color.yellow, delay);
+            Debug.DrawLine(p8, p5, Color.magenta, delay);
+
+            // sides
+            Debug.DrawLine(p1, p5, Color.white, delay);
+            Debug.DrawLine(p2, p6, Color.gray, delay);
+            Debug.DrawLine(p3, p7, Color.green, delay);
+            Debug.DrawLine(p4, p8, Color.cyan, delay);
         }
     }
 }

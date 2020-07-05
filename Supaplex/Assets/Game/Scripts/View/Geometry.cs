@@ -77,12 +77,12 @@ namespace Game.View
         public static Mesh[] CreateCube(Rect[] uvSides)
         {
             var mm = new Mesh[6];
-            mm[(int)CubeSide.South] = CreateCubeFrontSideMesh(Quaternion.identity, uvSides[(int)CubeSide.South]);
-            mm[(int)CubeSide.North] = CreateCubeFrontSideMesh(Quaternion.Euler(0, 180, 0), uvSides[(int)CubeSide.North]);
-            mm[(int)CubeSide.West] = CreateCubeFrontSideMesh(Quaternion.Euler(0, 90, 0), uvSides[(int)CubeSide.West]);
-            mm[(int)CubeSide.East] = CreateCubeFrontSideMesh(Quaternion.Euler(0, -90, 0), uvSides[(int)CubeSide.East]);
-            mm[(int)CubeSide.Up] = CreateCubeFrontSideMesh(Quaternion.Euler(90, 0, 0), uvSides[(int)CubeSide.Up]);
-            mm[(int)CubeSide.Down] = CreateCubeFrontSideMesh(Quaternion.Euler(-90, 0, 0), uvSides[(int)CubeSide.Down]);
+            mm[(int)Facing.South] = CreateCubeFrontSideMesh(Quaternion.identity, uvSides[(int)Facing.South]);
+            mm[(int)Facing.North] = CreateCubeFrontSideMesh(Quaternion.Euler(0, 180, 0), uvSides[(int)Facing.North]);
+            mm[(int)Facing.West] = CreateCubeFrontSideMesh(Quaternion.Euler(0, 90, 0), uvSides[(int)Facing.West]);
+            mm[(int)Facing.East] = CreateCubeFrontSideMesh(Quaternion.Euler(0, -90, 0), uvSides[(int)Facing.East]);
+            mm[(int)Facing.Up] = CreateCubeFrontSideMesh(Quaternion.Euler(90, 0, 0), uvSides[(int)Facing.Up]);
+            mm[(int)Facing.Down] = CreateCubeFrontSideMesh(Quaternion.Euler(-90, 0, 0), uvSides[(int)Facing.Down]);
             return mm;
         }
     }

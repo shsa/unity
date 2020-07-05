@@ -227,6 +227,7 @@ MonoBehaviour:
   gameRoot: {fileID: 584002579}
   wallTexture: {fileID: 2800000, guid: 0db9b57bc784c754cb2ab61b639f7cf3, type: 3}
   counts: 0
+  viewSize: {x: 2, y: 2, z: 1}
 --- !u!4 &584002581
 Transform:
   m_ObjectHideFlags: 0

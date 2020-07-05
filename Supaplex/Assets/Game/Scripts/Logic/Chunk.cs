@@ -67,7 +67,7 @@ namespace Game.Logic
             }
         }
 
-        public bool IsVisible(CubeSide side)
+        public bool IsVisible(Facing side)
         {
             if (!GetState(ChunkCubeState.Updated))
             {
@@ -83,12 +83,12 @@ namespace Game.Logic
             }
             switch (side)
             {
-                case CubeSide.South: return GetState(ChunkCubeState.Forward);
-                case CubeSide.North: return GetState(ChunkCubeState.Back);
-                case CubeSide.West: return GetState(ChunkCubeState.Left);
-                case CubeSide.East: return GetState(ChunkCubeState.Right);
-                case CubeSide.Up: return GetState(ChunkCubeState.Up);
-                case CubeSide.Down: return GetState(ChunkCubeState.Down);
+                case Facing.South: return GetState(ChunkCubeState.Forward);
+                case Facing.North: return GetState(ChunkCubeState.Back);
+                case Facing.West: return GetState(ChunkCubeState.Left);
+                case Facing.East: return GetState(ChunkCubeState.Right);
+                case Facing.Up: return GetState(ChunkCubeState.Up);
+                case Facing.Down: return GetState(ChunkCubeState.Down);
                 default: return false;
             }
         }
@@ -179,14 +179,24 @@ namespace Game.Logic
             return new Vector3Int(x << 4, y << 4, z << 4);
         }
 
-        public Vector3Int Min()
+        public Vector3Int min
         {
-            return ToVector3Int();
+            get {
+                return ToVector3Int();
+            }
         }
 
-        public Vector3Int Max()
+        public Vector3Int max
         {
-            return ToVector3Int() + new Vector3Int(15, 15, 15);
+            get {
+                return ToVector3Int() + new Vector3Int(15, 15, 15);
+            }
+        }
+
+        public Bounds bounds {
+            get {
+                return new Bounds((Vector3)(min + max) * 0.5f, Vector3.one * 16);
+            }
         }
 
         bool Equals(ChunkPosition obj)
@@ -201,15 +211,18 @@ namespace Game.Logic
 
         public override int GetHashCode()
         {
-            unchecked // Overflow is fine, just wrap
-            {
-                int hash = 17;
-                // Suitable nullity checks etc, of course :)
-                hash = hash * 23 + x.GetHashCode();
-                hash = hash * 23 + y.GetHashCode();
-                hash = hash * 23 + z.GetHashCode();
-                return hash;
-            }
+            // from unity Vector3.GetHashCode()
+            return x.GetHashCode() ^ (y.GetHashCode() << 2) ^ (z.GetHashCode() >> 2);
+
+            //unchecked // Overflow is fine, just wrap
+            //{
+            //    int hash = 17;
+            //    // Suitable nullity checks etc, of course :)
+            //    hash = hash * 23 + x.GetHashCode();
+            //    hash = hash * 23 + y.GetHashCode();
+            //    hash = hash * 23 + z.GetHashCode();
+            //    return hash;
+            //}
         }
 
         public static bool operator ==(ChunkPosition a, ChunkPosition b)
@@ -222,6 +235,11 @@ namespace Game.Logic
             return !Equals(a, b);
         }
 
+        public static ChunkPosition operator + (ChunkPosition a, Vector3Int offset)
+        {
+            return new ChunkPosition(a.x + offset.x, a.y + offset.y, a.z + offset.z);
+        }
+
         public static ChunkPosition From(Vector3Int pos)
         {
             return new ChunkPosition(pos.x >> 4, pos.y >> 4, pos.z >> 4);
@@ -231,17 +249,17 @@ namespace Game.Logic
     public class ChunkChangeEvent
     {
         public Vector3Int position { get; private set; }
-        public CubeSideSet sides { get; private set; }
+        public FacingSet sides { get; private set; }
         public int metadata { get; private set; }
 
-        public ChunkChangeEvent(Vector3Int position, CubeSideSet sides, int metadata)
+        public ChunkChangeEvent(Vector3Int position, FacingSet sides, int metadata)
         {
             this.position = position;
             this.sides = sides;
             this.metadata = metadata;
         }
 
-        public void Set(Vector3Int position, CubeSideSet sides, int metadata)
+        public void Set(Vector3Int position, FacingSet sides, int metadata)
         {
             this.position = position;
             this.sides = sides;
@@ -287,9 +305,9 @@ namespace Game.Logic
                 data[index] = value;
                 if (cubeChanged != null)
                 {
-                    var e = new ChunkChangeEvent(pos, CubeSideSet.All, metadata);
+                    var e = new ChunkChangeEvent(pos, FacingSet.All, metadata);
                     cubeChanged(this, e);
-                    for (var side = CubeSide.First; side <= CubeSide.Last; side++)
+                    for (var side = Facing.First; side <= Facing.Last; side++)
                     {
                         e.Set(pos.Offset(side), side.Opposite().GetSet(), -1);
                         cubeChanged(this, e);
@@ -322,7 +340,7 @@ namespace Game.Logic
 
     public class World 
     {
-        public static int depth = 10;
+        public static int depth = 32;
 
         NoiseS3D noiseCore;
         Dictionary<ChunkPosition, Chunk> chunks;
