@@ -18,15 +18,15 @@ namespace Game.Logic
         Updated = 0x40,
     }
 
-    public class ChunkCube : IDisposable
+    public class ChunkBlock : IDisposable
     {
-        static Stack<ChunkCube> pool = new Stack<ChunkCube>();
+        static Stack<ChunkBlock> pool = new Stack<ChunkBlock>();
 
         bool _keepChanges = false;
         bool _modified = false;
 
         public Chunk chunk;
-        public Vector3Int position;
+        public BlockPos position;
         int _metadata;
         public int metadata {
             get {
@@ -125,18 +125,18 @@ namespace Game.Logic
             pool.Push(this);
         }
 
-        public static ChunkCube Get(Chunk chunk, Vector3Int position, int metadata)
+        public static ChunkBlock Get(Chunk chunk, BlockPos position, int metadata)
         {
             lock (pool)
             {
-                ChunkCube cube = null;
+                ChunkBlock cube = null;
                 if (pool.Count() > 0)
                 {
                     cube = pool.Pop();
                 }
                 else
                 {
-                    cube = new ChunkCube();
+                    cube = new ChunkBlock();
                 }
                 cube.chunk = chunk;
                 cube.position = position;
@@ -145,7 +145,7 @@ namespace Game.Logic
             }
         }
 
-        public static int GetIndex(Vector3Int pos)
+        public static int GetIndex(BlockPos pos)
         {
             return ((pos.y & 0xF) << 8) | ((pos.x & 0xF) << 4) | (pos.z & 0xF);
         }
@@ -161,105 +161,20 @@ namespace Game.Logic
         }
     }
 
-    public struct ChunkPosition
-    {
-        public int x;
-        public int y;
-        public int z;
-
-        public ChunkPosition(int x, int y, int z)
-        {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
-
-        public Vector3Int ToVector3Int()
-        {
-            return new Vector3Int(x << 4, y << 4, z << 4);
-        }
-
-        public Vector3Int min
-        {
-            get {
-                return ToVector3Int();
-            }
-        }
-
-        public Vector3Int max
-        {
-            get {
-                return ToVector3Int() + new Vector3Int(15, 15, 15);
-            }
-        }
-
-        public Bounds bounds {
-            get {
-                return new Bounds((Vector3)(min + max) * 0.5f, Vector3.one * 16);
-            }
-        }
-
-        bool Equals(ChunkPosition obj)
-        {
-            return x == obj.x && y == obj.y && z == obj.z;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return Equals((ChunkPosition)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            // from unity Vector3.GetHashCode()
-            return x.GetHashCode() ^ (y.GetHashCode() << 2) ^ (z.GetHashCode() >> 2);
-
-            //unchecked // Overflow is fine, just wrap
-            //{
-            //    int hash = 17;
-            //    // Suitable nullity checks etc, of course :)
-            //    hash = hash * 23 + x.GetHashCode();
-            //    hash = hash * 23 + y.GetHashCode();
-            //    hash = hash * 23 + z.GetHashCode();
-            //    return hash;
-            //}
-        }
-
-        public static bool operator ==(ChunkPosition a, ChunkPosition b)
-        {
-            return Equals(a, b);
-        }
-
-        public static bool operator != (ChunkPosition a, ChunkPosition b)
-        {
-            return !Equals(a, b);
-        }
-
-        public static ChunkPosition operator + (ChunkPosition a, Vector3Int offset)
-        {
-            return new ChunkPosition(a.x + offset.x, a.y + offset.y, a.z + offset.z);
-        }
-
-        public static ChunkPosition From(Vector3Int pos)
-        {
-            return new ChunkPosition(pos.x >> 4, pos.y >> 4, pos.z >> 4);
-        }
-    }
-
     public class ChunkChangeEvent
     {
-        public Vector3Int position { get; private set; }
+        public BlockPos position { get; private set; }
         public FacingSet sides { get; private set; }
         public int metadata { get; private set; }
 
-        public ChunkChangeEvent(Vector3Int position, FacingSet sides, int metadata)
+        public ChunkChangeEvent(BlockPos position, FacingSet sets, int metadata)
         {
             this.position = position;
-            this.sides = sides;
+            this.sides = sets;
             this.metadata = metadata;
         }
 
-        public void Set(Vector3Int position, FacingSet sides, int metadata)
+        public void Set(BlockPos position, FacingSet sides, int metadata)
         {
             this.position = position;
             this.sides = sides;
@@ -270,7 +185,7 @@ namespace Game.Logic
     public class Chunk
     {
         public World world;
-        public ChunkPosition position;
+        public ChunkPos position;
         int[] data;
 
         public event EventHandler<ChunkChangeEvent> cubeChanged;
@@ -282,23 +197,23 @@ namespace Game.Logic
             Array.Clear(data, 0, data.Length);
         }
 
-        public int this[Vector3Int pos] {
+        public int this[BlockPos pos] {
             get {
-                return data[ChunkCube.GetIndex(pos)];
+                return data[ChunkBlock.GetIndex(pos)];
             }
             set {
-                data[ChunkCube.GetIndex(pos)] = value;
+                data[ChunkBlock.GetIndex(pos)] = value;
             }
         }
 
-        public int GetMetadata(Vector3Int pos)
+        public int GetMetadata(BlockPos pos)
         {
-            return data[ChunkCube.GetIndex(pos)];
+            return data[ChunkBlock.GetIndex(pos)];
         }
 
-        public void SetMetadata(Vector3Int pos, int value)
+        public void SetMetadata(BlockPos pos, int value)
         {
-            var index = ChunkCube.GetIndex(pos);
+            var index = GetBlockIndex(pos);
             var metadata = data[index];
             if (metadata != value)
             {
@@ -309,32 +224,52 @@ namespace Game.Logic
                     cubeChanged(this, e);
                     for (var side = Facing.First; side <= Facing.Last; side++)
                     {
-                        e.Set(pos.Offset(side), side.Opposite().GetSet(), -1);
+                        e.Set(pos.Offset(side), side.Opposite().ToSet(), -1);
                         cubeChanged(this, e);
                     }
                 }
             }
         }
 
-        public ChunkCube GetCube(Vector3Int pos)
+        public ChunkBlock GetBlock(BlockPos pos)
         {
-            return ChunkCube.Get(this, pos, data[ChunkCube.GetIndex(pos)]);
+            return ChunkBlock.Get(this, pos, data[GetBlockIndex(pos)]);
         }
 
-        public ObjectType GetObjectType(Vector3Int pos)
+        public ObjectType GetObjectType(BlockPos pos)
         {
-            return ChunkCube.GetObjectType(GetMetadata(pos));
+            return ChunkBlock.GetObjectType(GetMetadata(pos));
         }
 
-        public void SetObjectType(Vector3Int pos, ObjectType value)
+        public void SetObjectType(BlockPos pos, ObjectType value)
         {
-            var index = ChunkCube.GetIndex(pos);
-            data[index] = ChunkCube.SetObjectType(data[index], value);
+            var index = ChunkBlock.GetIndex(pos);
+            data[index] = ChunkBlock.SetObjectType(data[index], value);
         }
 
-        public static Vector3Int GetIndex(Vector3Int pos)
+        public bool IsEmpty(BlockPos pos)
         {
-            return new Vector3Int(pos.x & ~0xF, pos.y & ~0xF, pos.z & ~0xF);
+            UnityEngine.Profiling.Profiler.BeginSample("IsEmpty");
+            try
+            {
+                switch (GetObjectType(pos))
+                {
+                    case ObjectType.Empty:
+                    case ObjectType.None:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+            finally
+            {
+                UnityEngine.Profiling.Profiler.EndSample();
+            }
+        }
+
+        public static int GetBlockIndex(BlockPos pos)
+        {
+            return ((pos.y & 0xF) << 8) | ((pos.x & 0xF) << 4) | (pos.z & 0xF);
         }
     }
 
@@ -343,18 +278,18 @@ namespace Game.Logic
         public static int depth = 32;
 
         NoiseS3D noiseCore;
-        Dictionary<ChunkPosition, Chunk> chunks;
+        Dictionary<ChunkPos, Chunk> chunks;
         Chunk[] chunkCash;
 
         public World(int seed)
         {
             noiseCore = new NoiseS3D();
             noiseCore.seed = seed;
-            chunks = new Dictionary<ChunkPosition, Chunk>();
+            chunks = new Dictionary<ChunkPos, Chunk>();
             chunkCash = new Chunk[16 * 16 * 16];
         }
 
-        public Chunk GetChunk(ChunkPosition pos)
+        public Chunk GetChunk(ChunkPos pos)
         {
             var index = ((pos.x & 0xF) << 8) | ((pos.y & 0xF) << 4) | (pos.z & 0xF);
             var chunk = chunkCash[index];
@@ -382,22 +317,16 @@ namespace Game.Logic
 
         void Generate(Chunk chunk)
         {
-            var minX = 0;
-            var maxX = 0;
-            var minY = 0;
-            var maxY = 0;
-            minX = chunk.position.x << 4;
-            maxX = (chunk.position.x + 1) << 4;
-            minY = chunk.position.y << 4;
-            maxY = (chunk.position.y + 1) << 4;
-
-            for (int z = 0; z < depth; z++)
+            var min = chunk.position.min;
+            var max = chunk.position.max;
+            var pos = new BlockPos();
+            for (int z = min.z; z <= max.z; z++)
             {
-                for (int x = minX; x < maxX; x++)
+                for (int x = min.x; x <= max.x; x++)
                 {
-                    for (int y = minY; y < maxY; y++)
+                    for (int y = min.y; y <= max.y; y++)
                     {
-                        var pos = new Vector3Int(x, y, z);
+                        pos.Set(x, y, z);
                         if (IsWall(x, y, z))
                         {
                             chunk.SetObjectType(pos, ObjectType.Wall);
@@ -411,38 +340,48 @@ namespace Game.Logic
             }
         }
 
-        public int GetMetadata(Vector3Int pos)
+        ChunkPos chunkPos = new ChunkPos(0, 0, 0);
+        public int GetMetadata(BlockPos pos)
         {
-            var chunk = GetChunk(ChunkPosition.From(pos));
+            chunkPos.Set(pos);
+            var chunk = GetChunk(chunkPos);
             return chunk.GetMetadata(pos);
         }
 
-        public void SetMetadata(Vector3Int pos, int value)
+        public void SetMetadata(BlockPos pos, int value)
         {
-            var chunk = GetChunk(ChunkPosition.From(pos));
+            var chunk = GetChunk(ChunkPos.From(pos));
             chunk.SetMetadata(pos, value);
         }
 
-        public ObjectType GetObjectType(Vector3Int pos)
+        public ObjectType GetObjectType(BlockPos pos)
         {
-            return ChunkCube.GetObjectType(GetMetadata(pos));
+            return ChunkBlock.GetObjectType(GetMetadata(pos));
         }
 
-        public void SetObjectType(Vector3Int pos, ObjectType value)
+        public void SetObjectType(BlockPos pos, ObjectType value)
         {
-            var chunk = GetChunk(ChunkPosition.From(pos));
+            var chunk = GetChunk(ChunkPos.From(pos));
             chunk.SetObjectType(pos, value);
         }
 
-        public bool IsEmpty(Vector3Int pos)
+        public bool IsEmpty(BlockPos pos)
         {
-            switch (GetObjectType(pos))
+            UnityEngine.Profiling.Profiler.BeginSample("IsEmpty");
+            try
             {
-                case ObjectType.Empty:
-                case ObjectType.None:
-                    return true;
-                default:
-                    return false;
+                switch (GetObjectType(pos))
+                {
+                    case ObjectType.Empty:
+                    case ObjectType.None:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+            finally
+            {
+                UnityEngine.Profiling.Profiler.EndSample();
             }
         }
     }

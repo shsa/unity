@@ -15,6 +15,7 @@ namespace Game.View
         Material material;
         Mesh[] cubeMeshes;
         Plane[] planes;
+        Geometry.Cube cube;
         public RenderViewSystem(Contexts contexts)
         {
             this.contexts = contexts;
@@ -33,6 +34,7 @@ namespace Game.View
             }
 
             cubeMeshes = Geometry.CreateCube(new Rect[] { R(1, 1), R(1, 3), R(0, 1), R(2, 1), R(1, 2), R(1, 0) });
+            cube = Geometry.CreateCube2(new Rect[] { R(1, 1), R(1, 3), R(0, 1), R(2, 1), R(1, 2), R(1, 0) });
             planes = new Plane[6];
         }
 
@@ -120,7 +122,7 @@ namespace Game.View
 
             var playerPos = new Vector3(View.setup._camera.transform.position.x, View.setup._camera.transform.position.y, 0);
             var queue = new Queue<RenderChunkInfo>();
-            var startChunkPos = ChunkPosition.From(Vector3Int.FloorToInt(playerPos));
+            var startChunkPos = ChunkPos.From(Vector3Int.FloorToInt(playerPos));
             minX = startChunkPos.x - View.setup.viewSize.x;
             maxX = startChunkPos.x + View.setup.viewSize.x;
             minY = startChunkPos.y - View.setup.viewSize.y;
@@ -129,7 +131,7 @@ namespace Game.View
             {
                 for (int y = minY; y <= maxY; y++)
                 {
-                    var renderChunk = renderProvider[new ChunkPosition(x, y, 0)];
+                    var renderChunk = renderProvider[new ChunkPos(x, y, 0)];
                     if (GeometryUtility.TestPlanesAABB(planes, renderChunk.bounds))
                     {
                         renderChunk.SetFrameIndex(Time.frameCount);
@@ -142,12 +144,28 @@ namespace Game.View
             {
                 var renderChunkInfo = queue.Dequeue();
                 DrawBounds(renderChunkInfo.renderChunk.bounds);
+                Graphics.DrawMesh(renderChunkInfo.renderChunk.mesh, Matrix4x4.identity, material, 0);
+                var renderChunk = renderChunkInfo.renderChunk;
+                var chunk = renderChunk.chunk;
+                //var min = chunk.position.min;
+                //var max = chunk.position.max;
+                //for (var x = min.x; x <= max.x; x++)
+                //{
+                //    for (var y = min.y; y <= max.y; y++)
+                //    {
+                //        for (var z = min.z; z <= max.z; z++)
+                //        {
+                //            DrawBounds(new Bounds(new Vector3(x, y, z), Vector3.one));
+                //        }
+                //    }
+                //}
+
                 var facingOpposite = renderChunkInfo.facing.Opposite();
                 for (Facing facing = Facing.First; facing <= Facing.Last; facing++)
                 {
                     if (facing != facingOpposite)
                     {
-                        var renderChunk = renderProvider[renderChunkInfo.renderChunk.chunk.position.Offset(facing)];
+                        renderChunk = renderProvider[renderChunkInfo.renderChunk.chunk.position.Offset(facing)];
                         if (renderChunk != null && GeometryUtility.TestPlanesAABB(planes, renderChunk.bounds) && renderChunk.IsVisible(facing) && renderChunk.SetFrameIndex(Time.frameCount))
                         {
                             queue.Enqueue(new RenderChunkInfo(renderChunk, facing));
@@ -155,7 +173,9 @@ namespace Game.View
                     }
                 }
             }
+            Debug.Log(queue.Count);
 
+            /*
             for (int z = 0; z < World.depth; z++)
             {
                 minX = zz[z].xMin;
@@ -222,6 +242,7 @@ namespace Game.View
                 }
                 UnityEngine.Profiling.Profiler.EndSample();
             }
+            */
             Debug.Log(count);
 
 

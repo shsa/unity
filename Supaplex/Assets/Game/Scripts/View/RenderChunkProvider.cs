@@ -18,7 +18,7 @@ namespace Game.View
             sizeSqr = size * size;
         }
 
-        public RenderChunk GetChunk(Vector3 playerPos, ChunkPosition pos)
+        public RenderChunk GetChunk(Vector3 playerPos, ChunkPos pos)
         {
             if (pos.z < 0)
             {
@@ -28,7 +28,7 @@ namespace Game.View
             {
                 return null;
             }
-            var p0 = ChunkPosition.From(Vector3Int.FloorToInt(playerPos));
+            var p0 = ChunkPos.From(Vector3Int.FloorToInt(playerPos));
             if (Mathf.Abs(pos.x - p0.x) > size.x)
             {
                 return null;
@@ -54,7 +54,7 @@ namespace Game.View
             return renderChunk;
         }
 
-        public RenderChunk this[ChunkPosition pos] {
+        public RenderChunk this[ChunkPos pos] {
             get {
                 if (pos.z < 0)
                 {
@@ -82,15 +82,15 @@ namespace Game.View
             }
         }
 
-        int CalcIndex(ChunkPosition pos)
+        int CalcIndex(ChunkPos pos)
         {
             return (pos.x & 0xF) << 8 | (pos.y & 0xF) << 4 | (pos.z & 0xF);
         }
 
-        public FacingSet this[Vector3Int pos]
+        public byte this[BlockPos pos]
         {
             get {
-                var renderChunk = this[ChunkPosition.From(pos)];
+                var renderChunk = this[ChunkPos.From(pos)];
                 return renderChunk[pos];
             }
         }

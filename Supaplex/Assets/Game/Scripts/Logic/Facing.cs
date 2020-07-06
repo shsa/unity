@@ -5,12 +5,14 @@ namespace Game.Logic
     public enum Facing : int
     {
         First = 0,
+
         South = 0,
         North = 1,
         West = 2,
         East = 3,
         Up = 4,
         Down = 5,
+
         Last = 5
     }
 
@@ -28,23 +30,23 @@ namespace Game.Logic
 
     public static class FacingExtention
     {
-        public static Vector3Int south = new Vector3Int(0, 0, -1);
-        public static Vector3Int north = new Vector3Int(0, 0, 1);
-        public static Vector3Int[] faceVector = new Vector3Int[6];
+        public static Vec3i south = new Vec3i(0, 0, -1);
+        public static Vec3i north = new Vec3i(0, 0, 1);
+        public static Vec3i[] faceVector = new Vec3i[6];
         public static Facing[] faceOpposite = new Facing[6];
         public static FacingSet[] faceSet = new FacingSet[6];
 
-        public static Vector3Int GetVector(this Facing side)
+        public static Vec3i GetVector(this Facing side)
         {
             return faceVector[(int)side];
         }
 
-        public static Vector3Int Offset(this Vector3Int pos, Facing side)
+        public static BlockPos Offset(this BlockPos pos, Facing side)
         {
             return pos + faceVector[(int)side];
         }
 
-        public static ChunkPosition Offset(this ChunkPosition pos, Facing side)
+        public static ChunkPos Offset(this ChunkPos pos, Facing side)
         {
             return pos + faceVector[(int)side];
         }
@@ -54,12 +56,12 @@ namespace Game.Logic
             return faceOpposite[(int)side];
         }
 
-        public static FacingSet GetSet(this Facing side)
+        public static FacingSet ToSet(this Facing side)
         {
             return faceSet[(int)side];
         }
 
-        public static bool HasSide(this FacingSet sides, Facing facing)
+        public static bool HasFacing(this FacingSet sides, Facing facing)
         {
             return sides.HasFlag(faceSet[(int)facing]);
         }
@@ -80,12 +82,12 @@ namespace Game.Logic
             faceSet[(int)Facing.Up] = FacingSet.Up;
             faceSet[(int)Facing.Down] = FacingSet.Down;
 
-            faceVector[(int)Facing.South] = south;
-            faceVector[(int)Facing.North] = north;
-            faceVector[(int)Facing.West] = Vector3Int.left;
-            faceVector[(int)Facing.East] = Vector3Int.right;
-            faceVector[(int)Facing.Up] = Vector3Int.up;
-            faceVector[(int)Facing.Down] = Vector3Int.down;
+            faceVector[(int)Facing.South] = new Vec3i(0, 0, -1);
+            faceVector[(int)Facing.North] = new Vec3i(0, 0, 1);
+            faceVector[(int)Facing.West] = new Vec3i(-1, 0, 0);
+            faceVector[(int)Facing.East] = new Vec3i(1, 0, 0);
+            faceVector[(int)Facing.Up] = new Vec3i(0, 1, 0);
+            faceVector[(int)Facing.Down] = new Vec3i(0, -1, 0);
         }
     }
 }
