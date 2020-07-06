@@ -10,14 +10,16 @@ namespace Game.View
 {
     public class RenderChunk : IDisposable
     {
-        public byte sides;
+        public byte visibleFacing;
         public Chunk chunk { get; private set; }
         public Bounds bounds { get; private set; }
         public int frameIndex { get; private set; }
         public bool isCalculated { get; private set; }
         public Mesh mesh { get; private set; }
 
-        byte[] data;
+        static int[] DF; // index offsets
+
+        bool[] data;
         List<Vector3> vertices;
         List<int> triangles;
         List<Vector2> uv;
@@ -27,19 +29,13 @@ namespace Game.View
             this.chunk = chunk;
             this.bounds = chunk.position.bounds;
             this.chunk.cubeChanged += Chunk_cubeChanged;
-            data = new byte[4096]; // 16 * 16 * 16
+            data = new bool[4096]; // 16 * 16 * 16
             vertices = new List<Vector3>(); // 16 * 16 * 16 * 24?
             triangles = new List<int>();
             uv = new List<Vector2>();
             isCalculated = false;
 
             mesh = null;
-        }
-
-        public byte this[BlockPos pos] {
-            get {
-                return data[Chunk.GetBlockIndex(pos)];
-            }
         }
 
         private void Chunk_cubeChanged(object sender, ChunkChangeEvent e)
@@ -62,192 +58,130 @@ namespace Game.View
 
         public bool IsVisible(Facing facing)
         {
-            return ((sides >> (int)facing) & 1) == 1;
+            return ((visibleFacing >> (int)facing) & 1) == 1;
         }
 
         public IEnumerator CalcVisibility()
         {
+            isCalculated = true;
+            visibleFacing = 0;
+
             var min = chunk.position.min;
             var max = chunk.position.max;
             var pos = new BlockPos();
-            var offset = new BlockPos();
-            var chunkPos = new ChunkPos();
-            Chunk tmpChunk = null;
-            sides = 0;
+            UnityEngine.Profiling.Profiler.BeginSample("CalcVisibiltity");
             for (int z = min.z; z <= max.z; z++)
             {
-                UnityEngine.Profiling.Profiler.BeginSample("CalcVisibiltity");
-
                 for (int x = min.x; x <= max.x; x++)
                 {
                     for (int y = min.y; y <= max.y; y++)
                     {
                         pos.Set(x, y, z);
-                        chunkPos.Set(pos);
-                        tmpChunk = chunk.world.GetChunk(chunkPos);
-                        if (!tmpChunk.IsEmpty(pos))
+                        if (chunk.IsEmpty(pos))
                         {
-                            //byte filter = (1 << (int)Facing.South) | (1 << (int)Facing.North);
-                            byte set = 0;
-                            for (Facing facing = Facing.First; facing <= Facing.Last; facing++)
-                            {
-                                offset.Set(pos);
-                                offset.Add(facing.GetVector());
-                                chunkPos.Set(offset);
-                                if (chunkPos.z < 0)
-                                {
-                                    set |= (byte)(1 << (int)facing);
-                                }
-                                else
-                                {
-                                    tmpChunk = chunk.world.GetChunk(chunkPos);
-                                    if (facing != Facing.North && tmpChunk.IsEmpty(offset))
-                                    {
-                                        set |= (byte)(1 << (int)facing);
-                                    }
-                                }
-                            }
-                            data[Chunk.GetBlockIndex(pos)] = set;
-                            UnityEngine.Profiling.Profiler.BeginSample("AddBlock");
-                            AddBlock(pos, set);
-                            //AddBlock(pos, (byte)(set & filter));
-                            UnityEngine.Profiling.Profiler.EndSample();
-                        }
-                        else
-                        {
+                            data[Chunk.GetBlockIndex(pos)] = false;
                             if ((x & 0xF) == 0)
                             {
-                                sides |= 1 << (int)Facing.West;
+                                visibleFacing |= 1 << (int)Facing.West;
                             }
                             else
                             if ((x & 0xF) == 0xF)
                             {
-                                sides |= 1 << (int)Facing.East;
+                                visibleFacing |= 1 << (int)Facing.East;
                             }
 
                             if ((y & 0xF) == 0)
                             {
-                                sides |= 1 << (int)Facing.Down;
+                                visibleFacing |= 1 << (int)Facing.Down;
                             }
                             else
                             if ((y & 0xF) == 0xF)
                             {
-                                sides |= 1 << (int)Facing.Up;
+                                visibleFacing |= 1 << (int)Facing.Up;
                             }
 
                             if ((z & 0xF) == 0)
                             {
-                                sides |= 1 << (int)Facing.South;
+                                visibleFacing |= 1 << (int)Facing.South;
                             }
                             else
                             if ((z & 0xF) == 0xF)
                             {
-                                sides |= 1 << (int)Facing.North;
+                                visibleFacing |= 1 << (int)Facing.North;
                             }
+                        }
+                        else
+                        {
+                            data[Chunk.GetBlockIndex(pos)] = true;
                         }
                     }
                 }
-
-                UnityEngine.Profiling.Profiler.EndSample();
-                //yield return new WaitForEndOfFrame();
             }
-
-            mesh = new Mesh();
-            mesh.SetVertices(vertices);
-            mesh.SetTriangles(triangles, 0);
-            mesh.SetUVs(0, uv);
-            mesh.RecalculateNormals();
-            mesh.Optimize();
-            isCalculated = true;
+            UnityEngine.Profiling.Profiler.EndSample();
 
             yield break;
         }
 
         public IEnumerator CalcMesh()
         {
+            mesh = new Mesh();
+
             var min = chunk.position.min;
             var max = chunk.position.max;
             var pos = new BlockPos();
             var offset = new BlockPos();
             var chunkPos = new ChunkPos();
             Chunk tmpChunk = null;
-            sides = 0;
+            UnityEngine.Profiling.Profiler.BeginSample("CalcMesh");
             for (int z = min.z; z <= max.z; z++)
             {
-                UnityEngine.Profiling.Profiler.BeginSample("CalcVisibiltity");
-
                 for (int x = min.x; x <= max.x; x++)
                 {
                     for (int y = min.y; y <= max.y; y++)
                     {
                         pos.Set(x, y, z);
-                        chunkPos.Set(pos);
-                        tmpChunk = chunk.world.GetChunk(chunkPos);
-                        if (!tmpChunk.IsEmpty(pos))
+                        var index = Chunk.GetBlockIndex(pos);
+                        if (data[index])
                         {
-                            //byte filter = (1 << (int)Facing.South) | (1 << (int)Facing.North);
                             byte set = 0;
                             for (Facing facing = Facing.First; facing <= Facing.Last; facing++)
                             {
+                                if (facing == Facing.North)
+                                {
+                                    continue;
+                                }
+
                                 offset.Set(pos);
                                 offset.Add(facing.GetVector());
-                                chunkPos.Set(offset);
-                                if (chunkPos.z < 0)
+
+                                if (offset.x < min.x || offset.x > max.x || offset.y < min.y || offset.y > max.y || offset.z < min.z || offset.z > max.z)
                                 {
-                                    set |= (byte)(1 << (int)facing);
+                                    chunkPos.Set(offset);
+                                    if (chunkPos.z < 0)
+                                    {
+                                        set |= (byte)(1 << (int)facing);
+                                    }
+                                    else
+                                    {
+                                        tmpChunk = chunk.world.GetChunk(chunkPos);
+                                        if (tmpChunk.IsEmpty(offset))
+                                        {
+                                            set |= (byte)(1 << (int)facing);
+                                        }
+                                    }
                                 }
                                 else
                                 {
-                                    tmpChunk = chunk.world.GetChunk(chunkPos);
-                                    if (facing != Facing.North && tmpChunk.IsEmpty(offset))
+                                    if (!data[index + DF[(int)facing]])
                                     {
                                         set |= (byte)(1 << (int)facing);
                                     }
                                 }
                             }
-                            data[Chunk.GetBlockIndex(pos)] = set;
-                            UnityEngine.Profiling.Profiler.BeginSample("AddBlock");
                             AddBlock(pos, set);
-                            //AddBlock(pos, (byte)(set & filter));
-                            UnityEngine.Profiling.Profiler.EndSample();
-                        }
-                        else
-                        {
-                            if ((x & 0xF) == 0)
-                            {
-                                sides |= 1 << (int)Facing.West;
-                            }
-                            else
-                            if ((x & 0xF) == 0xF)
-                            {
-                                sides |= 1 << (int)Facing.East;
-                            }
-
-                            if ((y & 0xF) == 0)
-                            {
-                                sides |= 1 << (int)Facing.Down;
-                            }
-                            else
-                            if ((y & 0xF) == 0xF)
-                            {
-                                sides |= 1 << (int)Facing.Up;
-                            }
-
-                            if ((z & 0xF) == 0)
-                            {
-                                sides |= 1 << (int)Facing.South;
-                            }
-                            else
-                            if ((z & 0xF) == 0xF)
-                            {
-                                sides |= 1 << (int)Facing.North;
-                            }
                         }
                     }
                 }
-
-                UnityEngine.Profiling.Profiler.EndSample();
-                //yield return new WaitForEndOfFrame();
             }
 
             mesh.SetVertices(vertices);
@@ -255,7 +189,8 @@ namespace Game.View
             mesh.SetUVs(0, uv);
             mesh.RecalculateNormals();
             mesh.Optimize();
-            isCalculated = true;
+
+            UnityEngine.Profiling.Profiler.EndSample();
 
             yield break;
         }
@@ -284,6 +219,20 @@ namespace Game.View
         public void Dispose()
         {
             chunk.cubeChanged -= Chunk_cubeChanged;
+        }
+
+        static RenderChunk()
+        {
+            var dx = Chunk.GetBlockIndex(new BlockPos(1, 0, 0));
+            var dy = Chunk.GetBlockIndex(new BlockPos(0, 1, 0));
+            var dz = Chunk.GetBlockIndex(new BlockPos(0, 0, 1));
+            DF = new int[6];
+            DF[(int)Facing.North] = dz;
+            DF[(int)Facing.South] = -dz;
+            DF[(int)Facing.East] = dx;
+            DF[(int)Facing.West] = -dx;
+            DF[(int)Facing.Up] = dy;
+            DF[(int)Facing.Down] = -dy;
         }
     }
 }

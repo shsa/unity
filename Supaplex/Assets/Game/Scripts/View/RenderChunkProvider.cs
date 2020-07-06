@@ -86,13 +86,5 @@ namespace Game.View
         {
             return (pos.x & 0xF) << 8 | (pos.y & 0xF) << 4 | (pos.z & 0xF);
         }
-
-        public byte this[BlockPos pos]
-        {
-            get {
-                var renderChunk = this[ChunkPos.From(pos)];
-                return renderChunk[pos];
-            }
-        }
     }
 }

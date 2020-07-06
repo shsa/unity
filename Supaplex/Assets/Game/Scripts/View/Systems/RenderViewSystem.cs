@@ -152,32 +152,30 @@ namespace Game.View
             {
                 var renderChunkInfo = queue.Dequeue();
                 DrawBounds(renderChunkInfo.renderChunk.bounds);
-                if (renderChunkInfo.renderChunk.mesh != null)
+                if (renderChunkInfo.renderChunk.mesh == null)
+                {
+                    View.setup.StartCoroutine(renderChunkInfo.renderChunk.CalcMesh());
+                }
+                else
                 {
                     Graphics.DrawMesh(renderChunkInfo.renderChunk.mesh, Matrix4x4.identity, material, 0);
                 }
-                var renderChunk = renderChunkInfo.renderChunk;
-                var chunk = renderChunk.chunk;
 
-                var facingOpposite = renderChunkInfo.facing.Opposite();
                 for (Facing facing = Facing.First; facing <= Facing.Last; facing++)
                 {
-                    if (facing != facingOpposite)
+                    var renderChunk = renderProvider[renderChunkInfo.renderChunk.chunk.position.Offset(facing)];
+                    if (renderChunk != null)
                     {
-                        renderChunk = renderProvider[renderChunkInfo.renderChunk.chunk.position.Offset(facing)];
-                        if (renderChunk != null)
+                        if (renderChunk.isCalculated)
                         {
-                            if (renderChunk.isCalculated)
+                            if (renderChunk != null && GeometryUtility.TestPlanesAABB(planes, renderChunk.bounds) && renderChunkInfo.renderChunk.IsVisible(facing) && renderChunk.SetFrameIndex(Time.frameCount))
                             {
-                                if (renderChunk != null && GeometryUtility.TestPlanesAABB(planes, renderChunk.bounds) && renderChunk.IsVisible(facing) && renderChunk.SetFrameIndex(Time.frameCount))
-                                {
-                                    queue.Enqueue(new RenderChunkInfo(renderChunk, facing));
-                                }
+                                queue.Enqueue(new RenderChunkInfo(renderChunk, facing));
                             }
-                            else
-                            {
-                                View.setup.StartCoroutine(renderChunk.CalcVisibility());
-                            }
+                        }
+                        else
+                        {
+                            View.setup.StartCoroutine(renderChunk.CalcVisibility());
                         }
                     }
                 }

@@ -311,7 +311,7 @@ namespace Game.Logic
         public bool IsWall(int x, int y, int z)
         {
             //return (x + y) % 2 == 0;
-            var n = noiseCore.Noise(x * wallScale, y * wallScale, z * wallScale) + z * 2f / World.depth;
+            var n = noiseCore.Noise(x * wallScale, y * wallScale, z * wallScale) - z * 2f / World.depth;
             return n < 0.3;
         }
 
