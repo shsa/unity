@@ -22,11 +22,12 @@ namespace Game.View
             this.contexts = contexts;
             world = new World(1);
             renderProvider = new RenderChunkProvider(world, View.setup.viewSize);
-            material = new Material(Shader.Find("Standard"));
-            material.SetTexture("_MainTex", View.setup.wallTexture);
-            material.SetColor("_Color", Color.white);
+            //material = new Material(Shader.Find("Standard"));
+            //material.SetTexture("_MainTex", View.setup.wallTexture);
+            //material.SetColor("_Color", Color.white);
+            material = View.setup.wallMaterial;
 
-            var texture = View.setup.wallTexture;
+            var texture = View.setup.wallMaterial.GetTexture("_MainTex");
             Rect R(int i, int j)
             {
                 var w = texture.width / 4f;

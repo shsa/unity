@@ -9,7 +9,7 @@ public class GameScript : MonoBehaviour
     public GameObject player;
     public Camera _camera;
     public GameObject gameRoot;
-    public Texture wallTexture;
+    public Material wallMaterial;
 
     public int counts;
     public Vector3Int viewSize;
