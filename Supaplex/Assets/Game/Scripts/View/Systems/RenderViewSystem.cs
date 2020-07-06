@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 using Entitas;
@@ -38,7 +39,7 @@ namespace Game.View
             planes = new Plane[6];
         }
 
-        public void Execute()
+        void RenderWorldSingle()
         {
             int minX = 0;
             int maxX = 0;
@@ -48,7 +49,7 @@ namespace Game.View
             // Ordering: [0] = Left, [1] = Right, [2] = Down, [3] = Up, [4] = Near, [5] = Far
             GeometryUtility.CalculateFrustumPlanes(View.setup._camera, planes);
             float enter;
-            
+
             int count = 0;
 
             UnityEngine.Profiling.Profiler.BeginSample("Calc planes");
@@ -135,7 +136,14 @@ namespace Game.View
                     if (GeometryUtility.TestPlanesAABB(planes, renderChunk.bounds))
                     {
                         renderChunk.SetFrameIndex(Time.frameCount);
-                        queue.Enqueue(new RenderChunkInfo(renderChunk, Facing.North));
+                        if (renderChunk.isCalculated)
+                        {
+                            queue.Enqueue(new RenderChunkInfo(renderChunk, Facing.North));
+                        }
+                        else
+                        {
+                            View.setup.StartCoroutine(renderChunk.CalcVisibility());
+                        }
                     }
                 }
             }
@@ -144,21 +152,12 @@ namespace Game.View
             {
                 var renderChunkInfo = queue.Dequeue();
                 DrawBounds(renderChunkInfo.renderChunk.bounds);
-                Graphics.DrawMesh(renderChunkInfo.renderChunk.mesh, Matrix4x4.identity, material, 0);
+                if (renderChunkInfo.renderChunk.mesh != null)
+                {
+                    Graphics.DrawMesh(renderChunkInfo.renderChunk.mesh, Matrix4x4.identity, material, 0);
+                }
                 var renderChunk = renderChunkInfo.renderChunk;
                 var chunk = renderChunk.chunk;
-                //var min = chunk.position.min;
-                //var max = chunk.position.max;
-                //for (var x = min.x; x <= max.x; x++)
-                //{
-                //    for (var y = min.y; y <= max.y; y++)
-                //    {
-                //        for (var z = min.z; z <= max.z; z++)
-                //        {
-                //            DrawBounds(new Bounds(new Vector3(x, y, z), Vector3.one));
-                //        }
-                //    }
-                //}
 
                 var facingOpposite = renderChunkInfo.facing.Opposite();
                 for (Facing facing = Facing.First; facing <= Facing.Last; facing++)
@@ -166,104 +165,28 @@ namespace Game.View
                     if (facing != facingOpposite)
                     {
                         renderChunk = renderProvider[renderChunkInfo.renderChunk.chunk.position.Offset(facing)];
-                        if (renderChunk != null && GeometryUtility.TestPlanesAABB(planes, renderChunk.bounds) && renderChunk.IsVisible(facing) && renderChunk.SetFrameIndex(Time.frameCount))
+                        if (renderChunk != null)
                         {
-                            queue.Enqueue(new RenderChunkInfo(renderChunk, facing));
-                        }
-                    }
-                }
-            }
-            Debug.Log(queue.Count);
-
-            /*
-            for (int z = 0; z < World.depth; z++)
-            {
-                minX = zz[z].xMin;
-                minY = zz[z].yMin;
-                maxX = zz[z].xMax;
-                maxY = zz[z].yMax;
-                UnityEngine.Profiling.Profiler.BeginSample("for");
-                for (int y = minY; y <= maxY; y++)
-                {
-                    for (int x = minX; x <= maxX; x++)
-                    {
-                        var pp = new Vector3Int(x, y, z);
-                        //var cubeSides = renderProvider[pp];
-
-
-                        var chunk = world.GetChunk(ChunkPosition.From(pp));
-                        using (var cube = chunk.GetCube(pp))
-                        {
-                            if (cube.objectType == ObjectType.Wall)
+                            if (renderChunk.isCalculated)
                             {
-                                if (cube.IsVisible(Facing.South))
+                                if (renderChunk != null && GeometryUtility.TestPlanesAABB(planes, renderChunk.bounds) && renderChunk.IsVisible(facing) && renderChunk.SetFrameIndex(Time.frameCount))
                                 {
-                                    Graphics.DrawMesh(cubeMeshes[(int)Facing.South], pp, Quaternion.identity, material, 0);
+                                    queue.Enqueue(new RenderChunkInfo(renderChunk, facing));
                                 }
-                                UnityEngine.Profiling.Profiler.BeginSample("GetSide");
-                                var b = hp.GetSide(pp);
-                                UnityEngine.Profiling.Profiler.EndSample();
-                                if (b)
-                                {
-                                    if (cube.IsVisible(Facing.Down))
-                                    {
-                                        Graphics.DrawMesh(cubeMeshes[(int)Facing.Down], pp, Quaternion.identity, material, 0);
-                                    }
-                                }
-                                else
-                                {
-                                    if (cube.IsVisible(Facing.Up))
-                                    {
-                                        Graphics.DrawMesh(cubeMeshes[(int)Facing.Up], pp, Quaternion.identity, material, 0);
-                                    }
-                                }
-
-                                UnityEngine.Profiling.Profiler.BeginSample("GetSide");
-                                b = vp.GetSide(pp);
-                                UnityEngine.Profiling.Profiler.EndSample();
-                                if (b)
-                                {
-                                    if (cube.IsVisible(Facing.West))
-                                    {
-                                        Graphics.DrawMesh(cubeMeshes[(int)Facing.West], pp, Quaternion.identity, material, 0);
-                                    }
-                                }
-                                else
-                                {
-                                    if (cube.IsVisible(Facing.East))
-                                    {
-                                        Graphics.DrawMesh(cubeMeshes[(int)Facing.East], pp, Quaternion.identity, material, 0);
-                                    }
-                                }
-                                count++;
+                            }
+                            else
+                            {
+                                View.setup.StartCoroutine(renderChunk.CalcVisibility());
                             }
                         }
                     }
                 }
-                UnityEngine.Profiling.Profiler.EndSample();
             }
-            */
-            Debug.Log(count);
+        }
 
-
-            //Debug.Log(mm.Count());
-            //foreach (var m in mm)
-            //{
-            //    Graphics.DrawMesh(mf.sharedMesh, m, Quaternion.identity, mr.sharedMaterial, 0);
-            //}
-
-            //var mpb = new MaterialPropertyBlock();
-            //mpb.SetColor("_Color", Color.blue);
-            //while (mm.Count() > 0)
-            //{
-            //    var t = mm.Take(1023).ToArray();
-            //    Graphics.DrawMeshInstanced(mf.sharedMesh, 0, mr.sharedMaterial, t, t.Length, mpb);
-            //    //foreach (var m in mm)
-            //    //{
-            //    //    Graphics.DrawMesh(mf.sharedMesh, m, mr.sharedMaterial, 0);
-            //    //}
-            //    mm = mm.Skip(1023);
-            //}
+        public void Execute()
+        {
+             RenderWorldSingle();
         }
 
         void DrawBounds(Bounds b, float delay = 0)

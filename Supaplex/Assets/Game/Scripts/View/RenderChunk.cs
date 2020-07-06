@@ -1,19 +1,23 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Game.Logic;
 using System.Linq.Expressions;
+using UnityEditorInternal;
 
 namespace Game.View
 {
     public class RenderChunk : IDisposable
     {
         public byte sides;
-        byte[] data;
         public Chunk chunk { get; private set; }
         public Bounds bounds { get; private set; }
         public int frameIndex { get; private set; }
-        public Mesh mesh;
+        public bool isCalculated { get; private set; }
+        public Mesh mesh { get; private set; }
+
+        byte[] data;
         List<Vector3> vertices;
         List<int> triangles;
         List<Vector2> uv;
@@ -27,8 +31,9 @@ namespace Game.View
             vertices = new List<Vector3>(); // 16 * 16 * 16 * 24?
             triangles = new List<int>();
             uv = new List<Vector2>();
+            isCalculated = false;
 
-            mesh = new Mesh();
+            mesh = null;
         }
 
         public byte this[BlockPos pos] {
@@ -60,10 +65,8 @@ namespace Game.View
             return ((sides >> (int)facing) & 1) == 1;
         }
 
-        public void CalcVisibility()
+        public IEnumerator CalcVisibility()
         {
-            UnityEngine.Profiling.Profiler.BeginSample("CalcVisibiltity");
-
             var min = chunk.position.min;
             var max = chunk.position.max;
             var pos = new BlockPos();
@@ -71,18 +74,20 @@ namespace Game.View
             var chunkPos = new ChunkPos();
             Chunk tmpChunk = null;
             sides = 0;
-            for (int x = min.x; x <= max.x; x++)
+            for (int z = min.z; z <= max.z; z++)
             {
-                for (int y = min.y; y <= max.y; y++)
+                UnityEngine.Profiling.Profiler.BeginSample("CalcVisibiltity");
+
+                for (int x = min.x; x <= max.x; x++)
                 {
-                    for (int z = min.z; z <= max.z; z++)
+                    for (int y = min.y; y <= max.y; y++)
                     {
                         pos.Set(x, y, z);
                         chunkPos.Set(pos);
                         tmpChunk = chunk.world.GetChunk(chunkPos);
                         if (!tmpChunk.IsEmpty(pos))
                         {
-                            byte tmp = (1 << (int)Facing.South) | (1 << (int)Facing.North);
+                            //byte filter = (1 << (int)Facing.South) | (1 << (int)Facing.North);
                             byte set = 0;
                             for (Facing facing = Facing.First; facing <= Facing.Last; facing++)
                             {
@@ -105,7 +110,7 @@ namespace Game.View
                             data[Chunk.GetBlockIndex(pos)] = set;
                             UnityEngine.Profiling.Profiler.BeginSample("AddBlock");
                             AddBlock(pos, set);
-                            //AddBlock(pos, (byte)(set & tmp));
+                            //AddBlock(pos, (byte)(set & filter));
                             UnityEngine.Profiling.Profiler.EndSample();
                         }
                         else
@@ -142,15 +147,117 @@ namespace Game.View
                         }
                     }
                 }
+
+                UnityEngine.Profiling.Profiler.EndSample();
+                //yield return new WaitForEndOfFrame();
+            }
+
+            mesh = new Mesh();
+            mesh.SetVertices(vertices);
+            mesh.SetTriangles(triangles, 0);
+            mesh.SetUVs(0, uv);
+            mesh.RecalculateNormals();
+            mesh.Optimize();
+            isCalculated = true;
+
+            yield break;
+        }
+
+        public IEnumerator CalcMesh()
+        {
+            var min = chunk.position.min;
+            var max = chunk.position.max;
+            var pos = new BlockPos();
+            var offset = new BlockPos();
+            var chunkPos = new ChunkPos();
+            Chunk tmpChunk = null;
+            sides = 0;
+            for (int z = min.z; z <= max.z; z++)
+            {
+                UnityEngine.Profiling.Profiler.BeginSample("CalcVisibiltity");
+
+                for (int x = min.x; x <= max.x; x++)
+                {
+                    for (int y = min.y; y <= max.y; y++)
+                    {
+                        pos.Set(x, y, z);
+                        chunkPos.Set(pos);
+                        tmpChunk = chunk.world.GetChunk(chunkPos);
+                        if (!tmpChunk.IsEmpty(pos))
+                        {
+                            //byte filter = (1 << (int)Facing.South) | (1 << (int)Facing.North);
+                            byte set = 0;
+                            for (Facing facing = Facing.First; facing <= Facing.Last; facing++)
+                            {
+                                offset.Set(pos);
+                                offset.Add(facing.GetVector());
+                                chunkPos.Set(offset);
+                                if (chunkPos.z < 0)
+                                {
+                                    set |= (byte)(1 << (int)facing);
+                                }
+                                else
+                                {
+                                    tmpChunk = chunk.world.GetChunk(chunkPos);
+                                    if (facing != Facing.North && tmpChunk.IsEmpty(offset))
+                                    {
+                                        set |= (byte)(1 << (int)facing);
+                                    }
+                                }
+                            }
+                            data[Chunk.GetBlockIndex(pos)] = set;
+                            UnityEngine.Profiling.Profiler.BeginSample("AddBlock");
+                            AddBlock(pos, set);
+                            //AddBlock(pos, (byte)(set & filter));
+                            UnityEngine.Profiling.Profiler.EndSample();
+                        }
+                        else
+                        {
+                            if ((x & 0xF) == 0)
+                            {
+                                sides |= 1 << (int)Facing.West;
+                            }
+                            else
+                            if ((x & 0xF) == 0xF)
+                            {
+                                sides |= 1 << (int)Facing.East;
+                            }
+
+                            if ((y & 0xF) == 0)
+                            {
+                                sides |= 1 << (int)Facing.Down;
+                            }
+                            else
+                            if ((y & 0xF) == 0xF)
+                            {
+                                sides |= 1 << (int)Facing.Up;
+                            }
+
+                            if ((z & 0xF) == 0)
+                            {
+                                sides |= 1 << (int)Facing.South;
+                            }
+                            else
+                            if ((z & 0xF) == 0xF)
+                            {
+                                sides |= 1 << (int)Facing.North;
+                            }
+                        }
+                    }
+                }
+
+                UnityEngine.Profiling.Profiler.EndSample();
+                //yield return new WaitForEndOfFrame();
             }
 
             mesh.SetVertices(vertices);
             mesh.SetTriangles(triangles, 0);
             mesh.SetUVs(0, uv);
             mesh.RecalculateNormals();
-            //mesh.Optimize();
+            mesh.Optimize();
+            isCalculated = true;
 
-            UnityEngine.Profiling.Profiler.EndSample();
+            yield break;
         }
 
         void AddBlock(BlockPos pos, byte facings)
