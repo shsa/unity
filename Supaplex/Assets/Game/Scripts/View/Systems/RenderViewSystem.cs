@@ -34,8 +34,10 @@ namespace Game.View
                 return new Rect(i * w / texture.width, j * h / texture.height, w / texture.width, h / texture.height);
             }
 
-            cubeMeshes = Geometry.CreateCube(new Rect[] { R(1, 1), R(1, 3), R(0, 1), R(2, 1), R(1, 2), R(1, 0) });
-            cube = Geometry.CreateCube2(new Rect[] { R(1, 1), R(1, 3), R(0, 1), R(2, 1), R(1, 2), R(1, 0) });
+            //cubeMeshes = Geometry.CreateCube(new Rect[] { R(1, 1), R(1, 3), R(0, 1), R(2, 1), R(1, 2), R(1, 0) });
+            //cube = Geometry.CreateCube2(new Rect[] { R(1, 1), R(1, 3), R(0, 1), R(2, 1), R(1, 2), R(1, 0) });
+            var r = new Rect(0, 0, 1, 1);
+            cube = Geometry.CreateCube2(new Rect[] { r, r, r, r, r, r });
             planes = new Plane[6];
         }
 
