@@ -28,7 +28,7 @@ public class ChunkComponent : IComponent
     [EntityIndex]
     public Vector2Int position;
 
-    public Game.Logic.Chunk value;
+    public Game.Logic.World.Chunk value;
 
     public override string ToString()
     {

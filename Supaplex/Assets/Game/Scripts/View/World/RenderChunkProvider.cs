@@ -1,16 +1,17 @@
 ﻿using UnityEngine;
 using Game.Logic;
+using Game.Logic.World;
 
 namespace Game.View
 {
     public class RenderChunkProvider
     {
         RenderChunk[] renderChunks;
-        World world;
+        IWorld world;
         Vector3Int size;
         Vector3Int sizeSqr;
 
-        public RenderChunkProvider(World world, Vector3Int size)
+        public RenderChunkProvider(IWorld world, Vector3Int size)
         {
             this.world = world;
             renderChunks = new RenderChunk[4096]; // 16 * 16 * 16

@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Game.Logic
+namespace Game.Logic.World
 {
-    public class World
+    public class WorldProvider : IWorld
     {
         public static int depth = 64;
 
@@ -15,7 +15,7 @@ namespace Game.Logic
         Dictionary<ChunkPos, Chunk> chunks;
         Chunk[] chunkCash;
 
-        public World(int seed)
+        public WorldProvider(int seed)
         {
             noiseCore = new NoiseS3D();
             noiseCore.seed = seed;
@@ -47,7 +47,7 @@ namespace Game.Logic
         /// <param name="y"></param>
         /// <param name="z"></param>
         /// <returns></returns>
-        static float k_max = 0;
+        //static float k_max = 0;
         double GetNoise(double x, double y, double z)
         {
             var k = (noiseCore.Noise(x, y, z) + 1) * 0.5; // {0-1}
@@ -159,7 +159,7 @@ namespace Game.Logic
 
         public ObjectType GetObjectType(BlockPos pos)
         {
-            return ChunkBlock.GetObjectType(GetMetadata(pos));
+            return Chunk.GetObjectType(GetMetadata(pos));
         }
 
         public void SetObjectType(BlockPos pos, ObjectType value)

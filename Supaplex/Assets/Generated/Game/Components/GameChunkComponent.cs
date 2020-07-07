@@ -11,7 +11,7 @@ public partial class GameEntity {
     public ChunkComponent chunk { get { return (ChunkComponent)GetComponent(GameComponentsLookup.Chunk); } }
     public bool hasChunk { get { return HasComponent(GameComponentsLookup.Chunk); } }
 
-    public void AddChunk(UnityEngine.Vector2Int newPosition, Game.Logic.Chunk newValue) {
+    public void AddChunk(UnityEngine.Vector2Int newPosition, Game.Logic.World.Chunk newValue) {
         var index = GameComponentsLookup.Chunk;
         var component = (ChunkComponent)CreateComponent(index, typeof(ChunkComponent));
         component.position = newPosition;
@@ -19,7 +19,7 @@ public partial class GameEntity {
         AddComponent(index, component);
     }
 
-    public void ReplaceChunk(UnityEngine.Vector2Int newPosition, Game.Logic.Chunk newValue) {
+    public void ReplaceChunk(UnityEngine.Vector2Int newPosition, Game.Logic.World.Chunk newValue) {
         var index = GameComponentsLookup.Chunk;
         var component = (ChunkComponent)CreateComponent(index, typeof(ChunkComponent));
         component.position = newPosition;

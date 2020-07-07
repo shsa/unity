@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Game.Logic
+namespace Game.Logic.World
 {
     public class ChunkPos : Vec3i
     {

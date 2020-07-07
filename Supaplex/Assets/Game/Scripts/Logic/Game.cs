@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Game.Logic.World;
 
 namespace Game.Logic
 {
@@ -13,6 +14,6 @@ namespace Game.Logic
         public static Vector2Int window = new Vector2Int(8, 8);
         public static Level level;
 
-        public static World chunks;
+        public static IWorld chunks;
     }
 }

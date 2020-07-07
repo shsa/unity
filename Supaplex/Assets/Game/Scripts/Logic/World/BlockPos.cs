@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Game.Logic
+namespace Game.Logic.World
 {
     public class BlockPos : Vec3i
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 using Entitas;
-using Game.Logic;
+using Game.Logic.World;
 using UnityEngine;
 
 namespace Game.View
@@ -11,7 +11,7 @@ namespace Game.View
     public class RenderViewSystem : IExecuteSystem
     {
         Contexts contexts;
-        World world;
+        IWorld world;
         RenderChunkProvider renderProvider;
         Material material;
         Mesh[] cubeMeshes;
@@ -20,7 +20,7 @@ namespace Game.View
         public RenderViewSystem(Contexts contexts)
         {
             this.contexts = contexts;
-            world = new World(1);
+            world = new WorldProvider(1);
             renderProvider = new RenderChunkProvider(world, View.setup.viewSize);
             //material = new Material(Shader.Find("Standard"));
             //material.SetTexture("_MainTex", View.setup.wallTexture);
@@ -56,8 +56,8 @@ namespace Game.View
             int count = 0;
 
             UnityEngine.Profiling.Profiler.BeginSample("Calc planes");
-            RectInt[] zz = new RectInt[World.depth];
-            for (int z = 0; z < World.depth; z++)
+            RectInt[] zz = new RectInt[WorldProvider.depth];
+            for (int z = 0; z < WorldProvider.depth; z++)
             {
                 var calcPos = new Vector3(View.setup._camera.transform.position.x, View.setup._camera.transform.position.y, z);
                 // left
