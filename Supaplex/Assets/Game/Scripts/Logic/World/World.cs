@@ -53,22 +53,34 @@ namespace Game.Logic
         }
 
         float stoneScale = 0.05f;
-        ObjectType CalcObjectType(int x, int y, int z)
+        bool CalcStone(int x, int y, int z, out float k)
         {
-            //return (x + y) % 2 == 0;
-            var k = (float)GetNoise(x * stoneScale, y * stoneScale, z * stoneScale);
+            k = (float)GetNoise(x * stoneScale, y * stoneScale, z * stoneScale);
             var f = 0.7f;
             var n = k - z * 2f / depth;
             if (n < f)
             {
+                return true;
+            }
+            return false;
+        }
+
+        ObjectType CalcObjectType(BlockPos pos)
+        {
+            if (CalcStone(pos.x, pos.y, pos.z, out var k))
+            {
+                if (k > 0.8f)
+                {
+                    //return ObjectType.Stone4x4;
+                }
                 return ObjectType.Stone;
             }
             return ObjectType.Empty;
         }
 
-        public bool IsStone(int x, int y, int z)
+        public bool IsStone(BlockPos pos)
         {
-            return CalcObjectType(x, y, z) == ObjectType.Stone;
+            return CalcObjectType(pos) == ObjectType.Stone;
         }
 
         void Generate(Chunk chunk)
@@ -83,14 +95,7 @@ namespace Game.Logic
                     for (int y = min.y; y <= max.y; y++)
                     {
                         pos.Set(x, y, z);
-                        if (IsStone(x, y, z))
-                        {
-                            chunk.SetObjectType(pos, ObjectType.Wall);
-                        }
-                        else
-                        {
-                            chunk.SetObjectType(pos, ObjectType.Empty);
-                        }
+                        chunk.SetObjectType(pos, CalcObjectType(pos));
                     }
                 }
             }

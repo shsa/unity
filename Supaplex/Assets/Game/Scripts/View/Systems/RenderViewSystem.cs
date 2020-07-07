@@ -150,6 +150,20 @@ namespace Game.View
                             View.setup.StartCoroutine(renderChunk.CalcVisibility());
                         }
                     }
+                    else
+                    {
+                        if (renderChunk.isCalculated)
+                        {
+                            if (renderChunk.mesh == null)
+                            {
+                                View.setup.StartCoroutine(renderChunk.CalcMesh());
+                            }
+                        }
+                        else
+                        {
+                            View.setup.StartCoroutine(renderChunk.CalcVisibility());
+                        }
+                    }
                 }
             }
 

@@ -135,7 +135,7 @@ namespace Game.View
             var offset = new BlockPos();
             var chunkPos = new ChunkPos();
             Chunk tmpChunk = null;
-            UnityEngine.Profiling.Profiler.BeginSample("CalcMesh");
+            //UnityEngine.Profiling.Profiler.BeginSample("CalcMesh");
             for (int z = min.z; z <= max.z; z++)
             {
                 for (int x = min.x; x <= max.x; x++)
@@ -185,6 +185,7 @@ namespace Game.View
                         }
                     }
                 }
+                yield return new WaitForEndOfFrame();
             }
 
             mesh.SetVertices(vertices);
@@ -193,13 +194,19 @@ namespace Game.View
             mesh.RecalculateNormals();
             mesh.Optimize();
 
-            UnityEngine.Profiling.Profiler.EndSample();
+            //UnityEngine.Profiling.Profiler.EndSample();
 
             yield break;
         }
 
         void AddBlock(BlockPos pos, byte facings)
         {
+            var objectType = chunk.GetObjectType(pos);
+            Vector3 p = pos.ToVector();
+            if (objectType == ObjectType.Stone4x4)
+            {
+                p = new Vector3(p.x + 1.5f, p.y + 1.5f, p.z + 1.5f);
+            }
             for (Facing facing = Facing.First; facing <= Facing.Last; facing++)
             {
                 if (((facings >> (int)facing) & 1) == 1)
@@ -208,7 +215,15 @@ namespace Game.View
                     var l = vertices.Count;
                     for (int i = 0; i < side.vertices.Length; i++)
                     {
-                        vertices.Add(pos.ToVector(side.vertices[i]));
+                        var v = side.vertices[i];
+                        if (objectType == ObjectType.Stone4x4)
+                        {
+                            vertices.Add(p + v * 4);
+                        }
+                        else
+                        {
+                            vertices.Add(p + v);
+                        }
                     }
                     uv.AddRange(side.uv);
                     for (int i = 0; i < side.triangles.Length; i++)
