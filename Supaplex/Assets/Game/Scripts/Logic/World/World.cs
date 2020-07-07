@@ -47,9 +47,16 @@ namespace Game.Logic
         /// <param name="y"></param>
         /// <param name="z"></param>
         /// <returns></returns>
+        static float k_max = 0;
         double GetNoise(double x, double y, double z)
         {
-            return (noiseCore.Noise(x, y, z) + 1) * 0.5; // {0-1}
+            var k = (noiseCore.Noise(x, y, z) + 1) * 0.5; // {0-1}
+            //if (k_max < k)
+            //{
+            //    k_max = (float)k;
+            //    Debug.Log(k_max);
+            //}
+            return k;
         }
 
         float stoneScale = 0.05f;
@@ -88,6 +95,7 @@ namespace Game.Logic
             var min = chunk.position.min;
             var max = chunk.position.max;
             var pos = new BlockPos();
+            var maxSize = 4;
             for (int z = min.z; z <= max.z; z++)
             {
                 for (int x = min.x; x <= max.x; x++)
@@ -96,6 +104,40 @@ namespace Game.Logic
                     {
                         pos.Set(x, y, z);
                         chunk.SetObjectType(pos, CalcObjectType(pos));
+                    }
+                }
+            }
+
+            var max2 = max / maxSize;
+            for (int z = 0; z < 4; z++)
+            {
+                for (int x = 0; x < 4; x++)
+                {
+                    for (int y = 0; y < 4; y++)
+                    {
+                        pos.Set(min.x + x * 4, min.y + y * 4, min.z + z * 4);
+                        if (chunk.GetObjectType(pos) == ObjectType.Stone)
+                        {
+                            if (CalcStone(pos.x, pos.y, pos.z, out var k))
+                            {
+                                if (k < 0.3)
+                                {
+                                    for (int j = 0; j < maxSize; j++)
+                                    {
+                                        for (int i = 0; i < maxSize; i++)
+                                        {
+                                            for (int l = 0; l < maxSize; l++)
+                                            {
+                                                pos.Set(min.x + x * 4 + i, min.y + y * 4 + j, min.z + z * 4 + l);
+                                                chunk.SetObjectType(pos, ObjectType.OffsetDown);
+                                            }
+                                        }
+                                    }
+                                    pos.Set(min.x + x * 4, min.y + y * 4, min.z + z * 4);
+                                    chunk.SetObjectType(pos, ObjectType.Stone4x4);
+                                }
+                            }
+                        }
                     }
                 }
             }

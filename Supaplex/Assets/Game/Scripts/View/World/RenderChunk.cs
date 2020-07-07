@@ -203,9 +203,16 @@ namespace Game.View
         {
             var objectType = chunk.GetObjectType(pos);
             Vector3 p = pos.ToVector();
-            if (objectType == ObjectType.Stone4x4)
+            switch (objectType)
             {
-                p = new Vector3(p.x + 1.5f, p.y + 1.5f, p.z + 1.5f);
+                case ObjectType.Stone:
+                    break;
+                case ObjectType.Stone4x4:
+                    p = new Vector3(p.x + 1.5f, p.y + 1.5f, p.z + 1.5f);
+                    facings = (1 << (int)Facing.South) | (1 << (int)Facing.Up) | (1 << (int)Facing.Down) | (1 << (int)Facing.West) | (1 << (int)Facing.East);
+                    break;
+                default: 
+                    return;
             }
             for (Facing facing = Facing.First; facing <= Facing.Last; facing++)
             {
