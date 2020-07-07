@@ -93,10 +93,5 @@ namespace Game.Logic
         {
             return new Vec3i(a.x + offset.x, a.y + offset.y, a.z + offset.z);
         }
-
-        public static Vec3i From(Vec3i pos)
-        {
-            return new Vec3i(pos.x >> 4, pos.y >> 4, pos.z >> 4);
-        }
     }
 }

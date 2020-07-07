@@ -8,6 +8,10 @@ namespace Game.Logic
         {
         }
 
+        public ChunkPos(ChunkPos pos) : base(pos.x, pos.y, pos.z)
+        {
+        }
+
         public ChunkPos(int x, int y, int z) : base(x, y, z)
         {
         }

@@ -16,6 +16,7 @@ namespace Game.View
         public int frameIndex { get; private set; }
         public bool isCalculated { get; private set; }
         public Mesh mesh { get; private set; }
+        public int empty;
 
         static int[] DF; // index offsets
 
@@ -29,7 +30,8 @@ namespace Game.View
             this.chunk = chunk;
             this.bounds = chunk.position.bounds;
             this.chunk.cubeChanged += Chunk_cubeChanged;
-            data = new bool[4096]; // 16 * 16 * 16
+            empty = 4096;
+            data = new bool[empty]; // 16 * 16 * 16
             vertices = new List<Vector3>(); // 16 * 16 * 16 * 24?
             triangles = new List<int>();
             uv = new List<Vector2>();
@@ -113,6 +115,7 @@ namespace Game.View
                         else
                         {
                             data[Chunk.GetBlockIndex(pos)] = true;
+                            empty--;
                         }
                     }
                 }

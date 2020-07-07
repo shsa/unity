@@ -184,25 +184,26 @@ namespace Game.Logic
 
     public class Chunk
     {
-        public World world;
-        public ChunkPos position;
+        public World world { get; private set; }
+        public ChunkPos position { get; private set; }
         int[] data;
 
         public event EventHandler<ChunkChangeEvent> cubeChanged;
 
-        public Chunk(World world)
+        public Chunk(World world, ChunkPos pos)
         {
             this.world = world;
+            this.position = new ChunkPos(pos);
             data = new int[16 * 16 * 16];
             Array.Clear(data, 0, data.Length);
         }
 
         public int this[BlockPos pos] {
             get {
-                return data[ChunkBlock.GetIndex(pos)];
+                return data[GetBlockIndex(pos)];
             }
             set {
-                data[ChunkBlock.GetIndex(pos)] = value;
+                data[GetBlockIndex(pos)] = value;
             }
         }
 
@@ -270,119 +271,6 @@ namespace Game.Logic
         public static int GetBlockIndex(BlockPos pos)
         {
             return ((pos.y & 0xF) << 8) | ((pos.x & 0xF) << 4) | (pos.z & 0xF);
-        }
-    }
-
-    public class World 
-    {
-        public static int depth = 64;
-
-        NoiseS3D noiseCore;
-        Dictionary<ChunkPos, Chunk> chunks;
-        Chunk[] chunkCash;
-
-        public World(int seed)
-        {
-            noiseCore = new NoiseS3D();
-            noiseCore.seed = seed;
-            chunks = new Dictionary<ChunkPos, Chunk>();
-            chunkCash = new Chunk[16 * 16 * 16];
-        }
-
-        public Chunk GetChunk(ChunkPos pos)
-        {
-            var index = ((pos.x & 0xF) << 8) | ((pos.y & 0xF) << 4) | (pos.z & 0xF);
-            var chunk = chunkCash[index];
-            if (chunk == null || chunk.position != pos)
-            {
-                if (!chunks.TryGetValue(pos, out chunk))
-                {
-                    chunk = new Chunk(this);
-                    chunk.position = pos;
-                    chunks[pos] = chunk;
-                    Generate(chunk);
-                }
-                chunkCash[index] = chunk;
-            }
-            return chunk;
-        }
-
-        float wallScale = 0.05f;
-        public bool IsWall(int x, int y, int z)
-        {
-            //return (x + y) % 2 == 0;
-            var n = noiseCore.Noise(x * wallScale, y * wallScale, z * wallScale) - z * 2f / World.depth;
-            return n < 0.3;
-        }
-
-        void Generate(Chunk chunk)
-        {
-            var min = chunk.position.min;
-            var max = chunk.position.max;
-            var pos = new BlockPos();
-            for (int z = min.z; z <= max.z; z++)
-            {
-                for (int x = min.x; x <= max.x; x++)
-                {
-                    for (int y = min.y; y <= max.y; y++)
-                    {
-                        pos.Set(x, y, z);
-                        if (IsWall(x, y, z))
-                        {
-                            chunk.SetObjectType(pos, ObjectType.Wall);
-                        }
-                        else
-                        {
-                            chunk.SetObjectType(pos, ObjectType.Empty);
-                        }
-                    }
-                }
-            }
-        }
-
-        ChunkPos chunkPos = new ChunkPos(0, 0, 0);
-        public int GetMetadata(BlockPos pos)
-        {
-            chunkPos.Set(pos);
-            var chunk = GetChunk(chunkPos);
-            return chunk.GetMetadata(pos);
-        }
-
-        public void SetMetadata(BlockPos pos, int value)
-        {
-            var chunk = GetChunk(ChunkPos.From(pos));
-            chunk.SetMetadata(pos, value);
-        }
-
-        public ObjectType GetObjectType(BlockPos pos)
-        {
-            return ChunkBlock.GetObjectType(GetMetadata(pos));
-        }
-
-        public void SetObjectType(BlockPos pos, ObjectType value)
-        {
-            var chunk = GetChunk(ChunkPos.From(pos));
-            chunk.SetObjectType(pos, value);
-        }
-
-        public bool IsEmpty(BlockPos pos)
-        {
-            UnityEngine.Profiling.Profiler.BeginSample("IsEmpty");
-            try
-            {
-                switch (GetObjectType(pos))
-                {
-                    case ObjectType.Empty:
-                    case ObjectType.None:
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-            finally
-            {
-                UnityEngine.Profiling.Profiler.EndSample();
-            }
         }
     }
 }

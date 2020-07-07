@@ -125,23 +125,25 @@ namespace Game.View
             var vp = new Plane(Vector3.right, View.setup._camera.transform.position);
 
             var playerPos = new Vector3(View.setup._camera.transform.position.x, View.setup._camera.transform.position.y, 0);
-            var queue = new Queue<RenderChunkInfo>();
+            var queue = new Queue<RenderChunk>();
             var startChunkPos = ChunkPos.From(Vector3Int.FloorToInt(playerPos));
             minX = startChunkPos.x - View.setup.viewSize.x;
             maxX = startChunkPos.x + View.setup.viewSize.x;
             minY = startChunkPos.y - View.setup.viewSize.y;
             maxY = startChunkPos.y + View.setup.viewSize.y;
+            var chunkPos = new ChunkPos();
             for (int x = minX; x <= maxX; x++)
             {
                 for (int y = minY; y <= maxY; y++)
                 {
-                    var renderChunk = renderProvider[new ChunkPos(x, y, 0)];
+                    chunkPos.Set(x, y, 0);
+                    var renderChunk = renderProvider.GetChunk(chunkPos);
                     if (GeometryUtility.TestPlanesAABB(planes, renderChunk.bounds))
                     {
                         renderChunk.SetFrameIndex(Time.frameCount);
                         if (renderChunk.isCalculated)
                         {
-                            queue.Enqueue(new RenderChunkInfo(renderChunk, Facing.North));
+                            queue.Enqueue(renderChunk);
                         }
                         else
                         {
@@ -153,32 +155,41 @@ namespace Game.View
 
             while (queue.Count > 0 && queue.Count < 100)
             {
-                var renderChunkInfo = queue.Dequeue();
-                DrawBounds(renderChunkInfo.renderChunk.bounds);
-                if (renderChunkInfo.renderChunk.mesh == null)
+                var renderChunk = queue.Dequeue();
+                if (renderChunk.empty == 4096)
                 {
-                    View.setup.StartCoroutine(renderChunkInfo.renderChunk.CalcMesh());
+                    DrawBounds(renderChunk.bounds, Color.white);
                 }
                 else
                 {
-                    Graphics.DrawMesh(renderChunkInfo.renderChunk.mesh, Matrix4x4.identity, material, 0);
+                    DrawBounds(renderChunk.bounds, Color.red);
+                }
+                if (renderChunk.mesh == null)
+                {
+                    View.setup.StartCoroutine(renderChunk.CalcMesh());
+                }
+                else
+                {
+                    Graphics.DrawMesh(renderChunk.mesh, Matrix4x4.identity, material, 0);
                 }
 
                 for (Facing facing = Facing.First; facing <= Facing.Last; facing++)
                 {
-                    var renderChunk = renderProvider[renderChunkInfo.renderChunk.chunk.position.Offset(facing)];
-                    if (renderChunk != null)
+                    chunkPos.Set(renderChunk.chunk.position);
+                    chunkPos.Add(facing.GetVector());
+                    var renderChunkOffset = renderProvider.GetChunk(chunkPos);
+                    if (renderChunkOffset != null)
                     {
-                        if (renderChunk.isCalculated)
+                        if (renderChunkOffset.isCalculated)
                         {
-                            if (renderChunk != null && GeometryUtility.TestPlanesAABB(planes, renderChunk.bounds) && renderChunkInfo.renderChunk.IsVisible(facing) && renderChunk.SetFrameIndex(Time.frameCount))
+                            if (renderChunkOffset != null && GeometryUtility.TestPlanesAABB(planes, renderChunkOffset.bounds) && renderChunk.IsVisible(facing) && renderChunkOffset.SetFrameIndex(Time.frameCount))
                             {
-                                queue.Enqueue(new RenderChunkInfo(renderChunk, facing));
+                                queue.Enqueue(renderChunkOffset);
                             }
                         }
                         else
                         {
-                            View.setup.StartCoroutine(renderChunk.CalcVisibility());
+                            View.setup.StartCoroutine(renderChunkOffset.CalcVisibility());
                         }
                     }
                 }
@@ -219,6 +230,38 @@ namespace Game.View
             Debug.DrawLine(p2, p6, Color.gray, delay);
             Debug.DrawLine(p3, p7, Color.green, delay);
             Debug.DrawLine(p4, p8, Color.cyan, delay);
+        }
+
+        void DrawBounds(Bounds b, Color color)
+        {
+            var delay = 0.0f;
+            // bottom
+            var p1 = new Vector3(b.min.x, b.min.y, b.min.z);
+            var p2 = new Vector3(b.max.x, b.min.y, b.min.z);
+            var p3 = new Vector3(b.max.x, b.min.y, b.max.z);
+            var p4 = new Vector3(b.min.x, b.min.y, b.max.z);
+
+            Debug.DrawLine(p1, p2, color, delay);
+            Debug.DrawLine(p2, p3, color, delay);
+            Debug.DrawLine(p3, p4, color, delay);
+            Debug.DrawLine(p4, p1, color, delay);
+
+            // top
+            var p5 = new Vector3(b.min.x, b.max.y, b.min.z);
+            var p6 = new Vector3(b.max.x, b.max.y, b.min.z);
+            var p7 = new Vector3(b.max.x, b.max.y, b.max.z);
+            var p8 = new Vector3(b.min.x, b.max.y, b.max.z);
+
+            Debug.DrawLine(p5, p6, color, delay);
+            Debug.DrawLine(p6, p7, color, delay);
+            Debug.DrawLine(p7, p8, color, delay);
+            Debug.DrawLine(p8, p5, color, delay);
+
+            // sides
+            Debug.DrawLine(p1, p5, color, delay);
+            Debug.DrawLine(p2, p6, color, delay);
+            Debug.DrawLine(p3, p7, color, delay);
+            Debug.DrawLine(p4, p8, color, delay);
         }
     }
 }
