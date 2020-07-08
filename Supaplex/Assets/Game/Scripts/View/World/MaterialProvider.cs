@@ -17,7 +17,7 @@ namespace Game.View.World
     public static class MaterialProvider
     {
         static int blockSize;
-
+        static RenderTexture renderTexture;
         static Texture2D[] textures;
 
         // count blocks for line
@@ -34,8 +34,9 @@ namespace Game.View.World
         {
             blockSize = blockSizeIn;
             lineCount = Mathf.CeilToInt(Mathf.Sqrt(blockCount));
-            var w = lineCount * blockSize;
-            w = Mathf.CeilToInt(Mathf.Log(w, 2));
+            var t = lineCount * blockSize;
+            var b = Mathf.CeilToInt(Mathf.Log(t, 2)) - 1;
+            var w = 2 << b;
             linePixels = w;
             uvKoef = 1.0f / linePixels;
             uvBlockSize = blockSize * uvKoef;
@@ -44,14 +45,15 @@ namespace Game.View.World
             textures = new Texture2D[count];
             for (int i = 0; i < count; i++)
             {
-                textures[i] = new Texture2D(w, h);
+                textures[i] = new Texture2D(w, h, TextureFormat.ARGB32, false);
             }
+            renderTexture = new RenderTexture(blockSize, blockSize, 0);
 
             // https://docs.unity3d.com/ScriptReference/Material.SetTexture.html
             var material = new Material(Shader.Find("Standard"));
             //Make sure to enable the Keywords
             material.EnableKeyword("_NORMALMAP");
-            material.EnableKeyword("_METALLICGLOSSMAP");
+            //material.EnableKeyword("_METALLICGLOSSMAP");
 
             //Set the Texture you assign in the Inspector as the main texture (Or Albedo)
             material.SetTexture("_MainTex", textures[(int)TextureType.Main]);
@@ -64,8 +66,9 @@ namespace Game.View.World
         {
             if (source.width != blockSize || source.height != blockSize)
             {
-                var newTexture = new Texture2D(blockSize, blockSize);
+                var newTexture = new Texture2D(blockSize, blockSize, TextureFormat.ARGB32, false);
                 Graphics.ConvertTexture(source, newTexture);
+                UnityEngine.Object.Destroy(source);
                 return newTexture;
             }
             return source;
@@ -82,13 +85,24 @@ namespace Game.View.World
             return index;
         }
 
-        public static Rect Replace(int index, Texture2D texture, TextureType textureType)
+        public static Rect Replace(int index, Texture2D source, TextureType textureType)
         {
-            texture = AjustTexture(texture);
-            var pixels = texture.GetPixels();
+            var dst = textures[(int)textureType];
             var x = index % lineCount * blockSize;
             var y = index / lineCount * blockSize;
-            textures[(int)textureType].SetPixels(x, y, blockSize, blockSize, pixels);
+
+            source = AjustTexture(source);
+
+            //Graphics.CopyTexture(source, renderTexture);
+            //var t = RenderTexture.active;
+            //RenderTexture.active = renderTexture;
+            //dst.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), x, y);
+            //dst.Apply();
+            //RenderTexture.active = t;
+            
+            Graphics.CopyTexture(source, 0, 0, 0, 0, blockSize, blockSize, dst, 0, 0, x, y);
+
+            UnityEngine.Object.Destroy(source);
             return new Rect(x * uvKoef, y * uvKoef, uvBlockSize, uvBlockSize);
         }
     }

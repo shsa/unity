@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Game.View.World.Models
+namespace Game.View.World
 {
     public class BlockPart
     {

@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using UnityEngine;
 
-namespace Game.View.World.Models
+namespace Game.View.World
 {
     public abstract class Model
     {
@@ -25,6 +25,17 @@ namespace Game.View.World.Models
         public static void Register(ModelType modelType, Model model)
         {
             REGISTER[(int)modelType] = model;
+            for (int i = 0; i < Block.REGISTER.Length; i++)
+            {
+                var block = Block.REGISTER[i];
+                if (block != null)
+                {
+                    if (block.model == modelType)
+                    {
+                        model.Register(block);
+                    }
+                }
+            }
         }
 
         public static Model GetModel(ModelType modelType)

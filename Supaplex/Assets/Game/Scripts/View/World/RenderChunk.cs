@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Game.Logic.World;
 
-namespace Game.View
+namespace Game.View.World
 {
     public class RenderChunk : IDisposable
     {
@@ -199,7 +199,8 @@ namespace Game.View
 
         void AddBlock(BlockPos pos, byte facings)
         {
-            var objectType = chunk.GetBlockData(pos).GetBlockId();
+            var blockData = chunk.GetBlockData(pos);
+            var objectType = blockData.GetBlockId();
             Vector3 p = pos.ToVector();
             switch (objectType)
             {
@@ -212,10 +213,36 @@ namespace Game.View
                 default: 
                     return;
             }
+            var block = blockData.GetBlock();
+            var model = Model.GetModel(block.model);
             for (Facing facing = Facing.First; facing <= Facing.Last; facing++)
             {
                 if (((facings >> (int)facing) & 1) == 1)
                 {
+                    var part = model.GetBlockPart(block, facing);
+                    var l = vertices.Count;
+                    if (part == null || part.vertices == null)
+                    {
+                        Debug.LogError("жуть");
+                    }
+                    for (int i = 0; i < part.vertices.Length; i++)
+                    {
+                        var v = part.vertices[i];
+                        if (objectType == BlockType.Stone4x4)
+                        {
+                            vertices.Add(p + v * 4);
+                        }
+                        else
+                        {
+                            vertices.Add(p + v);
+                        }
+                    }
+                    uv.AddRange(part.uv);
+                    for (int i = 0; i < part.triangles.Length; i++)
+                    {
+                        triangles.Add(l + part.triangles[i]);
+                    }
+                    /*
                     var side = Geometry.cube.sides[(int)facing];
                     var l = vertices.Count;
                     for (int i = 0; i < side.vertices.Length; i++)
@@ -235,6 +262,7 @@ namespace Game.View
                     {
                         triangles.Add(l + side.triangles[i]);
                     }
+                    */
                 }
             }
         }

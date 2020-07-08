@@ -7,7 +7,7 @@ namespace Game.Logic.World
 {
     public class Block
     {
-        static Block[] REGISTER;
+        public static Block[] REGISTER;
 
         public BlockType id { get; private set; }
         public readonly string name;

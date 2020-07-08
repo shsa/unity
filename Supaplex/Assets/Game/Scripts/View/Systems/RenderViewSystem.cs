@@ -16,6 +16,7 @@ namespace Game.View
         IWorld world;
         RenderChunkProvider renderProvider;
         Material material;
+        Material material2;
         Mesh[] cubeMeshes;
         Plane[] planes;
         Geometry.Cube cube;
@@ -44,8 +45,8 @@ namespace Game.View
             planes = new Plane[6];
 
             var blockCount = (int)Enum.GetValues(typeof(BlockType)).Cast<BlockType>().Max() + 1;
-            //material = MaterialProvider.Create(64, blockCount * 6);
-            //Game.View.World.Models.Model.Create();
+            material2 = MaterialProvider.Create(64, blockCount * 6);
+            Model.Create();
         }
 
         void RenderWorldSingle()
@@ -190,7 +191,7 @@ namespace Game.View
                 }
                 else
                 {
-                    Graphics.DrawMesh(renderChunk.mesh, Matrix4x4.identity, material, 0);
+                    Graphics.DrawMesh(renderChunk.mesh, Matrix4x4.identity, material2, 0);
                 }
 
                 for (Facing facing = Facing.First; facing <= Facing.Last; facing++)

@@ -2,7 +2,7 @@
 using Game.Logic;
 using Game.Logic.World;
 
-namespace Game.View
+namespace Game.View.World
 {
     public class RenderChunkProvider
     {

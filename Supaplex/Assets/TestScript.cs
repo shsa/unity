@@ -6,6 +6,8 @@ using UnityEngine;
 public class TestScript : MonoBehaviour
 {
     public Material material;
+    Material mat2;
+    Texture2D tmpTexture;
 
     Contexts contexts;
     List<GameEntity> entities;
@@ -14,6 +16,21 @@ public class TestScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        var src = material.mainTexture;
+        var w = src.width;
+        var h = src.height;
+        var rt = new RenderTexture(w, h, 0);
+        var tt = new Texture2D(w, h, TextureFormat.ARGB32, false);
+        Graphics.ConvertTexture(src, tt);
+        Graphics.CopyTexture(tt, rt);
+        RenderTexture.active = rt;
+        tt.ReadPixels(new Rect(0, 0, w, h), 0, 0);
+        tt.Apply();
+        var pixels = tt.GetPixels();
+
+        mat2 = new Material(material.shader);
+        mat2.mainTexture = tt;
+
         contexts = new Contexts();
         entities = new List<GameEntity>();
 
@@ -49,7 +66,13 @@ public class TestScript : MonoBehaviour
         //mf.sharedMesh = Geometry.CreateCubeSide(new Rect(0, 0, 1, 1));
         //var mr = obj.AddComponent<MeshRenderer>();
         //mr.sharedMaterial = material;
-        
+
+        //var texture = new Texture2D(material.mainTexture.width, material.mainTexture.height, TextureFormat.RGBA32, false);
+        //Graphics.ConvertTexture(material.mainTexture, texture);
+        //var pixels = texture.GetPixels();
+        //mat2 = new Material(material.shader);
+        //mat2.mainTexture = texture;
+
         Rect R(int i, int j)
         {
             var w = material.mainTexture.width / 4f;
@@ -64,7 +87,7 @@ public class TestScript : MonoBehaviour
     {
         for (int i = 0; i < 6; i++)
         {
-            Graphics.DrawMesh(cubeMeshes[i], Vector3.zero, Quaternion.identity, material, 0);
+            Graphics.DrawMesh(cubeMeshes[i], Vector3.zero, Quaternion.identity, mat2, 0);
         }
     }
 

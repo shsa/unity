@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using UnityEngine;
 
-namespace Game.View.World.Models
+namespace Game.View.World
 {
     public class SimpleModel : Model
     {
@@ -32,12 +32,12 @@ namespace Game.View.World.Models
                 part.uv = BlockSideUVs(uv);
                 pp[(int)facing] = part;
             }
-            addPart(Facing.North, Quaternion.identity);
+            addPart(Facing.North, Quaternion.Euler(0, 180, 0));
             addPart(Facing.East, Quaternion.Euler(0, -90, 0));
-            addPart(Facing.South, Quaternion.Euler(0, 180, 0));
+            addPart(Facing.South, Quaternion.identity);
             addPart(Facing.West, Quaternion.Euler(0, 90, 0));
-            addPart(Facing.Up, Quaternion.Euler(-90, 0, 0));
-            addPart(Facing.East, Quaternion.Euler(90, 0, 0));
+            addPart(Facing.Up, Quaternion.Euler(90, 0, 0));
+            addPart(Facing.Down, Quaternion.Euler(-90, 0, 0));
 
             parts[(int)block.id] = pp;
         }
@@ -51,10 +51,10 @@ namespace Game.View.World.Models
         public static Vector3[] BlockSideVertexes(Quaternion rotation)
         {
             return new Vector3[] {
-                rotation * new Vector3(-0.5f, -0.5f, 0.5f),
-                rotation * new Vector3(-0.5f, 0.5f, 0.5f),
-                rotation * new Vector3(0.5f, 0.5f, 0.5f),
-                rotation * new Vector3(0.5f, -0.5f, 0.5f)
+                rotation * new Vector3(-0.5f, -0.5f, -0.5f),
+                rotation * new Vector3(-0.5f, 0.5f, -0.5f),
+                rotation * new Vector3(0.5f, 0.5f, -0.5f),
+                rotation * new Vector3(0.5f, -0.5f, -0.5f)
             };
         }
 
