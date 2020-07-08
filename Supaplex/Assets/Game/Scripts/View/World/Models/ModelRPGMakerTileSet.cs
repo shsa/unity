@@ -5,11 +5,11 @@ using UnityEngine;
 
 namespace Game.View.World
 {
-    public class SimpleModel : Model
+    public class ModelRPGMakerTileSet : Model
     {
         BlockPart[][] parts;
 
-        public SimpleModel() : base()
+        public ModelRPGMakerTileSet() : base()
         {
             var count = (int)Enum.GetValues(typeof(BlockType)).Cast<BlockType>().Max() + 1;
             parts = new BlockPart[count][];
@@ -18,10 +18,14 @@ namespace Game.View.World
         public override void Register(Block block)
         {
             var index = MaterialProvider.AllocateBlock();
-            var textureName = "Stone2";
-            var textureNormal = "NormalMap";
-            var uv = MaterialProvider.Replace(index, GetTexture(textureName), TextureType.Main);
-            MaterialProvider.Replace(index, GetTexture(textureNormal), TextureType.Normal);
+            var textureName = "Outside_A4";
+            var texture = GetTexture(textureName);
+            var gridSize = new Vector2Int(8, 3);
+            var tilesetSize = new Vector2Int(texture.width / gridSize.x, texture.height / gridSize.y);
+            var i = 0;
+            var j = 0;
+
+            var uv = MaterialProvider.Replace(index, texture, TextureType.Main);
 
             var pp = new BlockPart[6];
             void addPart(Facing facing, Quaternion rotation)
@@ -42,7 +46,7 @@ namespace Game.View.World
             parts[(int)block.id] = pp;
         }
 
-        public override BlockPart GetBlockPart(Block block, Facing facing)
+        public override BlockPart GetBlockPart(Facing facing, Block block, BlockState state)
         {
             var pp = parts[(int)block.id];
             return pp[(int)facing];

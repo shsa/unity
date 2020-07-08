@@ -7,12 +7,14 @@ using System.Threading.Tasks;
 
 namespace Game.Logic.World
 {
-    public enum BlockData : int
+    using BT = System.Int64;
+
+    public enum BlockData : BT
     {
         None = 0
     }
 
-    public enum BlockState: int
+    public enum BlockState: BT
     {
     }
 
@@ -30,12 +32,12 @@ namespace Game.Logic.World
 
         public static BlockType GetBlockId(this BlockData data)
         {
-            return (BlockType)((int)data & 0xFF);
+            return (BlockType)((BT)data & 0xFF);
         }
 
-        public static BlockType GetBlockState(this BlockData data)
+        public static BlockState GetBlockState(this BlockData data)
         {
-            return (BlockType)((int)data >> 8);
+            return (BlockState)((BT)data >> 8);
         }
 
         public static BlockData GetBlockData(this BlockType blockId)
@@ -45,7 +47,7 @@ namespace Game.Logic.World
 
         public static BlockData GetBlockData(this BlockType blockId, BlockState state)
         {
-            return (BlockData)((int)state << 8 | (int)blockId);
+            return (BlockData)((BT)state << 8 | (BT)blockId);
         }
     }
 }

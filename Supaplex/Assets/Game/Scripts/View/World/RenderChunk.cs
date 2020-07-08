@@ -214,12 +214,13 @@ namespace Game.View.World
                     return;
             }
             var block = blockData.GetBlock();
+            var state = blockData.GetBlockState();
             var model = Model.GetModel(block.model);
             for (Facing facing = Facing.First; facing <= Facing.Last; facing++)
             {
                 if (((facings >> (int)facing) & 1) == 1)
                 {
-                    var part = model.GetBlockPart(block, facing);
+                    var part = model.GetBlockPart(facing, block, state);
                     var l = vertices.Count;
                     if (part == null || part.vertices == null)
                     {

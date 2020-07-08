@@ -3,6 +3,7 @@
     public enum ModelType
     {
         None,
-        Simple
+        Simple,
+        RPGMakerTileSet
     }
 }

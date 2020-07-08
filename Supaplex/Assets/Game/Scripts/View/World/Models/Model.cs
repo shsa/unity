@@ -15,7 +15,7 @@ namespace Game.View.World
 
         public abstract void Register(Block block);
 
-        public abstract BlockPart GetBlockPart(Block block, Facing facing);
+        public abstract BlockPart GetBlockPart(Facing facing, Block block, BlockState state);
 
         public static Texture2D GetTexture(string name)
         {
@@ -48,7 +48,8 @@ namespace Game.View.World
             var count = (int)Enum.GetValues(typeof(ModelType)).Cast<ModelType>().Max() + 1;
             REGISTER = new Model[count];
 
-            Register(ModelType.Simple, new SimpleModel());
+            Register(ModelType.Simple, new ModelSimple());
+            Register(ModelType.RPGMakerTileSet, new ModelRPGMakerTileSet());
         }
     }
 }

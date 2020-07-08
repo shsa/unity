@@ -68,7 +68,7 @@ namespace Game.View.World
             {
                 var newTexture = new Texture2D(blockSize, blockSize, TextureFormat.ARGB32, false);
                 Graphics.ConvertTexture(source, newTexture);
-                UnityEngine.Object.Destroy(source);
+                UnityEngine.Object.DestroyImmediate(source, false);
                 return newTexture;
             }
             return source;
@@ -87,6 +87,7 @@ namespace Game.View.World
 
         public static Rect Replace(int index, Texture2D source, TextureType textureType)
         {
+            var _active = RenderTexture.active;
             var dst = textures[(int)textureType];
             var x = index % lineCount * blockSize;
             var y = index / lineCount * blockSize;
@@ -100,8 +101,9 @@ namespace Game.View.World
             //dst.Apply();
             //RenderTexture.active = t;
             
-            Graphics.CopyTexture(source, 0, 0, 0, 0, blockSize, blockSize, dst, 0, 0, x, y);
+            Graphics.CopyTexture(source, 0, 0, 0, 0, source.width, source.height, dst, 0, 0, x, y);
 
+            RenderTexture.active = _active;
             UnityEngine.Object.Destroy(source);
             return new Rect(x * uvKoef, y * uvKoef, uvBlockSize, uvBlockSize);
         }
