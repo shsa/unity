@@ -13,7 +13,7 @@ namespace Game.Logic
     public class LevelObject
     {
         public Vector2Int position;
-        public ObjectType type;
+        public BlockType type;
     }
 
     public class Wall : LevelObject
@@ -59,7 +59,7 @@ namespace Game.Logic
                             {
                                 var obj = new Wall();
                                 obj.position = new Vector2Int(x, y);
-                                obj.type = ObjectType.Wall;
+                                obj.type = BlockType.Wall;
                                 level.data.Add(obj.position, obj);
                             }
                             break;
@@ -67,7 +67,7 @@ namespace Game.Logic
                             {
                                 var obj = new Stone();
                                 obj.position = new Vector2Int(x, y);
-                                obj.type = ObjectType.Stone;
+                                obj.type = BlockType.Stone;
                                 level.data.Add(obj.position, obj);
                             }
                             break;
@@ -83,7 +83,7 @@ namespace Game.Logic
             return data.Values.GetEnumerator();
         }
 
-        public IEnumerable<LevelObject> GetEnumerator(ObjectType type)
+        public IEnumerable<LevelObject> GetEnumerator(BlockType type)
         {
             foreach (var obj in data.Values)
             {
@@ -103,7 +103,7 @@ namespace Game.Logic
         {
             if (data.TryGetValue(pos, out var obj))
             {
-                return obj.type == ObjectType.Empty;
+                return obj.type == BlockType.Empty;
             }
             return true;
         }

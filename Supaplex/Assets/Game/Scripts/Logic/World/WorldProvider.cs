@@ -61,7 +61,7 @@ namespace Game.Logic.World
             return false;
         }
 
-        ObjectType CalcObjectType(BlockPos pos)
+        BlockType CalcObjectType(BlockPos pos)
         {
             if (CalcStone(pos.x, pos.y, pos.z, out var k))
             {
@@ -69,14 +69,14 @@ namespace Game.Logic.World
                 {
                     //return ObjectType.Stone4x4;
                 }
-                return ObjectType.Stone;
+                return BlockType.Stone;
             }
-            return ObjectType.Empty;
+            return BlockType.Empty;
         }
 
         public bool IsStone(BlockPos pos)
         {
-            return CalcObjectType(pos) == ObjectType.Stone;
+            return CalcObjectType(pos) == BlockType.Stone;
         }
 
         void Generate(Chunk chunk)
@@ -111,12 +111,12 @@ namespace Game.Logic.World
             chunk.SetMetadata(pos, value);
         }
 
-        public ObjectType GetObjectType(BlockPos pos)
+        public BlockType GetObjectType(BlockPos pos)
         {
             return Chunk.GetObjectType(GetMetadata(pos));
         }
 
-        public void SetObjectType(BlockPos pos, ObjectType value)
+        public void SetObjectType(BlockPos pos, BlockType value)
         {
             var chunk = GetChunk(ChunkPos.From(pos));
             chunk.SetObjectType(pos, value);
@@ -129,8 +129,8 @@ namespace Game.Logic.World
             {
                 switch (GetObjectType(pos))
                 {
-                    case ObjectType.Empty:
-                    case ObjectType.None:
+                    case BlockType.Empty:
+                    case BlockType.None:
                         return true;
                     default:
                         return false;

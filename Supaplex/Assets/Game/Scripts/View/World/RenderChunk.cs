@@ -203,9 +203,9 @@ namespace Game.View
             Vector3 p = pos.ToVector();
             switch (objectType)
             {
-                case ObjectType.Stone:
+                case BlockType.Stone:
                     break;
-                case ObjectType.Stone4x4:
+                case BlockType.Stone4x4:
                     p = new Vector3(p.x + 1.5f, p.y + 1.5f, p.z + 1.5f);
                     facings = (1 << (int)Facing.South) | (1 << (int)Facing.Up) | (1 << (int)Facing.Down) | (1 << (int)Facing.West) | (1 << (int)Facing.East);
                     break;
@@ -221,7 +221,7 @@ namespace Game.View
                     for (int i = 0; i < side.vertices.Length; i++)
                     {
                         var v = side.vertices[i];
-                        if (objectType == ObjectType.Stone4x4)
+                        if (objectType == BlockType.Stone4x4)
                         {
                             vertices.Add(p + v * 4);
                         }

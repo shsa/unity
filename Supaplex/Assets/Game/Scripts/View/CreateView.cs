@@ -19,10 +19,10 @@ namespace Game.View
             {
                 switch (entity.objectType.value)
                 {
-                    case ObjectType.Wall:
+                    case BlockType.Wall:
                         view = GameObject.Instantiate(View.setup.wallPrefab, View.setup.gameRoot.transform);
                         break;
-                    case ObjectType.Stone:
+                    case BlockType.Stone:
                         view = GameObject.Instantiate(View.setup.stonePrefab, View.setup.gameRoot.transform);
                         break;
                     default: return null;

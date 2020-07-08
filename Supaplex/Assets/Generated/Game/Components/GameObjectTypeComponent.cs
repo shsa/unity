@@ -11,14 +11,14 @@ public partial class GameEntity {
     public ObjectTypeComponent objectType { get { return (ObjectTypeComponent)GetComponent(GameComponentsLookup.ObjectType); } }
     public bool hasObjectType { get { return HasComponent(GameComponentsLookup.ObjectType); } }
 
-    public void AddObjectType(Game.ObjectType newValue) {
+    public void AddObjectType(Game.BlockType newValue) {
         var index = GameComponentsLookup.ObjectType;
         var component = (ObjectTypeComponent)CreateComponent(index, typeof(ObjectTypeComponent));
         component.value = newValue;
         AddComponent(index, component);
     }
 
-    public void ReplaceObjectType(Game.ObjectType newValue) {
+    public void ReplaceObjectType(Game.BlockType newValue) {
         var index = GameComponentsLookup.ObjectType;
         var component = (ObjectTypeComponent)CreateComponent(index, typeof(ObjectTypeComponent));
         component.value = newValue;

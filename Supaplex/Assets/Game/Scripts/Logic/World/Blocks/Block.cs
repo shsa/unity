@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Game.Logic.World.Blocks
@@ -11,20 +13,21 @@ namespace Game.Logic.World.Blocks
         public string normalMap;
         public string heightMap;
 
-        public static Block GetBlock(ObjectType objectType)
+        public static Block GetBlock(BlockType objectType)
         {
             return REGISTER[(int)objectType];
         }
 
-        public static void Register(ObjectType objectType, Block block)
+        public static void Register(BlockType objectType, Block block)
         {
             REGISTER[(int)objectType] = block;
         }
 
         static Block()
         {
-            REGISTER = new Block[255];
-            Register(ObjectType.Stone, new Stone());
+            var count = (int)Enum.GetValues(typeof(BlockType)).Cast<BlockType>().Max() + 1;
+            REGISTER = new Block[count];
+            Register(BlockType.Stone, new Stone());
         }
     }
 }

@@ -78,22 +78,22 @@ namespace Game.Logic.World
             }
         }
 
-        public static ObjectType GetObjectType(int metadata)
+        public static BlockType GetObjectType(int metadata)
         {
-            return (ObjectType)((metadata >> 8) & 0xFF);
+            return (BlockType)((metadata >> 8) & 0xFF);
         }
 
-        public static int SetObjectType(int metadata, ObjectType value)
+        public static int SetObjectType(int metadata, BlockType value)
         {
             return (metadata & ~(0xFF << 8)) | ((int)value << 8);
         }
 
-        public ObjectType GetObjectType(BlockPos pos)
+        public BlockType GetObjectType(BlockPos pos)
         {
             return GetObjectType(GetMetadata(pos));
         }
 
-        public void SetObjectType(BlockPos pos, ObjectType value)
+        public void SetObjectType(BlockPos pos, BlockType value)
         {
             var index = GetBlockIndex(pos);
             data[index] = SetObjectType(data[index], value);
@@ -106,8 +106,8 @@ namespace Game.Logic.World
             {
                 switch (GetObjectType(pos))
                 {
-                    case ObjectType.Empty:
-                    case ObjectType.None:
+                    case BlockType.Empty:
+                    case BlockType.None:
                         return true;
                     default:
                         return false;

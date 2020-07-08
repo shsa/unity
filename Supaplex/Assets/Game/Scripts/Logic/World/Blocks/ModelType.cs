@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Game.Logic.World.Blocks
 {
-    public enum Model
+    public enum ModelType
     {
         Simple
     }

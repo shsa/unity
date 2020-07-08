@@ -71,7 +71,7 @@ public class MatrixComponent : ValueComponent<Matrix4x4>, IComponent
 }
 
 [Game]
-public class ObjectTypeComponent : ValueComponent<Game.ObjectType>, IComponent
+public class ObjectTypeComponent : ValueComponent<Game.BlockType>, IComponent
 {
 }
 

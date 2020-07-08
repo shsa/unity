@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Game
 {
-    public enum ObjectType
+    public enum BlockType
     {
         None,
         Empty,

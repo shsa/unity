@@ -26,7 +26,7 @@ namespace Game.Logic
             return true;
         }
 
-        public static bool HasObject(this Contexts contexts, Vector2Int position, ObjectType type)
+        public static bool HasObject(this Contexts contexts, Vector2Int position, BlockType type)
         {
             var objects = contexts.GetObjects(position);
             foreach (var obj in objects)
