@@ -17,7 +17,7 @@ namespace Game.View.World
     public static class MaterialProvider
     {
         static int blockSize;
-        static RenderTexture renderTexture;
+        static Texture2D blockTempTexture;
         static Texture2D[] textures;
 
         // count blocks for line
@@ -47,7 +47,7 @@ namespace Game.View.World
             {
                 textures[i] = new Texture2D(w, h, TextureFormat.ARGB32, false);
             }
-            renderTexture = new RenderTexture(blockSize, blockSize, 0);
+            blockTempTexture = new Texture2D(blockSize, blockSize, TextureFormat.ARGB32, false);
 
             // https://docs.unity3d.com/ScriptReference/Material.SetTexture.html
             var material = new Material(Shader.Find("Standard"));
@@ -66,10 +66,8 @@ namespace Game.View.World
         {
             if (source.width != blockSize || source.height != blockSize)
             {
-                var newTexture = new Texture2D(blockSize, blockSize, TextureFormat.ARGB32, false);
-                Graphics.ConvertTexture(source, newTexture);
-                UnityEngine.Object.DestroyImmediate(source, false);
-                return newTexture;
+                Graphics.ConvertTexture(source, blockTempTexture);
+                return blockTempTexture;
             }
             return source;
         }
@@ -104,7 +102,6 @@ namespace Game.View.World
             Graphics.CopyTexture(source, 0, 0, 0, 0, source.width, source.height, dst, 0, 0, x, y);
 
             RenderTexture.active = _active;
-            UnityEngine.Object.Destroy(source);
             return new Rect(x * uvKoef, y * uvKoef, uvBlockSize, uvBlockSize);
         }
     }
