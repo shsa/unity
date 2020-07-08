@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using Game.Logic;
 using Game.View;
+using Game.Logic.World.Blocks;
 
 namespace Game.Logic.World
 {
@@ -11,20 +12,20 @@ namespace Game.Logic.World
     {
         public BlockPos position { get; private set; }
         public FacingSet sides { get; private set; }
-        public int metadata { get; private set; }
+        public BlockData data { get; private set; }
 
-        public ChunkChangeEvent(BlockPos position, FacingSet sets, int metadata)
+        public ChunkChangeEvent(BlockPos position, FacingSet sets, BlockData data)
         {
             this.position = position;
             this.sides = sets;
-            this.metadata = metadata;
+            this.data = data;
         }
 
-        public void Set(BlockPos position, FacingSet sides, int metadata)
+        public void Set(BlockPos position, FacingSet sides, BlockData data)
         {
             this.position = position;
             this.sides = sides;
-            this.metadata = metadata;
+            this.data = data;
         }
     }
 
@@ -32,7 +33,7 @@ namespace Game.Logic.World
     {
         public WorldProvider world { get; private set; }
         public ChunkPos position { get; private set; }
-        int[] data;
+        BlockData[] data;
 
         public event EventHandler<ChunkChangeEvent> cubeChanged;
 
@@ -40,34 +41,25 @@ namespace Game.Logic.World
         {
             this.world = world;
             this.position = new ChunkPos(pos);
-            data = new int[16 * 16 * 16];
-            Array.Clear(data, 0, data.Length);
+            data = new BlockData[16 * 16 * 16];
+            //Array.Clear(data, 0, data.Length);
         }
 
-        public int this[BlockPos pos] {
-            get {
-                return data[GetBlockIndex(pos)];
-            }
-            set {
-                data[GetBlockIndex(pos)] = value;
-            }
-        }
-
-        public int GetMetadata(BlockPos pos)
+        public BlockData GetBlockData(BlockPos pos)
         {
             return data[GetBlockIndex(pos)];
         }
 
-        public void SetMetadata(BlockPos pos, int value)
+        public void SetBlockData(BlockPos pos, BlockData value)
         {
             var index = GetBlockIndex(pos);
-            var metadata = data[index];
-            if (metadata != value)
+            var oldValue = data[index];
+            if (oldValue != value)
             {
                 data[index] = value;
                 if (cubeChanged != null)
                 {
-                    var e = new ChunkChangeEvent(pos, FacingSet.All, metadata);
+                    var e = new ChunkChangeEvent(pos, FacingSet.All, value);
                     cubeChanged(this, e);
                     for (var side = Facing.First; side <= Facing.Last; side++)
                     {
@@ -78,9 +70,14 @@ namespace Game.Logic.World
             }
         }
 
-        public static BlockType GetObjectType(int metadata)
+        public static BlockType GetBlockId(int metadata)
         {
-            return (BlockType)((metadata >> 8) & 0xFF);
+            return (BlockType)(metadata & 0xFF);
+        }
+
+        public static int GetMeta(int metadata)
+        {
+            return metadata >> 8;
         }
 
         public static int SetObjectType(int metadata, BlockType value)
@@ -88,23 +85,12 @@ namespace Game.Logic.World
             return (metadata & ~(0xFF << 8)) | ((int)value << 8);
         }
 
-        public BlockType GetObjectType(BlockPos pos)
-        {
-            return GetObjectType(GetMetadata(pos));
-        }
-
-        public void SetObjectType(BlockPos pos, BlockType value)
-        {
-            var index = GetBlockIndex(pos);
-            data[index] = SetObjectType(data[index], value);
-        }
-
         public bool IsEmpty(BlockPos pos)
         {
             UnityEngine.Profiling.Profiler.BeginSample("IsEmpty");
             try
             {
-                switch (GetObjectType(pos))
+                switch (GetBlockId(pos))
                 {
                     case BlockType.Empty:
                     case BlockType.None:

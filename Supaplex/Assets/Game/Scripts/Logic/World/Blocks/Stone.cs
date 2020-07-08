@@ -1,14 +1,9 @@
-﻿using UnityEngine;
-
-namespace Game.Logic.World.Blocks
+﻿namespace Game.Logic.World.Blocks
 {
     public class Stone : Block
     {
-        public Stone()
+        public Stone() : base("Stone")
         {
-            texture = "Stone2";
-            normalMap = "NormalMap";
-            heightMap = "Stone2H";
         }
     }
 }

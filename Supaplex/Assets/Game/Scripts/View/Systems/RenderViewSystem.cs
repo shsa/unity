@@ -1,9 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 using Entitas;
 using Game.Logic.World;
+using Game.View.World;
 using UnityEngine;
 
 namespace Game.View
@@ -40,6 +42,10 @@ namespace Game.View
             var r = new Rect(0, 0, 1, 1);
             cube = Geometry.CreateCube2(new Rect[] { r, r, r, r, r, r });
             planes = new Plane[6];
+
+            var blockCount = (int)Enum.GetValues(typeof(BlockType)).Cast<BlockType>().Max() + 1;
+            material = MaterialProvider.Create(64, blockCount * 6);
+            Game.View.World.Models.Model.Create();
         }
 
         void RenderWorldSingle()

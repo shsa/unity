@@ -108,12 +108,12 @@ namespace Game.Logic.World
         public void SetMetadata(BlockPos pos, int value)
         {
             var chunk = GetChunk(ChunkPos.From(pos));
-            chunk.SetMetadata(pos, value);
+            chunk.SetBlockData(pos, value);
         }
 
         public BlockType GetObjectType(BlockPos pos)
         {
-            return Chunk.GetObjectType(GetMetadata(pos));
+            return Chunk.GetBlockId(GetMetadata(pos));
         }
 
         public void SetObjectType(BlockPos pos, BlockType value)

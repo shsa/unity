@@ -199,7 +199,7 @@ namespace Game.View
 
         void AddBlock(BlockPos pos, byte facings)
         {
-            var objectType = chunk.GetObjectType(pos);
+            var objectType = chunk.GetBlockId(pos);
             Vector3 p = pos.ToVector();
             switch (objectType)
             {
