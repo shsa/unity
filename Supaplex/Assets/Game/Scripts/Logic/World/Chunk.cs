@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
-using Game.Logic;
-using Game.View;
-using Game.Logic.World.Blocks;
 
 namespace Game.Logic.World
 {
@@ -63,45 +57,22 @@ namespace Game.Logic.World
                     cubeChanged(this, e);
                     for (var side = Facing.First; side <= Facing.Last; side++)
                     {
-                        e.Set(pos.Offset(side), side.Opposite().ToSet(), -1);
+                        e.Set(pos.Offset(side), side.Opposite().ToSet(), BlockData.None);
                         cubeChanged(this, e);
                     }
                 }
             }
         }
 
-        public static BlockType GetBlockId(int metadata)
-        {
-            return (BlockType)(metadata & 0xFF);
-        }
-
-        public static int GetMeta(int metadata)
-        {
-            return metadata >> 8;
-        }
-
-        public static int SetObjectType(int metadata, BlockType value)
-        {
-            return (metadata & ~(0xFF << 8)) | ((int)value << 8);
-        }
-
         public bool IsEmpty(BlockPos pos)
         {
-            UnityEngine.Profiling.Profiler.BeginSample("IsEmpty");
-            try
+            switch (GetBlockData(pos).GetBlockId())
             {
-                switch (GetBlockId(pos))
-                {
-                    case BlockType.Empty:
-                    case BlockType.None:
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-            finally
-            {
-                UnityEngine.Profiling.Profiler.EndSample();
+                case BlockType.Empty:
+                case BlockType.None:
+                    return true;
+                default:
+                    return false;
             }
         }
 

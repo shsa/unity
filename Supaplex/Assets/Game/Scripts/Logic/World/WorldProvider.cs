@@ -61,7 +61,7 @@ namespace Game.Logic.World
             return false;
         }
 
-        BlockType CalcObjectType(BlockPos pos)
+        BlockType CalcBlockId(BlockPos pos)
         {
             if (CalcStone(pos.x, pos.y, pos.z, out var k))
             {
@@ -76,7 +76,7 @@ namespace Game.Logic.World
 
         public bool IsStone(BlockPos pos)
         {
-            return CalcObjectType(pos) == BlockType.Stone;
+            return CalcBlockId(pos) == BlockType.Stone;
         }
 
         void Generate(Chunk chunk)
@@ -91,54 +91,38 @@ namespace Game.Logic.World
                     for (int y = min.y; y <= max.y; y++)
                     {
                         pos.Set(x, y, z);
-                        chunk.SetObjectType(pos, CalcObjectType(pos));
+                        var blockId = CalcBlockId(pos);
+                        var block = blockId.GetBlock();
+                        chunk.SetBlockData(pos, blockId.GetBlockData(block.GetDefaultState()));
                     }
                 }
             }
         }
 
         ChunkPos chunkPos = new ChunkPos(0, 0, 0);
-        public int GetMetadata(BlockPos pos)
+        public BlockData GetBlockData(BlockPos pos)
         {
             chunkPos.Set(pos);
             var chunk = GetChunk(chunkPos);
-            return chunk.GetMetadata(pos);
+            return chunk.GetBlockData(pos);
         }
 
-        public void SetMetadata(BlockPos pos, int value)
+        public void SetBlockData(BlockPos pos, BlockData value)
         {
-            var chunk = GetChunk(ChunkPos.From(pos));
+            chunkPos.Set(pos);
+            var chunk = GetChunk(chunkPos);
             chunk.SetBlockData(pos, value);
-        }
-
-        public BlockType GetObjectType(BlockPos pos)
-        {
-            return Chunk.GetBlockId(GetMetadata(pos));
-        }
-
-        public void SetObjectType(BlockPos pos, BlockType value)
-        {
-            var chunk = GetChunk(ChunkPos.From(pos));
-            chunk.SetObjectType(pos, value);
         }
 
         public bool IsEmpty(BlockPos pos)
         {
-            UnityEngine.Profiling.Profiler.BeginSample("IsEmpty");
-            try
+            switch (GetBlockData(pos).GetBlockId())
             {
-                switch (GetObjectType(pos))
-                {
-                    case BlockType.Empty:
-                    case BlockType.None:
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-            finally
-            {
-                UnityEngine.Profiling.Profiler.EndSample();
+                case BlockType.Empty:
+                case BlockType.None:
+                    return true;
+                default:
+                    return false;
             }
         }
     }

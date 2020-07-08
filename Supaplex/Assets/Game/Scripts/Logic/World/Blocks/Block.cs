@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Game.Logic.World.Blocks
+namespace Game.Logic.World
 {
     public class Block
     {
@@ -11,35 +11,22 @@ namespace Game.Logic.World.Blocks
 
         public BlockType id { get; private set; }
         public readonly string name;
+        public readonly ModelType model;
 
-        public Block(string name)
+        public Block(string name, ModelType model)
         {
             this.name = name;
+            this.model = model;
         }
 
-        public virtual Facing GetFront(int state)
+        public virtual Facing GetFront(BlockState state)
         {
-            return (Facing)(state & 0xF);
+            return (Facing)((int)state & 0xF);
         }
 
-        public virtual int GetDefaultState()
+        public virtual BlockState GetDefaultState()
         {
             return (int)Facing.South;
-        }
-
-        public static BlockType GetBlockID(int metadata)
-        {
-            return (BlockType)(metadata & 0xFF);
-        }
-
-        public static int GetState(int metadata)
-        {
-            return metadata >> 8;
-        }
-
-        public static int GetMetadata(BlockType blockId, int state)
-        {
-            return state << 8 | (int)blockId;
         }
 
         public static Block GetBlock(BlockType objectType)
@@ -57,7 +44,9 @@ namespace Game.Logic.World.Blocks
         {
             var count = (int)Enum.GetValues(typeof(BlockType)).Cast<BlockType>().Max() + 1;
             REGISTER = new Block[count];
-            Register(BlockType.Stone, new Stone());
+
+            Register(BlockType.Empty, new BlockEmpty());
+            Register(BlockType.Stone, new BlockStone());
         }
     }
 }

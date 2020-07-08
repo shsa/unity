@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Game.Logic.World.Blocks
+﻿namespace Game.Logic.World
 {
     public enum ModelType
     {
+        None,
         Simple
     }
 }

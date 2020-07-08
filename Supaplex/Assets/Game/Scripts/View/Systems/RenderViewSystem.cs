@@ -44,8 +44,8 @@ namespace Game.View
             planes = new Plane[6];
 
             var blockCount = (int)Enum.GetValues(typeof(BlockType)).Cast<BlockType>().Max() + 1;
-            material = MaterialProvider.Create(64, blockCount * 6);
-            Game.View.World.Models.Model.Create();
+            //material = MaterialProvider.Create(64, blockCount * 6);
+            //Game.View.World.Models.Model.Create();
         }
 
         void RenderWorldSingle()
