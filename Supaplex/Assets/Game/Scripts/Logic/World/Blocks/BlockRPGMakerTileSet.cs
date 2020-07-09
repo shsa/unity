@@ -16,10 +16,10 @@ namespace Game.Logic.World
         class FacingD
         {
             public Vec3i vector;
-            public int index;
+            public Compas index;
             public int index2;
 
-            public FacingD(int x, int y, int z, int index)
+            public FacingD(int x, int y, int z, Compas index)
             {
                 vector = new Vec3i(x, y, z);
                 this.index = index;
@@ -59,18 +59,18 @@ namespace Game.Logic.World
             dirs = fullBlock.Values.ToArray();
 
             var list = new FacingDList();
-            list.Add(new FacingD(0, 1, 0, 0)); // N
-            list.Add(new FacingD(1, 1, 0, 1)); // NE
-            list.Add(new FacingD(1, 0, 0, 2)); // E
-            list.Add(new FacingD(1, -1, 0, 3)); // SE
-            list.Add(new FacingD(0, -1, 0, 4)); // S
-            list.Add(new FacingD(-1, -1, 0, 5)); // SW
-            list.Add(new FacingD(-1, 0, 0, 6)); // W
-            list.Add(new FacingD(-1, 1, 0, 7)); // NW
-            list.Add(new FacingD(0, 1, -1, 0)); // N
-            list.Add(new FacingD(1, 0, -1, 2)); // E
-            list.Add(new FacingD(0, -1, -1, 4)); // S
-            list.Add(new FacingD(-1, 0, -1, 6)); // W
+            list.Add(new FacingD(0, 1, 0, Compas.N)); // N
+            list.Add(new FacingD(1, 1, 0, Compas.NE)); // NE
+            list.Add(new FacingD(1, 0, 0, Compas.E)); // E
+            list.Add(new FacingD(1, -1, 0, Compas.SE)); // SE
+            list.Add(new FacingD(0, -1, 0, Compas.S)); // S
+            list.Add(new FacingD(-1, -1, 0, Compas.SW)); // SW
+            list.Add(new FacingD(-1, 0, 0, Compas.W)); // W
+            list.Add(new FacingD(-1, 1, 0, Compas.NW)); // NW
+            list.Add(new FacingD(0, 1, -1, Compas.N)); // N
+            list.Add(new FacingD(1, 0, -1, Compas.E)); // E
+            list.Add(new FacingD(0, -1, -1, Compas.S)); // S
+            list.Add(new FacingD(-1, 0, -1, Compas.W)); // W
 
             void AddToFacing(Facing facing, Quaternion rotation)
             {

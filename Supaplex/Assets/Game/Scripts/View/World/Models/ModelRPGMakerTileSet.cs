@@ -1,5 +1,6 @@
 ﻿using Game.Logic.World;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -14,6 +15,107 @@ namespace Game.View.World
         {
             var count = (int)Enum.GetValues(typeof(BlockType)).Cast<BlockType>().Max() + 1;
             parts = new BlockPart[count][];
+        }
+
+        class BlockInfo
+        {
+            public int x;
+            public int y;
+            public int i;
+            public int j;
+            public byte sides = 0;
+
+            public BlockInfo(int x, int y, int i, int j)
+            {
+                this.x = x;
+                this.y = y;
+                this.i = i;
+                this.j = j;
+            }
+
+            public void Add(Compas dir)
+            {
+                sides |= (byte)(1 << (int)dir);
+            }
+        }
+        List<BlockInfo> list = new List<BlockInfo>();
+
+        void BuildTileSet()
+        {
+            var info = new BlockInfo(0, 2, 0, 0);
+            info.Add(Compas.E);
+            info.Add(Compas.SE);
+            info.Add(Compas.S);
+            list.Add(info);
+
+            info = new BlockInfo(0, 3, 0, 0);
+            info.Add(Compas.N);
+            info.Add(Compas.NE);
+            info.Add(Compas.E);
+            info.Add(Compas.SE);
+            info.Add(Compas.S);
+            list.Add(info);
+
+            info = new BlockInfo(0, 4, 0, 0);
+            info.Add(Compas.N);
+            info.Add(Compas.NE);
+            info.Add(Compas.E);
+            list.Add(info);
+
+            info = new BlockInfo(2, 0, 0, 0);
+            info.Add(Compas.N);
+            info.Add(Compas.E);
+            info.Add(Compas.S);
+            info.Add(Compas.W);
+            list.Add(info);
+
+            info = new BlockInfo(1, 2, 0, 0);
+            info.Add(Compas.E);
+            info.Add(Compas.S);
+            info.Add(Compas.W);
+            info.Add(Compas.SE);
+            info.Add(Compas.SW);
+            list.Add(info);
+
+            info = new BlockInfo(2, 2, 0, 0);
+            info.Add(Compas.S);
+            info.Add(Compas.W);
+            info.Add(Compas.SW);
+            list.Add(info);
+
+            info = new BlockInfo(1, 3, 0, 0);
+            info.Add(Compas.N);
+            info.Add(Compas.S);
+            info.Add(Compas.E);
+            info.Add(Compas.W);
+            info.Add(Compas.SW);
+            info.Add(Compas.SE);
+            info.Add(Compas.NE);
+            info.Add(Compas.NW);
+            list.Add(info);
+
+            info = new BlockInfo(1, 4, 0, 0);
+            info.Add(Compas.N);
+            info.Add(Compas.E);
+            info.Add(Compas.W);
+            info.Add(Compas.NE);
+            info.Add(Compas.NW);
+            list.Add(info);
+
+            info = new BlockInfo(2, 4, 0, 0);
+            info.Add(Compas.N);
+            info.Add(Compas.W);
+            info.Add(Compas.NW);
+            list.Add(info);
+
+            info = new BlockInfo(2, 3, 0, 0);
+            info.Add(Compas.N);
+            info.Add(Compas.S);
+            info.Add(Compas.W);
+            info.Add(Compas.SW);
+            info.Add(Compas.NW);
+            list.Add(info);
+
         }
 
         public override void Register(Block block)
