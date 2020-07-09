@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Game
 {
-    public enum Compas
+    public enum CompasEnum
     {
         N = 0,
         NE = 1,

@@ -45,7 +45,7 @@ namespace Game.View.World
                 this.corner = corner;
             }
 
-            public void Add(Compas dir)
+            public void Add(CompasEnum dir)
             {
                 sides |= (byte)(1 << (int)dir);
             }
@@ -56,93 +56,93 @@ namespace Game.View.World
         {
             var list0 = new List<BlockInfo>();
             var info0 = new BlockInfo(0, 2, CornerEnum.TL);
-            info0.Add(Compas.E);
-            info0.Add(Compas.SE);
-            info0.Add(Compas.S);
+            info0.Add(CompasEnum.E);
+            info0.Add(CompasEnum.SE);
+            info0.Add(CompasEnum.S);
             list0.Add(info0);
 
             info0 = new BlockInfo(0, 3, CornerEnum.TL);
-            info0.Add(Compas.N);
-            info0.Add(Compas.NE);
-            info0.Add(Compas.E);
-            info0.Add(Compas.SE);
-            info0.Add(Compas.S);
+            info0.Add(CompasEnum.N);
+            info0.Add(CompasEnum.NE);
+            info0.Add(CompasEnum.E);
+            info0.Add(CompasEnum.SE);
+            info0.Add(CompasEnum.S);
             list0.Add(info0);
 
             info0 = new BlockInfo(0, 4, CornerEnum.TL);
-            info0.Add(Compas.N);
-            info0.Add(Compas.NE);
-            info0.Add(Compas.E);
+            info0.Add(CompasEnum.N);
+            info0.Add(CompasEnum.NE);
+            info0.Add(CompasEnum.E);
             list0.Add(info0);
 
             info0 = new BlockInfo(2, 0, CornerEnum.TL);
-            info0.Add(Compas.N);
-            info0.Add(Compas.E);
-            info0.Add(Compas.S);
-            info0.Add(Compas.W);
+            info0.Add(CompasEnum.N);
+            info0.Add(CompasEnum.E);
+            info0.Add(CompasEnum.S);
+            info0.Add(CompasEnum.W);
             list0.Add(info0);
 
             info0 = new BlockInfo(1, 2, CornerEnum.TL);
-            info0.Add(Compas.E);
-            info0.Add(Compas.S);
-            info0.Add(Compas.W);
-            info0.Add(Compas.SE);
-            info0.Add(Compas.SW);
+            info0.Add(CompasEnum.E);
+            info0.Add(CompasEnum.S);
+            info0.Add(CompasEnum.W);
+            info0.Add(CompasEnum.SE);
+            info0.Add(CompasEnum.SW);
             list0.Add(info0);
 
             info0 = new BlockInfo(2, 2, CornerEnum.TL);
-            info0.Add(Compas.S);
-            info0.Add(Compas.W);
-            info0.Add(Compas.SW);
+            info0.Add(CompasEnum.S);
+            info0.Add(CompasEnum.W);
+            info0.Add(CompasEnum.SW);
             list0.Add(info0);
 
             info0 = new BlockInfo(1, 3, CornerEnum.TL);
-            info0.Add(Compas.N);
-            info0.Add(Compas.S);
-            info0.Add(Compas.E);
-            info0.Add(Compas.W);
-            info0.Add(Compas.SW);
-            info0.Add(Compas.SE);
-            info0.Add(Compas.NE);
-            info0.Add(Compas.NW);
+            info0.Add(CompasEnum.N);
+            info0.Add(CompasEnum.S);
+            info0.Add(CompasEnum.E);
+            info0.Add(CompasEnum.W);
+            info0.Add(CompasEnum.SW);
+            info0.Add(CompasEnum.SE);
+            info0.Add(CompasEnum.NE);
+            info0.Add(CompasEnum.NW);
             list0.Add(info0);
 
             info0 = new BlockInfo(1, 4, CornerEnum.TL);
-            info0.Add(Compas.N);
-            info0.Add(Compas.E);
-            info0.Add(Compas.W);
-            info0.Add(Compas.NE);
-            info0.Add(Compas.NW);
+            info0.Add(CompasEnum.N);
+            info0.Add(CompasEnum.E);
+            info0.Add(CompasEnum.W);
+            info0.Add(CompasEnum.NE);
+            info0.Add(CompasEnum.NW);
             list0.Add(info0);
 
             info0 = new BlockInfo(2, 4, CornerEnum.TL);
-            info0.Add(Compas.N);
-            info0.Add(Compas.W);
-            info0.Add(Compas.NW);
+            info0.Add(CompasEnum.N);
+            info0.Add(CompasEnum.W);
+            info0.Add(CompasEnum.NW);
             list0.Add(info0);
 
             info0 = new BlockInfo(2, 3, CornerEnum.TL);
-            info0.Add(Compas.N);
-            info0.Add(Compas.S);
-            info0.Add(Compas.W);
-            info0.Add(Compas.SW);
-            info0.Add(Compas.NW);
+            info0.Add(CompasEnum.N);
+            info0.Add(CompasEnum.S);
+            info0.Add(CompasEnum.W);
+            info0.Add(CompasEnum.SW);
+            info0.Add(CompasEnum.NW);
             list0.Add(info0);
 
-            byte union(Compas dir1, Compas dir2, Compas dir3)
+            byte union(CompasEnum dir1, CompasEnum dir2, CompasEnum dir3)
             {
                 return (byte)(((1 << (int)dir1) | (1 << (int)dir2) | (1 << (int)dir3)));
             }
 
-            cornerSides[(int)CornerEnum.TL] = union(Compas.W, Compas.NW, Compas.N);
-            cornerSides[(int)CornerEnum.TR] = union(Compas.N, Compas.NE, Compas.E);
-            cornerSides[(int)CornerEnum.BR] = union(Compas.E, Compas.SE, Compas.S);
-            cornerSides[(int)CornerEnum.BL] = union(Compas.S, Compas.SW, Compas.W);
+            cornerSides[(int)CornerEnum.TL] = union(CompasEnum.W, CompasEnum.NW, CompasEnum.N);
+            cornerSides[(int)CornerEnum.TR] = union(CompasEnum.N, CompasEnum.NE, CompasEnum.E);
+            cornerSides[(int)CornerEnum.BR] = union(CompasEnum.E, CompasEnum.SE, CompasEnum.S);
+            cornerSides[(int)CornerEnum.BL] = union(CompasEnum.S, CompasEnum.SW, CompasEnum.W);
 
-            byte N = 1 << (int)Compas.N;
-            byte S = 1 << (int)Compas.S;
-            byte E = 1 << (int)Compas.E;
-            byte W = 1 << (int)Compas.W;
+            byte N = 1 << (int)CompasEnum.N;
+            byte S = 1 << (int)CompasEnum.S;
+            byte E = 1 << (int)CompasEnum.E;
+            byte W = 1 << (int)CompasEnum.W;
 
             void cross(BlockInfo info, byte sides)
             {
@@ -156,16 +156,16 @@ namespace Game.View.World
                     switch (info.corner)
                     {
                         case CornerEnum.TL:
-                            info2.sides |= 1 << (int)Compas.NW;
+                            info2.sides |= 1 << (int)CompasEnum.NW;
                             break;
                         case CornerEnum.TR:
-                            info2.sides |= 1 << (int)Compas.NE;
+                            info2.sides |= 1 << (int)CompasEnum.NE;
                             break;
                         case CornerEnum.BL:
-                            info2.sides |= 1 << (int)Compas.SW;
+                            info2.sides |= 1 << (int)CompasEnum.SW;
                             break;
                         case CornerEnum.BR:
-                            info2.sides |= 1 << (int)Compas.SE;
+                            info2.sides |= 1 << (int)CompasEnum.SE;
                             break;
                     }
                     list.Add(info2);
@@ -282,6 +282,84 @@ namespace Game.View.World
             }
 
             parts[(int)block.id] = ss;
+        }
+
+        class TileInfo
+        {
+            public int index;
+            public CornerEnum corner;
+            public byte freeSides;
+            public byte ignoreSides;
+        }
+
+        public void Prepare2()
+        {
+            // clockwise: NE = n, ES = e, SW = s, WN = w
+            CompasEnum toCompas(char c)
+            {
+                switch (c)
+                {
+                    case 'N': return CompasEnum.N;
+                    case 'n': return CompasEnum.NE;
+                    case 'E': return CompasEnum.E;
+                    case 'e': return CompasEnum.SE;
+                    case 'S': return CompasEnum.S;
+                    case 's': return CompasEnum.SW;
+                    case 'W': return CompasEnum.W;
+                    case 'w': return CompasEnum.NW;
+                    default: throw new NotImplementedException();
+                }
+            }
+
+            byte toCompasSet(string text)
+            {
+                byte set = 0;
+                for (int i = 0; i < text.Length; i++)
+                {
+                    set |= (byte)(1 << (int)toCompas(text[i]));
+                }
+                return set;
+            }
+
+            var templates = new List<TileInfo>();
+            var corners = new byte[4];
+            corners[(int)CornerEnum.TL] = toCompasSet("sWwNn");
+            corners[(int)CornerEnum.TR] = toCompasSet("wNnEe");
+            corners[(int)CornerEnum.BL] = toCompasSet("eSsWw");
+            corners[(int)CornerEnum.BR] = toCompasSet("nEeSs");
+
+            void update(TileInfo info, int index, CornerEnum corner, byte freeSides, byte ignoreSides)
+            {
+                info.index = index;
+                info.corner = corner;
+                info.freeSides = (byte)(freeSides & corners[(int)corner]);
+                info.ignoreSides = (byte)(ignoreSides & corners[(int)corner]);
+                templates.Add(info);
+            }
+
+            void add(int tl, int tr, int bl, int br, string freeSides, string ignoreSides)
+            {
+                var _freeSides = toCompasSet(freeSides);
+                var _ignoreSides = toCompasSet(ignoreSides);
+
+                update(new TileInfo(), tl, CornerEnum.TL, _freeSides, _ignoreSides);
+                update(new TileInfo(), tr, CornerEnum.TR, _freeSides, _ignoreSides);
+                update(new TileInfo(), bl, CornerEnum.BL, _freeSides, _ignoreSides);
+                update(new TileInfo(), br, CornerEnum.BR, _freeSides, _ignoreSides);
+            }
+            add(12, 13, 8, 9, "WN", "swn");
+            add(14, 15, 10, 11, "NE", "wne");
+            add(4, 5, 0, 1, "SW", "esw");
+            add(6, 7, 2, 3, "ES", "nes");
+
+            add(14, 13, 10, 9, "N", "wn");
+            add(6, 7, 10, 11, "E", "ne");
+            add(6, 5, 2, 1, "S", "es");
+            add(4, 5, 8, 9, "W", "sw");
+
+            add(9, 10, 5, 6, "", "");
+
+            add(22, 23, 18, 19, "nesw", "");
         }
 
         public override BlockPart GetBlockPart(Facing facing, Block block, BlockState state)

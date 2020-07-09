@@ -16,10 +16,10 @@ namespace Game.Logic.World
         class FacingD
         {
             public Vec3i vector;
-            public Compas index;
+            public CompasEnum index;
             public int index3D;
 
-            public FacingD(int x, int y, int z, Compas index)
+            public FacingD(int x, int y, int z, CompasEnum index)
             {
                 vector = new Vec3i(x, y, z);
                 this.index = index;
@@ -59,18 +59,18 @@ namespace Game.Logic.World
             dirs = fullBlock.Values.ToArray();
 
             var list = new FacingDList();
-            list.Add(new FacingD(0, 1, 0, Compas.N)); // N
-            list.Add(new FacingD(1, 1, 0, Compas.NE)); // NE
-            list.Add(new FacingD(1, 0, 0, Compas.E)); // E
-            list.Add(new FacingD(1, -1, 0, Compas.SE)); // SE
-            list.Add(new FacingD(0, -1, 0, Compas.S)); // S
-            list.Add(new FacingD(-1, -1, 0, Compas.SW)); // SW
-            list.Add(new FacingD(-1, 0, 0, Compas.W)); // W
-            list.Add(new FacingD(-1, 1, 0, Compas.NW)); // NW
-            list.Add(new FacingD(0, 1, -1, Compas.N)); // N
-            list.Add(new FacingD(1, 0, -1, Compas.E)); // E
-            list.Add(new FacingD(0, -1, -1, Compas.S)); // S
-            list.Add(new FacingD(-1, 0, -1, Compas.W)); // W
+            list.Add(new FacingD(0, 1, 0, CompasEnum.N)); // N
+            list.Add(new FacingD(1, 1, 0, CompasEnum.NE)); // NE
+            list.Add(new FacingD(1, 0, 0, CompasEnum.E)); // E
+            list.Add(new FacingD(1, -1, 0, CompasEnum.SE)); // SE
+            list.Add(new FacingD(0, -1, 0, CompasEnum.S)); // S
+            list.Add(new FacingD(-1, -1, 0, CompasEnum.SW)); // SW
+            list.Add(new FacingD(-1, 0, 0, CompasEnum.W)); // W
+            list.Add(new FacingD(-1, 1, 0, CompasEnum.NW)); // NW
+            list.Add(new FacingD(0, 1, -1, CompasEnum.N)); // N
+            list.Add(new FacingD(1, 0, -1, CompasEnum.E)); // E
+            list.Add(new FacingD(0, -1, -1, CompasEnum.S)); // S
+            list.Add(new FacingD(-1, 0, -1, CompasEnum.W)); // W
 
             void AddToFacing(Facing facing, Quaternion rotation)
             {
