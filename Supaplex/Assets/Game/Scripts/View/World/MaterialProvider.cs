@@ -27,8 +27,7 @@ namespace Game.View.World
         // for UV: blockWidth * textureKoef = blockWidth / lineSize;
         static float uvKoef;
         static float uvBlockSize;
-        static int currentColumn = 0;
-        static int currentRow = 0;
+        static int currentIndex = 0;
 
         public static Texture2D CreateTexture2D(int width, int height)
         {
@@ -39,6 +38,7 @@ namespace Game.View.World
         {
             blockSize = blockSizeIn;
             lineCount = Mathf.CeilToInt(Mathf.Sqrt(blockCount));
+            currentIndex = 0;
             var t = lineCount * blockSize;
             var b = Mathf.CeilToInt(Mathf.Log(t, 2)) - 1;
             var w = 2 << b;
@@ -84,21 +84,19 @@ namespace Game.View.World
 
         public static int AllocateBlock()
         {
-            var index = currentRow * lineCount + currentColumn;
-            if (++currentColumn >= lineCount)
-            {
-                currentColumn = 0;
-                currentRow++;
-            }
-            return index;
+            return currentIndex++;
         }
 
         public static Rect Replace(int index, Texture2D source, TextureType textureType)
         {
             var _active = RenderTexture.active;
             var dst = textures[(int)textureType];
-            var x = index % lineCount * blockSize;
-            var y = index / lineCount * blockSize;
+            var x = (index % lineCount) * blockSize;
+            var y = (index / lineCount) * blockSize;
+            if (y > dst.height)
+            {
+                Debug.LogError("oops");
+            }
 
             source = AjustTexture(source);
 

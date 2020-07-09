@@ -17,7 +17,7 @@ namespace Game.Logic.World
         {
             public Vec3i vector;
             public Compas index;
-            public int index2;
+            public int index3D;
 
             public FacingD(int x, int y, int z, Compas index)
             {
@@ -83,7 +83,7 @@ namespace Game.Logic.World
                     lst.Add(item);
                     if (fullBlock.ContainsKey(item.vector))
                     {
-                        item.index2 = fullBlock[item.vector].index;
+                        item.index3D = fullBlock[item.vector].index;
                     }
                     else
                     {
@@ -99,6 +99,21 @@ namespace Game.Logic.World
             AddToFacing(Facing.West, Quaternion.Euler(0, 90, 0));
             AddToFacing(Facing.Up, Quaternion.Euler(90, 0, 0));
             AddToFacing(Facing.Down, Quaternion.Euler(-90, 0, 0));
+        }
+
+        public byte CalcSide(Facing facing, BlockState state)
+        {
+            var list = set[(int)facing];
+            byte result = 0;
+            for (int i = 0; i < list.Count; i++)
+            {
+                var f = list[i];
+                if ((((int)state >> f.index3D) & 0x1) == 1)
+                {
+                    result |= (byte)(1 << (int)f.index);
+                }
+            }
+            return result;
         }
 
         public override void OnNeighborChange(IWorldAccess world, BlockPos pos, BlockPos neighbor, BlockData neighborData)
