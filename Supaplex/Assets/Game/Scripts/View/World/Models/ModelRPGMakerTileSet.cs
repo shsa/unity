@@ -8,6 +8,7 @@ namespace Game.View.World
     public class ModelRPGMakerTileSet : Model
     {
         BlockPart[][] parts;
+        Texture2D tmpTxt;        
 
         public ModelRPGMakerTileSet() : base()
         {
@@ -17,15 +18,20 @@ namespace Game.View.World
 
         public override void Register(Block block)
         {
-            var index = MaterialProvider.AllocateBlock();
             var textureName = "Outside_A4";
             var texture = GetTexture(textureName);
+            var src = MaterialProvider.CreateTexture2D(texture.width, texture.height);
+            Graphics.ConvertTexture(texture, src);
             var gridSize = new Vector2Int(8, 3);
-            var tilesetSize = new Vector2Int(texture.width / gridSize.x, texture.height / gridSize.y);
+            var tilesetSize = new Vector2Int(src.width / gridSize.x, src.height / gridSize.y);
             var i = 0;
             var j = 0;
+            var tilesetPartSize = new Vector2Int(tilesetSize.x / 4, tilesetSize.y / 10);
+            tmpTxt = MaterialProvider.CreateTexture2D(tilesetPartSize.x * 2, tilesetPartSize.y * 2);
+            Graphics.CopyTexture(src, 0, 0, i, src.height - tilesetPartSize.y * 2, tilesetPartSize.x * 2, tilesetPartSize.y * 2, tmpTxt, 0, 0, 0, 0);
 
-            var uv = MaterialProvider.Replace(index, texture, TextureType.Main);
+            var index = MaterialProvider.AllocateBlock();
+            var uv = MaterialProvider.Replace(index, tmpTxt, TextureType.Main);
 
             var pp = new BlockPart[6];
             void addPart(Facing facing, Quaternion rotation)

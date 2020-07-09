@@ -42,7 +42,7 @@ public class GameScript : MonoBehaviour
         return new Feature("Systems")
             .Add(new Game.InputSystem(contexts))
             .Add(new Feature("Logic")
-                .Add(new Game.Logic.GameSystem(contexts))
+                .Add(new Game.Logic.GameSystem(contexts, this))
                 .Add(new Game.Logic.PlayerPositionSystem(contexts))
                 //.Add(new Logic.StoneFallSystem(contexts))
             )

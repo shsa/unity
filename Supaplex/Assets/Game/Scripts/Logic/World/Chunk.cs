@@ -36,7 +36,6 @@ namespace Game.Logic.World
             this.world = world;
             this.position = new ChunkPos(pos);
             data = new BlockData[16 * 16 * 16];
-            //Array.Clear(data, 0, data.Length);
         }
 
         public BlockData GetBlockData(BlockPos pos)
@@ -62,6 +61,43 @@ namespace Game.Logic.World
                     }
                 }
             }
+        }
+
+        public void Generate(WorldGenerator generator)
+        {
+            var ee = Events.blockPlaced.Create();
+            var min = position.min;
+            var max = position.max;
+            var pos = new BlockPos();
+            for (int z = min.z; z <= max.z; z++)
+            {
+                for (int x = min.x; x <= max.x; x++)
+                {
+                    for (int y = min.y; y <= max.y; y++)
+                    {
+                        pos.Set(x, y, z);
+                        var blockId = generator.CalcBlockId(pos);
+                        var e = ee.Create();
+                        e.world = world;
+                        e.pos.Set(pos);
+                        e.blockData = blockId.GetBlockData(BlockState.None);
+                        SetBlockDataInternal(pos, e.blockData);
+                    }
+                }
+            }
+            Events.blockPlaced.Enqueue(ee);
+        }
+
+        bool SetBlockDataInternal(BlockPos pos, BlockData value)
+        {
+            var index = GetBlockIndex(pos);
+            var oldValue = data[index];
+            if (oldValue != value)
+            {
+                data[index] = value;
+                return true;
+            }
+            return false;
         }
 
         public bool IsEmpty(BlockPos pos)

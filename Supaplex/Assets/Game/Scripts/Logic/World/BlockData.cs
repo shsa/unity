@@ -16,10 +16,14 @@ namespace Game.Logic.World
 
     public enum BlockState: BT
     {
+        None = 0
     }
 
     public static class BlockDataExtension
     {
+        public const int BlockIdSize = 16;
+        public const BT BlockIdMask = 0xFFFF;
+
         public static Block GetBlock(this BlockData data)
         {
             return Block.GetBlock(data.GetBlockId());
@@ -32,12 +36,12 @@ namespace Game.Logic.World
 
         public static BlockType GetBlockId(this BlockData data)
         {
-            return (BlockType)((BT)data & 0xFF);
+            return (BlockType)((BT)data & BlockIdMask);
         }
 
         public static BlockState GetBlockState(this BlockData data)
         {
-            return (BlockState)((BT)data >> 8);
+            return (BlockState)((BT)data >> BlockIdSize);
         }
 
         public static BlockData GetBlockData(this BlockType blockId)
@@ -47,7 +51,24 @@ namespace Game.Logic.World
 
         public static BlockData GetBlockData(this BlockType blockId, BlockState state)
         {
-            return (BlockData)((BT)state << 8 | (BT)blockId);
+            return (BlockData)((BT)state << BlockIdSize | (BT)blockId);
+        }
+
+        public static bool IsEmpty(this BlockType blockId)
+        {
+            switch (blockId)
+            {
+                case BlockType.Empty:
+                case BlockType.None:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        public static bool IsEmpty(this BlockData blockData)
+        {
+            return IsEmpty(blockData.GetBlockId());
         }
     }
 }

@@ -15,6 +15,7 @@ namespace Game
         OffsetWest,
         Wall,
         Stone,
+        Stone1,
         Stone2x2,
         Stone3x3,
         Stone4x4

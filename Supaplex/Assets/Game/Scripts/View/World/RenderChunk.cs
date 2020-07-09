@@ -210,8 +210,8 @@ namespace Game.View.World
                     p = new Vector3(p.x + 1.5f, p.y + 1.5f, p.z + 1.5f);
                     facings = (1 << (int)Facing.South) | (1 << (int)Facing.Up) | (1 << (int)Facing.Down) | (1 << (int)Facing.West) | (1 << (int)Facing.East);
                     break;
-                default: 
-                    return;
+                default:
+                    break;
             }
             var block = blockData.GetBlock();
             var state = blockData.GetBlockState();

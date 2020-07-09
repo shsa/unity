@@ -29,6 +29,21 @@ namespace Game.Logic.World
             return (int)Facing.South;
         }
 
+        /// <summary>
+        /// Called when a block on a side of this block changes is created or is destroyed.
+        /// </summary>
+        /// <param name="world"></param>
+        /// <param name="pos"></param>
+        /// <param name="neighbor"></param>
+        /// <param name="neighborData"></param>
+        public virtual void OnNeighborChange(IWorldAccess world, BlockPos pos, BlockPos neighbor, BlockData neighborData)
+        {
+        }
+
+        public virtual void OnBlockPlaced(BlockPlacedEvent e)
+        {
+        }
+
         public static Block GetBlock(BlockType objectType)
         {
             return REGISTER[(int)objectType];
@@ -47,6 +62,7 @@ namespace Game.Logic.World
 
             Register(BlockType.Empty, new BlockEmpty());
             Register(BlockType.Stone, new BlockStone());
+            Register(BlockType.Stone1, new BlockRPGMakerTileSet());
         }
     }
 }

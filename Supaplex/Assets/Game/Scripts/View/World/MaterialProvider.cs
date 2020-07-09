@@ -30,6 +30,11 @@ namespace Game.View.World
         static int currentColumn = 0;
         static int currentRow = 0;
 
+        public static Texture2D CreateTexture2D(int width, int height)
+        {
+            return new Texture2D(width, height, TextureFormat.ARGB32, false);
+        }
+
         public static Material Create(int blockSizeIn, int blockCount)
         {
             blockSize = blockSizeIn;
@@ -45,9 +50,9 @@ namespace Game.View.World
             textures = new Texture2D[count];
             for (int i = 0; i < count; i++)
             {
-                textures[i] = new Texture2D(w, h, TextureFormat.ARGB32, false);
+                textures[i] = CreateTexture2D(w, h);
             }
-            blockTempTexture = new Texture2D(blockSize, blockSize, TextureFormat.ARGB32, false);
+            blockTempTexture = CreateTexture2D(blockSize, blockSize);
 
             // https://docs.unity3d.com/ScriptReference/Material.SetTexture.html
             var material = new Material(Shader.Find("Standard"));
@@ -60,6 +65,11 @@ namespace Game.View.World
             //Set the Normal map using the Texture you assign in the Inspector
             material.SetTexture("_BumpMap", textures[(int)TextureType.Normal]);
             return material;
+        }
+
+        public static Texture2D GetBlockTexture()
+        {
+            return blockTempTexture;
         }
 
         static Texture2D AjustTexture(Texture2D source)

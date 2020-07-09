@@ -2,7 +2,7 @@
 
 namespace Game.Logic.World
 {
-    public class ChunkPos : Vec3i
+    public sealed class ChunkPos : Vec3i
     {
         public ChunkPos() : base(0, 0, 0)
         {

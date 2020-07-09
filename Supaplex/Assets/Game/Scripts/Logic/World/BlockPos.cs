@@ -2,9 +2,13 @@
 
 namespace Game.Logic.World
 {
-    public class BlockPos : Vec3i
+    public sealed class BlockPos : Vec3i
     {
         public BlockPos() : base(0, 0, 0)
+        {
+        }
+
+        public BlockPos(BlockPos pos) : base(pos.x, pos.y, pos.z)
         {
         }
 
