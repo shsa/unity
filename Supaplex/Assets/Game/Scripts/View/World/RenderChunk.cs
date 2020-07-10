@@ -79,7 +79,7 @@ namespace Game.View.World
                         pos.Set(x, y, z);
                         if (chunk.IsEmpty(pos))
                         {
-                            data[Chunk.GetBlockIndex(pos)] = false;
+                            data[pos.GetIndex()] = false;
                             if ((x & 0xF) == 0)
                             {
                                 visibleFacing |= 1 << (int)Facing.West;
@@ -112,7 +112,7 @@ namespace Game.View.World
                         }
                         else
                         {
-                            data[Chunk.GetBlockIndex(pos)] = true;
+                            data[pos.GetIndex()] = true;
                             empty--;
                         }
                     }
@@ -131,7 +131,7 @@ namespace Game.View.World
             var max = chunk.position.max;
             var pos = new BlockPos();
             var offset = new BlockPos();
-            var chunkPos = new ChunkPos();
+            var chunkPos = new BlockPos();
             Chunk tmpChunk = null;
             //UnityEngine.Profiling.Profiler.BeginSample("CalcMesh");
             for (int z = min.z; z <= max.z; z++)
@@ -141,7 +141,7 @@ namespace Game.View.World
                     for (int y = min.y; y <= max.y; y++)
                     {
                         pos.Set(x, y, z);
-                        var index = Chunk.GetBlockIndex(pos);
+                        var index = pos.GetIndex();
                         if (data[index])
                         {
                             byte set = 0;
@@ -275,9 +275,9 @@ namespace Game.View.World
 
         static RenderChunk()
         {
-            var dx = Chunk.GetBlockIndex(new BlockPos(1, 0, 0));
-            var dy = Chunk.GetBlockIndex(new BlockPos(0, 1, 0));
-            var dz = Chunk.GetBlockIndex(new BlockPos(0, 0, 1));
+            var dx = (new BlockPos(1, 0, 0)).GetIndex();
+            var dy = (new BlockPos(0, 1, 0)).GetIndex();
+            var dz = (new BlockPos(0, 0, 1)).GetIndex();
             DF = new int[6];
             DF[(int)Facing.North] = dz;
             DF[(int)Facing.South] = -dz;

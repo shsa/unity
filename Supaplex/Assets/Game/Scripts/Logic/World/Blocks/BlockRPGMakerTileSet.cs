@@ -121,14 +121,17 @@ namespace Game.Logic.World
 
         }
 
-        BlockPos pos = new BlockPos();
         public override void OnBlockPlaced(BlockPlacedEvent e)
         {
             var state = BlockState.None;
+            var pos = e.pos;
+            var x = pos.x;
+            var y = pos.y;
+            var z = pos.z;
             foreach (var node in dirs)
             {
-                pos.Set(e.pos);
-                pos.Add(node.vector);
+                var v = node.vector;
+                pos.Set(x + v.x, y + v.y, z + v.z);
                 if (!e.world.GetBlockData(pos).IsEmpty())
                 {
                     state |= (BlockState)(1 << node.index);

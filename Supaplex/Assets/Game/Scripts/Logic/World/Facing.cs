@@ -46,7 +46,7 @@ namespace Game.Logic.World
             return pos + faceVector[(int)side];
         }
 
-        public static ChunkPos Offset(this ChunkPos pos, Facing side)
+        public static ChunkPos1 Offset(this ChunkPos1 pos, Facing side)
         {
             return pos + faceVector[(int)side];
         }

@@ -22,6 +22,21 @@ namespace Game.Logic.World
                 pool.Push(chunk);
             }
         }
+
+        public EventChunk<T> Create<T>() where T : Event
+        {
+            lock (pool)
+            {
+                if (pool.Count == 0)
+                {
+                    return new EventChunk<T>(this);
+                }
+                else
+                {
+                    return pool.Pop() as EventChunk<T>;
+                }
+            }
+        }
     }
 
     public sealed class EventProvider<T> : EventProvider where T : Event

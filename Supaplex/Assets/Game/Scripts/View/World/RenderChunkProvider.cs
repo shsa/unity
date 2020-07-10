@@ -19,7 +19,7 @@ namespace Game.View.World
             sizeSqr = size * size;
         }
 
-        public RenderChunk GetChunk(ChunkPos pos)
+        public RenderChunk GetChunk(BlockPos pos)
         {
             if (pos.z < 0)
             {
@@ -28,7 +28,7 @@ namespace Game.View.World
 
             var index = CalcIndex(pos);
             var renderChunk = renderChunks[index];
-            if (renderChunk == null || renderChunk.chunk.position != pos)
+            if (renderChunk == null || !renderChunk.chunk.position.ChunkEquals(pos))
             {
                 if (renderChunk != null)
                 {
@@ -41,18 +41,17 @@ namespace Game.View.World
             return renderChunk;
         }
 
-        public RenderChunk GetChunk(Vector3 playerPos, ChunkPos pos)
+        public RenderChunk GetChunk(BlockPos playerPos, BlockPos pos)
         {
-            if (pos.z > size.z)
+            if ((pos.z >> 4) > size.z)
             {
                 return null;
             }
-            var p0 = ChunkPos.From(Vector3Int.FloorToInt(playerPos));
-            if (Mathf.Abs(pos.x - p0.x) > size.x)
+            if (Mathf.Abs((pos.x >> 4) - (playerPos.x >> 4)) > size.x)
             {
                 return null;
             }
-            if (Mathf.Abs(pos.y - p0.y) > size.y)
+            if (Mathf.Abs((pos.y >> 4) - (playerPos.y >> 4)) > size.y)
             {
                 return null;
             }
@@ -60,9 +59,9 @@ namespace Game.View.World
             return GetChunk(pos);
         }
 
-        int CalcIndex(ChunkPos pos)
+        int CalcIndex(BlockPos pos)
         {
-            return (pos.x & 0xF) << 8 | (pos.y & 0xF) << 4 | (pos.z & 0xF);
+            return ((pos.x >> 4) & 0xF) << 8 | ((pos.y >> 4) & 0xF) << 4 | ((pos.z >> 4) & 0xF);
         }
     }
 }

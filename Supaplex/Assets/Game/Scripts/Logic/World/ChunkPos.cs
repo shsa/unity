@@ -2,17 +2,17 @@
 
 namespace Game.Logic.World
 {
-    public sealed class ChunkPos : Vec3i
+    public sealed class ChunkPos1 : Vec3i
     {
-        public ChunkPos() : base(0, 0, 0)
+        public ChunkPos1() : base(0, 0, 0)
         {
         }
 
-        public ChunkPos(ChunkPos pos) : base(pos.x, pos.y, pos.z)
+        public ChunkPos1(ChunkPos1 pos) : base(pos.x, pos.y, pos.z)
         {
         }
 
-        public ChunkPos(int x, int y, int z) : base(x, y, z)
+        public ChunkPos1(int x, int y, int z) : base(x, y, z)
         {
         }
 
@@ -46,19 +46,19 @@ namespace Game.Logic.World
             }
         }
 
-        public static ChunkPos From(BlockPos pos)
+        public static ChunkPos1 From(BlockPos pos)
         {
-            return new ChunkPos(pos.x >> 4, pos.y >> 4, pos.z >> 4);
+            return new ChunkPos1(pos.x >> 4, pos.y >> 4, pos.z >> 4);
         }
 
-        public static ChunkPos From(Vector3Int pos)
+        public static ChunkPos1 From(Vector3Int pos)
         {
-            return new ChunkPos(pos.x >> 4, pos.y >> 4, pos.z >> 4);
+            return new ChunkPos1(pos.x >> 4, pos.y >> 4, pos.z >> 4);
         }
 
-        public static ChunkPos operator +(ChunkPos a, Vec3i offset)
+        public static ChunkPos1 operator +(ChunkPos1 a, Vec3i offset)
         {
-            return new ChunkPos(a.x + offset.x, a.y + offset.y, a.z + offset.z);
+            return new ChunkPos1(a.x + offset.x, a.y + offset.y, a.z + offset.z);
         }
     }
 }

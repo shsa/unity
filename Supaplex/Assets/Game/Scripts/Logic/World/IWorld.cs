@@ -2,6 +2,6 @@
 {
     public interface IWorld
     {
-        Chunk GetChunk(ChunkPos pos);
+        Chunk GetChunk(BlockPos pos);
     }
 }

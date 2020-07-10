@@ -26,26 +26,26 @@ namespace Game.Logic.World
     public class Chunk
     {
         public WorldProvider world { get; private set; }
-        public ChunkPos position { get; private set; }
+        public BlockPos position { get; private set; }
         BlockData[] data;
 
         public event EventHandler<ChunkChangeEvent> cubeChanged;
 
-        public Chunk(WorldProvider world, ChunkPos pos)
+        public Chunk(WorldProvider world, BlockPos pos)
         {
             this.world = world;
-            this.position = new ChunkPos(pos);
+            this.position = new BlockPos(pos);
             data = new BlockData[16 * 16 * 16];
         }
 
         public BlockData GetBlockData(BlockPos pos)
         {
-            return data[GetBlockIndex(pos)];
+            return data[pos.GetIndex()];
         }
 
         public void SetBlockData(BlockPos pos, BlockData value)
         {
-            var index = GetBlockIndex(pos);
+            var index = pos.GetIndex();
             var oldValue = data[index];
             if (oldValue != value)
             {
@@ -69,15 +69,15 @@ namespace Game.Logic.World
             var min = position.min;
             var max = position.max;
             var pos = new BlockPos();
-            for (int z = min.z; z <= max.z; z++)
+            for (int z = min.z + 1; z < max.z; z++)
             {
-                for (int x = min.x; x <= max.x; x++)
+                for (int x = min.x + 1; x < max.x; x++)
                 {
-                    for (int y = min.y; y <= max.y; y++)
+                    for (int y = min.y + 1; y < max.y; y++)
                     {
                         pos.Set(x, y, z);
                         var blockId = generator.CalcBlockId(pos);
-                        var e = ee.Create();
+                        var e = ee.Add();
                         e.world = world;
                         e.pos.Set(pos);
                         e.blockData = blockId.GetBlockData(BlockState.None);
@@ -90,7 +90,7 @@ namespace Game.Logic.World
 
         bool SetBlockDataInternal(BlockPos pos, BlockData value)
         {
-            var index = GetBlockIndex(pos);
+            var index = pos.GetIndex();
             var oldValue = data[index];
             if (oldValue != value)
             {
@@ -110,11 +110,6 @@ namespace Game.Logic.World
                 default:
                     return false;
             }
-        }
-
-        public static int GetBlockIndex(BlockPos pos)
-        {
-            return ((pos.y & 0xF) << 8) | ((pos.x & 0xF) << 4) | (pos.z & 0xF);
         }
     }
 }

@@ -5,21 +5,21 @@ namespace Game.Logic.World
     public class WorldProvider : IWorld, IWorldAccess
     {
         WorldGenerator generator;
-        Dictionary<ChunkPos, Chunk> chunks;
+        Dictionary<BlockPos, Chunk> chunks;
         Chunk[] chunkCash;
 
         public WorldProvider(int seed)
         {
-            generator = new WorldGenerator(seed);
-            chunks = new Dictionary<ChunkPos, Chunk>();
+            generator = new WorldGeneratorTest(seed);
+            chunks = new Dictionary<BlockPos, Chunk>();
             chunkCash = new Chunk[16 * 16 * 16];
         }
 
-        public Chunk GetChunkOrNull(ChunkPos pos)
+        public Chunk GetChunkOrNull(BlockPos pos)
         {
-            var index = ((pos.x & 0xF) << 8) | ((pos.y & 0xF) << 4) | (pos.z & 0xF);
+            var index = (((pos.x >> 4) & 0xF) << 8) | (((pos.y >> 4) & 0xF) << 4) | ((pos.z >> 4) & 0xF);
             var chunk = chunkCash[index];
-            if (chunk == null || chunk.position != pos)
+            if (chunk == null || !chunk.position.ChunkEquals(pos))
             {
                 if (!chunks.TryGetValue(pos, out chunk))
                 {
@@ -30,11 +30,11 @@ namespace Game.Logic.World
             return chunk;
         }
 
-        public Chunk GetChunk(ChunkPos pos)
+        public Chunk GetChunk(BlockPos pos)
         {
-            var index = ((pos.x & 0xF) << 8) | ((pos.y & 0xF) << 4) | (pos.z & 0xF);
+            var index = (((pos.x >> 4) & 0xF) << 8) | (((pos.y >> 4) & 0xF) << 4) | ((pos.z >> 4) & 0xF);
             var chunk = chunkCash[index];
-            if (chunk == null || chunk.position != pos)
+            if (chunk == null || !chunk.position.ChunkEquals(pos))
             {
                 if (!chunks.TryGetValue(pos, out chunk))
                 {
@@ -52,18 +52,15 @@ namespace Game.Logic.World
             chunk.Generate(generator);
         }
 
-        ChunkPos chunkPos = new ChunkPos(0, 0, 0);
         public BlockData GetBlockData(BlockPos pos)
         {
-            chunkPos.Set(pos);
-            var chunk = GetChunk(chunkPos);
+            var chunk = GetChunk(pos);
             return chunk.GetBlockData(pos);
         }
 
         BlockData IWorldAccess.GetBlockData(BlockPos pos)
         {
-            chunkPos.Set(pos);
-            var chunk = GetChunkOrNull(chunkPos);
+            var chunk = GetChunkOrNull(pos);
             if (chunk == null)
             {
                 return BlockData.None;
@@ -71,10 +68,18 @@ namespace Game.Logic.World
             return chunk.GetBlockData(pos);
         }
 
+        void IWorldAccess.SetBlockData(BlockPos pos, BlockData value)
+        {
+            var chunk = GetChunkOrNull(pos);
+            if (chunk != null)
+            {
+                chunk.SetBlockData(pos, value);
+            }
+        }
+
         public void SetBlockData(BlockPos pos, BlockData value)
         {
-            chunkPos.Set(pos);
-            var chunk = GetChunk(chunkPos);
+            var chunk = GetChunk(pos);
             chunk.SetBlockData(pos, value);
         }
 

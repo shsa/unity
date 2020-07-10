@@ -134,17 +134,17 @@ namespace Game.View
 
             var playerPos = new Vector3(View.setup._camera.transform.position.x, View.setup._camera.transform.position.y, 0);
             var queue = new Queue<RenderChunk>();
-            var startChunkPos = ChunkPos.From(Vector3Int.FloorToInt(playerPos));
-            minX = startChunkPos.x - View.setup.viewSize.x;
-            maxX = startChunkPos.x + View.setup.viewSize.x;
-            minY = startChunkPos.y - View.setup.viewSize.y;
-            maxY = startChunkPos.y + View.setup.viewSize.y;
-            var chunkPos = new ChunkPos();
+            var startChunkPos = BlockPos.From(Vector3Int.FloorToInt(playerPos));
+            minX = (startChunkPos.x >> 4) - View.setup.viewSize.x;
+            maxX = (startChunkPos.x >> 4) + View.setup.viewSize.x;
+            minY = (startChunkPos.y >> 4) - View.setup.viewSize.y;
+            maxY = (startChunkPos.y >> 4) + View.setup.viewSize.y;
+            var chunkPos = new BlockPos();
             for (int x = minX; x <= maxX; x++)
             {
                 for (int y = minY; y <= maxY; y++)
                 {
-                    chunkPos.Set(x, y, 0);
+                    chunkPos.SetChunk(x, y, 0);
                     var renderChunk = renderProvider.GetChunk(chunkPos);
                     if (GeometryUtility.TestPlanesAABB(planes, renderChunk.bounds))
                     {
@@ -198,8 +198,8 @@ namespace Game.View
                 for (Facing facing = Facing.First; facing <= Facing.Last; facing++)
                 {
                     chunkPos.Set(renderChunk.chunk.position);
-                    chunkPos.Add(facing.GetVector());
-                    var renderChunkOffset = renderProvider.GetChunk(playerPos, chunkPos);
+                    chunkPos.AddChunk(facing.GetVector());
+                    var renderChunkOffset = renderProvider.GetChunk(startChunkPos, chunkPos);
                     if (renderChunkOffset != null)
                     {
                         if (renderChunkOffset.isCalculated)

@@ -1,17 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEditor.VersionControl;
 
 namespace Game.Logic.World
 {
     public abstract class EventChunk
     {
-        EventProvider provider;
+        public static int chunkSize = 100;
+
+        protected EventProvider provider;
         protected Stack<Event> pool = new Stack<Event>();
         protected Queue<Event> queue = new Queue<Event>();
 
         public EventChunk(EventProvider provider)
         {
             this.provider = provider;
+        }
+
+        public void Register()
+        {
+            provider.Enqueue(this);
         }
 
         public bool Raise()
@@ -38,8 +46,17 @@ namespace Game.Logic.World
         {
         }
 
-        public T Create()
+        public T Add()
         {
+            if (queue.Count >= chunkSize)
+            {
+                var chunk = provider.Create<T>();
+                var t = chunk.queue;
+                chunk.queue = queue;
+                queue = t;
+                chunk.Register();
+            }
+
             T e;
             if (pool.Count == 0)
             {
