@@ -8,8 +8,8 @@ namespace Game.Logic.World
 {
     public class WorldGenerator
     {
-        NoiseS3D noiseCore;
-        int depth;
+        protected NoiseS3D noiseCore;
+        protected int depth;
 
         public int Seed {
             get {
@@ -53,7 +53,7 @@ namespace Game.Logic.World
             return false;
         }
 
-        public BlockType CalcBlockId(BlockPos pos)
+        public virtual BlockType CalcBlockId(BlockPos pos)
         {
             if (CalcStone(pos.x, pos.y, pos.z, out var k))
             {

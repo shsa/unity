@@ -4,7 +4,7 @@ namespace Game.Logic.World
 {
     public class WorldProvider : IWorld, IWorldAccess
     {
-        public static int depth = 64;
+        public static int depth = 16;
 
         WorldGenerator generator;
         Dictionary<ChunkPos, Chunk> chunks;

@@ -198,7 +198,7 @@ namespace Game.View
                 {
                     chunkPos.Set(renderChunk.chunk.position);
                     chunkPos.Add(facing.GetVector());
-                    var renderChunkOffset = renderProvider.GetChunk(chunkPos);
+                    var renderChunkOffset = renderProvider.GetChunk(playerPos, chunkPos);
                     if (renderChunkOffset != null)
                     {
                         if (renderChunkOffset.isCalculated)

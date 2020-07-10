@@ -199,7 +199,7 @@ GameObject:
   - component: {fileID: 584002580}
   - component: {fileID: 584002582}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Setup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -227,7 +227,7 @@ MonoBehaviour:
   gameRoot: {fileID: 584002579}
   wallMaterial: {fileID: 2100000, guid: cc4fa8fa52a16134088b29ea1bad2722, type: 2}
   counts: 0
-  viewSize: {x: 2, y: 2, z: 4}
+  viewSize: {x: 2, y: 2, z: 1}
 --- !u!4 &584002581
 Transform:
   m_ObjectHideFlags: 0

@@ -4,6 +4,8 @@ namespace Game.Logic.World
 {
     public sealed class BlockPos : Vec3i
     {
+        public ChunkPos chunkPos = new ChunkPos();
+
         public BlockPos() : base(0, 0, 0)
         {
         }
