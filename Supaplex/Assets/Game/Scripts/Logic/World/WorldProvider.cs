@@ -4,15 +4,13 @@ namespace Game.Logic.World
 {
     public class WorldProvider : IWorld, IWorldAccess
     {
-        public static int depth = 16;
-
         WorldGenerator generator;
         Dictionary<ChunkPos, Chunk> chunks;
         Chunk[] chunkCash;
 
         public WorldProvider(int seed)
         {
-            generator = new WorldGenerator(seed, depth);
+            generator = new WorldGenerator(seed);
             chunks = new Dictionary<ChunkPos, Chunk>();
             chunkCash = new Chunk[16 * 16 * 16];
         }

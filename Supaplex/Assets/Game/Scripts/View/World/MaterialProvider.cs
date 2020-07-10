@@ -28,13 +28,14 @@ namespace Game.View.World
         static float uvKoef;
         static float uvBlockSize;
         static int currentIndex = 0;
+        public static Material material { get; private set; }
 
         public static Texture2D CreateTexture2D(int width, int height)
         {
             return new Texture2D(width, height, TextureFormat.ARGB32, false);
         }
 
-        public static Material Create(int blockSizeIn, int blockCount)
+        public static void Create(int blockSizeIn, int blockCount)
         {
             blockSize = blockSizeIn;
             lineCount = Mathf.CeilToInt(Mathf.Sqrt(blockCount));
@@ -55,7 +56,7 @@ namespace Game.View.World
             blockTempTexture = CreateTexture2D(blockSize, blockSize);
 
             // https://docs.unity3d.com/ScriptReference/Material.SetTexture.html
-            var material = new Material(Shader.Find("Standard"));
+            material = new Material(Shader.Find("Standard"));
             //Make sure to enable the Keywords
             material.EnableKeyword("_NORMALMAP");
             //material.EnableKeyword("_METALLICGLOSSMAP");
@@ -64,7 +65,6 @@ namespace Game.View.World
             material.SetTexture("_MainTex", textures[(int)TextureType.Main]);
             //Set the Normal map using the Texture you assign in the Inspector
             material.SetTexture("_BumpMap", textures[(int)TextureType.Normal]);
-            return material;
         }
 
         public static Texture2D GetBlockTexture()

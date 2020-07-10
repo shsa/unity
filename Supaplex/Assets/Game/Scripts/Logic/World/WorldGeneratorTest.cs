@@ -8,7 +8,7 @@ namespace Game.Logic.World
 {
     public class WorldGeneratorTest : WorldGenerator
     {
-        public WorldGeneratorTest(int seed, int depth) : base(seed, depth)
+        public WorldGeneratorTest(int seed) : base(seed)
         {
         }
 

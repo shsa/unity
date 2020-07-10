@@ -9,7 +9,7 @@ namespace Game.Logic.World
     public class WorldGenerator
     {
         protected NoiseS3D noiseCore;
-        protected int depth;
+        public static int depth = 64;
 
         public int Seed {
             get {
@@ -20,11 +20,10 @@ namespace Game.Logic.World
             }
         }
 
-        public WorldGenerator(int seed, int depth)
+        public WorldGenerator(int seed)
         {
             noiseCore = new NoiseS3D();
             noiseCore.seed = seed;
-            this.depth = depth;
         }
 
         /// <summary>

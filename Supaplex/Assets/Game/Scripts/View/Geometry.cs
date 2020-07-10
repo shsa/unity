@@ -4,11 +4,14 @@ using System.Linq.Expressions;
 using System;
 using System.Collections.Generic;
 using Game.Logic.World;
+using Game.View.World;
 
 namespace Game.View
 {
     public static class Geometry
     {
+        static BlockPart[] parts = new BlockPart[6];
+
         public class CubeSide
         {
             public Vector3[] vertices;
@@ -202,6 +205,69 @@ namespace Game.View
             Debug.DrawLine(p2, p6, Color.gray, delay);
             Debug.DrawLine(p3, p7, Color.green, delay);
             Debug.DrawLine(p4, p8, Color.cyan, delay);
+        }
+
+        public static Vector3[] BlockSideVertexes(Quaternion rotation)
+        {
+            return new Vector3[] {
+                rotation * new Vector3(-0.5f, -0.5f, -0.5f),
+                rotation * new Vector3(-0.5f, 0.5f, -0.5f),
+                rotation * new Vector3(0.5f, 0.5f, -0.5f),
+                rotation * new Vector3(0.5f, -0.5f, -0.5f)
+            };
+        }
+
+        public static int[] BlockSideTriangles()
+        {
+            return new int[]
+            {
+                0, 1, 2,
+                0, 2, 3
+            };
+        }
+
+        public static Vector2[] BlockSideUVs(Rect uvRect)
+        {
+            return new Vector2[]
+            {
+                new Vector2(uvRect.xMin, uvRect.yMin),
+                new Vector2(uvRect.xMin, uvRect.yMax),
+                new Vector2(uvRect.xMax, uvRect.yMax),
+                new Vector2(uvRect.xMax, uvRect.yMin)
+            };
+        }
+
+        public static BlockPart GetBlockPart(Facing facing, Rect uvRect)
+        {
+            var part = parts[(int)facing];
+            var newPart = new BlockPart();
+            newPart.vertices = new Vector3[part.vertices.Length];
+            part.vertices.CopyTo(newPart.vertices, 0);
+
+            newPart.triangles = new int[part.triangles.Length];
+            part.triangles.CopyTo(newPart.triangles, 0);
+
+            newPart.uv = BlockSideUVs(uvRect);
+
+            return newPart;
+        }
+
+        static Geometry()
+        {
+            void addPart(Facing facing, Quaternion rotation)
+            {
+                var part = new BlockPart();
+                part.vertices = BlockSideVertexes(rotation);
+                part.triangles = BlockSideTriangles();
+                parts[(int)facing] = part;
+            }
+
+            addPart(Facing.North, Quaternion.Euler(0, 180, 0));
+            addPart(Facing.East, Quaternion.Euler(0, -90, 0));
+            addPart(Facing.South, Quaternion.identity);
+            addPart(Facing.West, Quaternion.Euler(0, 90, 0));
+            addPart(Facing.Up, Quaternion.Euler(90, 0, 0));
+            addPart(Facing.Down, Quaternion.Euler(-90, 0, 0));
         }
     }
 }

@@ -45,8 +45,8 @@ namespace Game.View
             planes = new Plane[6];
 
             var blockCount = (int)Enum.GetValues(typeof(BlockType)).Cast<BlockType>().Max() + 1;
-            material2 = MaterialProvider.Create(64, 1000);
             Model.Create();
+            material2 = MaterialProvider.material;
         }
 
         void RenderWorldSingle()
@@ -63,8 +63,9 @@ namespace Game.View
             int count = 0;
 
             UnityEngine.Profiling.Profiler.BeginSample("Calc planes");
-            RectInt[] zz = new RectInt[WorldProvider.depth];
-            for (int z = 0; z < WorldProvider.depth; z++)
+            var depth = View.setup.viewSize.z * 16;
+            RectInt[] zz = new RectInt[depth];
+            for (int z = 0; z < depth; z++)
             {
                 var calcPos = new Vector3(View.setup._camera.transform.position.x, View.setup._camera.transform.position.y, z);
                 // left

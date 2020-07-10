@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Game.View.World
 {
-    public class ModelSimple : Model
+    public sealed class ModelSimple : Model
     {
         BlockPart[][] parts;
 
@@ -13,6 +13,11 @@ namespace Game.View.World
         {
             var count = (int)Enum.GetValues(typeof(BlockType)).Cast<BlockType>().Max() + 1;
             parts = new BlockPart[count][];
+        }
+
+        public override int GetTextureCount(Block block)
+        {
+            return 1;
         }
 
         public override void Register(Block block)
@@ -24,20 +29,16 @@ namespace Game.View.World
             MaterialProvider.Replace(index, GetTexture(textureNormal), TextureType.Normal);
 
             var pp = new BlockPart[6];
-            void addPart(Facing facing, Quaternion rotation)
+            void addPart(Facing facing)
             {
-                var part = new BlockPart();
-                part.vertices = BlockSideVertexes(rotation);
-                part.triangles = BlockSideTriangles();
-                part.uv = BlockSideUVs(uv);
-                pp[(int)facing] = part;
+                pp[(int)facing] = Geometry.GetBlockPart(facing, uv);
             }
-            addPart(Facing.North, Quaternion.Euler(0, 180, 0));
-            addPart(Facing.East, Quaternion.Euler(0, -90, 0));
-            addPart(Facing.South, Quaternion.identity);
-            addPart(Facing.West, Quaternion.Euler(0, 90, 0));
-            addPart(Facing.Up, Quaternion.Euler(90, 0, 0));
-            addPart(Facing.Down, Quaternion.Euler(-90, 0, 0));
+            addPart(Facing.North);
+            addPart(Facing.East);
+            addPart(Facing.South);
+            addPart(Facing.West);
+            addPart(Facing.Up);
+            addPart(Facing.Down);
 
             parts[(int)block.id] = pp;
         }
@@ -46,36 +47,6 @@ namespace Game.View.World
         {
             var pp = parts[(int)block.id];
             return pp[(int)facing];
-        }
-
-        public static Vector3[] BlockSideVertexes(Quaternion rotation)
-        {
-            return new Vector3[] {
-                rotation * new Vector3(-0.5f, -0.5f, -0.5f),
-                rotation * new Vector3(-0.5f, 0.5f, -0.5f),
-                rotation * new Vector3(0.5f, 0.5f, -0.5f),
-                rotation * new Vector3(0.5f, -0.5f, -0.5f)
-            };
-        }
-
-        public static int[] BlockSideTriangles()
-        {
-            return new int[]
-            {
-                0, 1, 2,
-                0, 2, 3
-            };
-        }
-
-        public static Vector2[] BlockSideUVs(Rect uvRect)
-        {
-            return new Vector2[]
-            {
-                new Vector2(uvRect.xMin, uvRect.yMin),
-                new Vector2(uvRect.xMin, uvRect.yMax),
-                new Vector2(uvRect.xMax, uvRect.yMax),
-                new Vector2(uvRect.xMax, uvRect.yMin)
-            };
         }
     }
 }
