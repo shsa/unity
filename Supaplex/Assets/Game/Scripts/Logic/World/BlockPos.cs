@@ -2,11 +2,24 @@
 
 namespace Game.Logic.World
 {
-    public sealed class BlockPos
+    public interface IBlockPos
     {
-        public int x;
-        public int y;
-        public int z;
+        int x { get; }
+        int y { get; }
+        int z { get; }
+
+        Vector3Int min { get; }
+        Vector3Int max { get; }
+        Bounds bounds { get; }
+
+        bool ChunkEquals(IBlockPos pos);
+    }
+
+    public sealed class BlockPos : IBlockPos
+    {
+        public int x { get; set; }
+        public int y { get; set; }
+        public int z { get; set; }
 
         public BlockPos()
         {
@@ -34,6 +47,13 @@ namespace Game.Logic.World
         }
 
         public void Set(BlockPos pos)
+        {
+            this.x = pos.x;
+            this.y = pos.y;
+            this.z = pos.z;
+        }
+
+        public void Set(IBlockPos pos)
         {
             this.x = pos.x;
             this.y = pos.y;
@@ -101,7 +121,7 @@ namespace Game.Logic.World
             }
         }
 
-        public bool ChunkEquals(BlockPos pos)
+        public bool ChunkEquals(IBlockPos pos)
         {
             return (x >> 4) == (pos.x >> 4) && (y >> 4) == (pos.y >> 4) && (z >> 4) == (pos.z >> 4);
         }

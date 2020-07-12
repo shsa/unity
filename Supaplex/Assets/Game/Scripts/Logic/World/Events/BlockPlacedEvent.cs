@@ -1,17 +1,12 @@
 ﻿namespace Game.Logic.World
 {
-    public sealed class BlockPlacedEvent : Event
+    public sealed class BlockPlacedEvent : ChunkEvent
     {
         public BlockData blockData;
-        public BlockPos pos;
+        public BlockPos pos = new BlockPos();
         public IWorldAccess world;
 
-        public BlockPlacedEvent()
-        {
-            pos = new BlockPos();
-        }
-
-        public override void Raise()
+        public override void Execute()
         {
             var block = blockData.GetBlock();
             block.OnBlockPlaced(this);

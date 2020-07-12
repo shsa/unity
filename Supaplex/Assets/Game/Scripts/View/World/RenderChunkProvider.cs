@@ -35,7 +35,7 @@ namespace Game.View.World
                     renderChunk.Dispose();
                 }
                 var chunk = world.GetChunk(pos);
-                renderChunk = new RenderChunk(chunk);
+                renderChunk = new RenderChunk(world, chunk);
                 renderChunks[index] = renderChunk;
             }
             return renderChunk;

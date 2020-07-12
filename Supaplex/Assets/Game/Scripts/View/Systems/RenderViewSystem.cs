@@ -20,6 +20,9 @@ namespace Game.View
         Mesh[] cubeMeshes;
         Plane[] planes;
         Geometry.Cube cube;
+        ChunkEventThread viewThread;
+        Queue<ChunkEventBucket> coroutineQueue = new Queue<ChunkEventBucket>();
+
         public RenderViewSystem(Contexts contexts)
         {
             this.contexts = contexts;
@@ -47,10 +50,57 @@ namespace Game.View
             var blockCount = (int)Enum.GetValues(typeof(BlockType)).Cast<BlockType>().Max() + 1;
             Model.Create();
             material2 = MaterialProvider.material;
+
+            viewThread = new ChunkEventThread();
+            View.setup.StartCoroutine(UpdateQueue());
+        }
+
+        IEnumerator UpdateQueue()
+        {
+            var waiter = new WaitForEndOfFrame();
+            while (true)
+            {
+                while (coroutineQueue.Count > 0)
+                {
+                    var bucket = coroutineQueue.Dequeue();
+                    Execute(bucket);
+                }
+                yield return waiter;
+            }
+        }
+
+        void Execute(ChunkEventBucket bucket)
+        {
+            while (bucket.Count > 0)
+            {
+                var e = bucket.Dequeue();
+                e.Execute();
+                e.Pool();
+            }
+
+            bucket.Pool();
         }
 
         void RenderWorldSingle()
         {
+            lock (ChunkEventManager.viewHashSet)
+            {
+                foreach (var manager in ChunkEventManager.viewHashSet)
+                {
+                    while (manager.GetBucket(out var bucket))
+                    {
+                        viewThread.Enqueue(bucket);
+                    }
+                }
+            }
+            foreach (var manager in ChunkEventManager.coroutineHashSet)
+            {
+                while (manager.GetBucket(out var bucket))
+                {
+                    coroutineQueue.Enqueue(bucket);
+                }
+            }
+
             int minX = 0;
             int maxX = 0;
             int minY = 0;
@@ -178,6 +228,7 @@ namespace Game.View
             while (queue.Count > 0 && queue.Count < 100)
             {
                 var renderChunk = queue.Dequeue();
+                renderChunk.Update();
                 if (renderChunk.empty == 4096)
                 {
                     DrawBounds(renderChunk.bounds, Color.white);
@@ -186,14 +237,7 @@ namespace Game.View
                 {
                     DrawBounds(renderChunk.bounds, Color.red);
                 }
-                if (renderChunk.mesh == null)
-                {
-                    View.setup.StartCoroutine(renderChunk.CalcMesh());
-                }
-                else
-                {
-                    Graphics.DrawMesh(renderChunk.mesh, Matrix4x4.identity, material2, 0);
-                }
+                Graphics.DrawMesh(renderChunk.mesh, Matrix4x4.identity, material2, 0);
 
                 for (Facing facing = Facing.First; facing <= Facing.Last; facing++)
                 {
@@ -202,16 +246,10 @@ namespace Game.View
                     var renderChunkOffset = renderProvider.GetChunk(startChunkPos, chunkPos);
                     if (renderChunkOffset != null)
                     {
-                        if (renderChunkOffset.isCalculated)
+                        renderChunkOffset.Update();
+                        if (renderChunkOffset != null && GeometryUtility.TestPlanesAABB(planes, renderChunkOffset.bounds) && renderChunk.IsVisible(facing) && renderChunkOffset.SetFrameIndex(Time.frameCount))
                         {
-                            if (renderChunkOffset != null && GeometryUtility.TestPlanesAABB(planes, renderChunkOffset.bounds) && renderChunk.IsVisible(facing) && renderChunkOffset.SetFrameIndex(Time.frameCount))
-                            {
-                                queue.Enqueue(renderChunkOffset);
-                            }
-                        }
-                        else
-                        {
-                            View.setup.StartCoroutine(renderChunkOffset.CalcVisibility());
+                            queue.Enqueue(renderChunkOffset);
                         }
                     }
                 }

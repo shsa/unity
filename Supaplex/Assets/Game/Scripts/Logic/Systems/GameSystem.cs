@@ -10,6 +10,7 @@ namespace Game.Logic
     {
         Contexts contexts;
         MonoBehaviour forCoroutines;
+        ChunkEventThread[] eventThreads;
 
         public GameSystem(Contexts contexts, MonoBehaviour forCoroutines)
         {
@@ -23,25 +24,41 @@ namespace Game.Logic
             player.isPlayer = true;
             player.AddPosition(Vector2.zero);
             Game.chunks = new WorldProvider(0);
-        }
 
-        IEnumerator DoEvents(EventChunk e)
-        {
-            while (e.Raise())
+            eventThreads = new ChunkEventThread[2];
+            for (int i = 0; i < eventThreads.Length; i++)
             {
+                eventThreads[i] = new ChunkEventThread();
             }
-            e.Pool();
-            yield return e;
         }
 
         public void Execute()
         {
-            var e = Events.blockPlaced.Dequeue();
-            while (e != null)
+            lock (ChunkEventManager.logicHashSet)
             {
-                forCoroutines.StartCoroutine(DoEvents(e));
-                e = Events.blockPlaced.Dequeue();
+                foreach (var manager in ChunkEventManager.logicHashSet)
+                {
+                    while (manager.GetBucket(out var bucket))
+                    {
+                        var thread = eventThreads[0];
+                        for (int i = 1; i < eventThreads.Length; i++)
+                        {
+                            if (thread.Count() > eventThreads[i].Count())
+                            {
+                                thread = eventThreads[i];
+                            }
+                        }
+                        thread.Enqueue(bucket);
+                    }
+                }
             }
+
+            //var e = EventManager.blockPlaced.Dequeue();
+            //while (e != null)
+            //{
+            //    forCoroutines.StartCoroutine(DoEvents(e));
+            //    e = EventManager.blockPlaced.Dequeue();
+            //}
         }
     }
 }

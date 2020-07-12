@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Game.Logic.World
 {
-    public class WorldGenerator
+    public class WorldGenerator : IWorldGenerator
     {
         protected NoiseS3D noiseCore;
         public static int depth = 64;
@@ -70,5 +70,24 @@ namespace Game.Logic.World
             return CalcBlockId(pos) == BlockType.Stone;
         }
 
+        public virtual void Generate(ChunkGenerateEvent e)
+        {
+            var pos = e.pos;
+            var chunk = e.chunk;
+            var min = chunk.position.min;
+            var max = chunk.position.max;
+            for (int z = min.z + 1; z < max.z; z++)
+            {
+                for (int x = min.x + 1; x < max.x; x++)
+                {
+                    for (int y = min.y + 1; y < max.y; y++)
+                    {
+                        pos.Set(x, y, z);
+                        var blockId = CalcBlockId(pos);
+                        chunk.SetBlockData(pos, blockId.GetBlockData());
+                    }
+                }
+            }
+        }
     }
 }

@@ -23,16 +23,24 @@ namespace Game.Logic.World
         }
     }
 
-    public class Chunk
+    public class Chunk : IChunkWriter
     {
         public WorldProvider world { get; private set; }
         public BlockPos position { get; private set; }
+        public int version = 0;
         BlockData[] data;
+        ChunkEventManager eventManager;
+        ChunkEventProvider<BlockPlacedEvent> blockPlaced;
+        ChunkEventProvider<ChunkGenerateEvent> chunkGenerate;
 
         public event EventHandler<ChunkChangeEvent> cubeChanged;
 
         public Chunk(WorldProvider world, BlockPos pos)
         {
+            eventManager = new ChunkLogicEventManager();
+            blockPlaced = new ChunkEventProvider<BlockPlacedEvent>(eventManager);
+            chunkGenerate = new ChunkEventProvider<ChunkGenerateEvent>(eventManager);
+
             this.world = world;
             this.position = new BlockPos(pos);
             data = new BlockData[16 * 16 * 16];
@@ -63,29 +71,14 @@ namespace Game.Logic.World
             }
         }
 
-        public void Generate(WorldGenerator generator)
+        public void Generate(IWorldGenerator generator)
         {
-            var ee = Events.blockPlaced.Create();
-            var min = position.min;
-            var max = position.max;
-            var pos = new BlockPos();
-            for (int z = min.z + 1; z < max.z; z++)
-            {
-                for (int x = min.x + 1; x < max.x; x++)
-                {
-                    for (int y = min.y + 1; y < max.y; y++)
-                    {
-                        pos.Set(x, y, z);
-                        var blockId = generator.CalcBlockId(pos);
-                        var e = ee.Add();
-                        e.world = world;
-                        e.pos.Set(pos);
-                        e.blockData = blockId.GetBlockData(BlockState.None);
-                        SetBlockDataInternal(pos, e.blockData);
-                    }
-                }
-            }
-            Events.blockPlaced.Enqueue(ee);
+            var e = chunkGenerate.Create();
+            e.chunk = this;
+            e.pos.Set(position);
+            e.world = this.world;
+            e.generator = generator;
+            e.Publish();
         }
 
         bool SetBlockDataInternal(BlockPos pos, BlockData value)
@@ -95,6 +88,7 @@ namespace Game.Logic.World
             if (oldValue != value)
             {
                 data[index] = value;
+                version++;
                 return true;
             }
             return false;
@@ -111,5 +105,42 @@ namespace Game.Logic.World
                     return false;
             }
         }
+
+        #region IChunkReader
+
+        int IChunkReader.version {
+            get {
+                return version;
+            }
+        }
+
+        IBlockPos IChunkReader.position {
+            get {
+                return position;
+            }
+        }
+
+        BlockData IChunkReader.GetBlockData(BlockPos pos)
+        {
+            return data[pos.GetIndex()];
+        }
+
+        #endregion
+
+        #region IChunkWriter
+
+        void IChunkWriter.SetBlockData(BlockPos pos, BlockData blockData)
+        {
+            if (SetBlockDataInternal(pos, blockData))
+            {
+                var e = blockPlaced.Create();
+                e.pos.Set(pos);
+                e.blockData = blockData;
+                e.world = this.world;
+                e.Publish();
+            }
+        }
+
+        #endregion
     }
 }

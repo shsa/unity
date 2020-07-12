@@ -2,9 +2,9 @@
 
 namespace Game.Logic.World
 {
-    public class WorldProvider : IWorld, IWorldAccess
+    public class WorldProvider : IWorld, IWorldAccess, IWorldWriter
     {
-        WorldGenerator generator;
+        IWorldGenerator generator;
         Dictionary<BlockPos, Chunk> chunks;
         Chunk[] chunkCash;
 
@@ -55,6 +55,16 @@ namespace Game.Logic.World
         public BlockData GetBlockData(BlockPos pos)
         {
             var chunk = GetChunk(pos);
+            return chunk.GetBlockData(pos);
+        }
+
+        BlockData IWorldReader.GetBlockData(BlockPos pos)
+        {
+            var chunk = GetChunkOrNull(pos);
+            if (chunk == null)
+            {
+                return BlockData.None;
+            }
             return chunk.GetBlockData(pos);
         }
 

@@ -8,39 +8,80 @@ namespace Game.View.World
 {
     public class RenderChunk : IDisposable
     {
+        public bool calculating;
         public byte visibleFacing;
-        public Chunk chunk { get; private set; }
+        public IWorldReader world { get; private set; }
+        public IChunkReader chunk { get; private set; }
         public Bounds bounds { get; private set; }
         public int frameIndex { get; private set; }
         public bool isCalculated { get; private set; }
         public Mesh mesh { get; private set; }
         public int empty;
 
+        ChunkEventManager viewManager;
+        ChunkEventManager coroutineManager;
+        ChunkEventProvider<RenderCalcVisibilityEvent> calcVisibiltyProvider;
+        ChunkEventProvider<RenderCalcVerticesEvent> calcVerticesProvider;
+        public ChunkEventProvider<RenderCalcMeshEvent> calcMeshProvider;
+
         static int[] DF; // index offsets
 
-        bool[] data;
-        List<Vector3> vertices;
-        List<int> triangles;
-        List<Vector2> uv;
+        public bool[] data;
+        public List<Vector3> vertices;
+        public List<int> triangles;
+        public List<Vector2> uv;
+        public int visibilityVersion;
+        public int meshVersion;
 
-        public RenderChunk(Chunk chunk)
+        public RenderChunk(IWorldReader world, IChunkReader chunk)
         {
+            calculating = false;
+            viewManager = new ChunkViewEventManager();
+            coroutineManager = new ChunkCoroutineEventManager();
+            calcVisibiltyProvider = new ChunkEventProvider<RenderCalcVisibilityEvent>(viewManager);
+            calcVerticesProvider = new ChunkEventProvider<RenderCalcVerticesEvent>(viewManager);
+            calcMeshProvider = new ChunkEventProvider<RenderCalcMeshEvent>(coroutineManager);
+
+            this.world = world;
             this.chunk = chunk;
-            this.bounds = chunk.position.bounds;
-            this.chunk.cubeChanged += Chunk_cubeChanged;
+            visibilityVersion = 0;
+            meshVersion = 0;
+            bounds = chunk.position.bounds;
             empty = 4096;
             data = new bool[empty]; // 16 * 16 * 16
             vertices = new List<Vector3>(); // 16 * 16 * 16 * 24?
             triangles = new List<int>();
             uv = new List<Vector2>();
             isCalculated = false;
-
-            mesh = null;
+            mesh = new Mesh();
+            visibleFacing = 0;
         }
 
-        private void Chunk_cubeChanged(object sender, ChunkChangeEvent e)
+        public void Update()
         {
-            //throw new System.NotImplementedException();
+            if (calculating)
+            {
+                return;
+            }
+
+            if (visibilityVersion != chunk.version)
+            {
+                var e = calcVisibiltyProvider.Create();
+                e.chunk = chunk;
+                e.render = this;
+                e.Publish();
+                calculating = true;
+                return;
+            }
+            if (meshVersion != visibilityVersion)
+            {
+                var e = calcVerticesProvider.Create();
+                e.chunk = chunk;
+                e.render = this;
+                e.Publish();
+                calculating = true;
+                return;
+            }
         }
 
         public bool SetFrameIndex(int value)
@@ -77,7 +118,7 @@ namespace Game.View.World
                     for (int y = min.y; y <= max.y; y++)
                     {
                         pos.Set(x, y, z);
-                        if (chunk.IsEmpty(pos))
+                        if (chunk.GetBlockData(pos).IsEmpty())
                         {
                             data[pos.GetIndex()] = false;
                             if ((x & 0xF) == 0)
@@ -125,15 +166,11 @@ namespace Game.View.World
 
         public IEnumerator CalcMesh()
         {
-            mesh = new Mesh();
-
             var min = chunk.position.min;
             var max = chunk.position.max;
             var pos = new BlockPos();
             var offset = new BlockPos();
-            var chunkPos = new BlockPos();
-            Chunk tmpChunk = null;
-            //UnityEngine.Profiling.Profiler.BeginSample("CalcMesh");
+
             for (int z = min.z; z <= max.z; z++)
             {
                 for (int x = min.x; x <= max.x; x++)
@@ -157,15 +194,13 @@ namespace Game.View.World
 
                                 if (offset.x < min.x || offset.x > max.x || offset.y < min.y || offset.y > max.y || offset.z < min.z || offset.z > max.z)
                                 {
-                                    chunkPos.Set(offset);
-                                    if (chunkPos.z < 0)
+                                    if (offset.z < 0)
                                     {
                                         set |= (byte)(1 << (int)facing);
                                     }
                                     else
                                     {
-                                        tmpChunk = chunk.world.GetChunk(chunkPos);
-                                        if (tmpChunk.IsEmpty(offset))
+                                        if (world.GetBlockData(offset).IsEmpty())
                                         {
                                             set |= (byte)(1 << (int)facing);
                                         }
@@ -270,7 +305,6 @@ namespace Game.View.World
 
         public void Dispose()
         {
-            chunk.cubeChanged -= Chunk_cubeChanged;
         }
 
         static RenderChunk()
