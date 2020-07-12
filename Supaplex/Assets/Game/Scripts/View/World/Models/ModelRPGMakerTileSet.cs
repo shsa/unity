@@ -13,6 +13,8 @@ namespace Game.View.World
             public BlockPart[][] parts;
         }
 
+        static Dictionary<string, BlockParts> textures = new Dictionary<string, BlockParts>();
+
         BlockParts[] parts;
 
         public ModelRPGMakerTileSet() : base()
@@ -22,9 +24,34 @@ namespace Game.View.World
             PrepareSamples();
         }
 
+        struct ModelInfo
+        {
+            public string texture;
+        }
+
+        string DefaultTextureName()
+        {
+            return "TileSetDemo2";
+        }
+
+        string LoadTextureName(string modelName)
+        {
+            var textAsset = Resources.Load<TextAsset>("Models/" + modelName);
+            if (textAsset == null)
+            {
+                return DefaultTextureName();
+            }
+            ModelInfo info = JsonUtility.FromJson<ModelInfo>(textAsset.text);
+            if (info.texture == null)
+            {
+                return DefaultTextureName();
+            }
+            return info.texture;
+        }
+
         public override void Register(Block block)
         {
-            parts[(int)block.id] = RegisterBlock("TileSetDemo2");
+            parts[(int)block.id] = RegisterBlock(LoadTextureName(block.name));
         }
 
         #region Prepare
@@ -140,6 +167,11 @@ namespace Game.View.World
 
         BlockParts RegisterBlock(string textureName)
         {
+            if (textures.TryGetValue(textureName, out var blockParts))
+            {
+                return blockParts;
+            }
+
             var render = RenderTexture.active;
 
             var texture = GetTexture(textureName);
@@ -172,8 +204,8 @@ namespace Game.View.World
                 pp[(int)facing] = Geometry.GetBlockPart(facing, uvRect);
             }
 
-            var ss = new BlockParts();
-            ss.parts = new BlockPart[256][];
+            blockParts = new BlockParts();
+            blockParts.parts = new BlockPart[256][];
             for (int sides = 0; sides <= 0xFF; sides++)
             {
                 var sample = indexes[sides];
@@ -185,10 +217,11 @@ namespace Game.View.World
                 addPart(pp, Facing.West, sample.uv);
                 addPart(pp, Facing.Up, sample.uv);
                 addPart(pp, Facing.Down, sample.uv);
-                ss.parts[sides] = pp;
+                blockParts.parts[sides] = pp;
             }
 
-            return ss;
+            textures.Add(textureName, blockParts);
+            return blockParts;
         }
 
         #endregion

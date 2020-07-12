@@ -58,7 +58,7 @@ namespace Game.Logic.World
             {
                 if (k > 0.8f)
                 {
-                    //return ObjectType.Stone4x4;
+                    return BlockType.Masonry;
                 }
                 return BlockType.Stone1;
             }
@@ -76,11 +76,11 @@ namespace Game.Logic.World
             var chunk = e.chunk;
             var min = chunk.position.min;
             var max = chunk.position.max;
-            for (int z = min.z + 1; z < max.z; z++)
+            for (int z = min.z; z <= max.z; z++)
             {
-                for (int x = min.x + 1; x < max.x; x++)
+                for (int x = min.x; x <= max.x; x++)
                 {
-                    for (int y = min.y + 1; y < max.y; y++)
+                    for (int y = min.y; y <= max.y; y++)
                     {
                         pos.Set(x, y, z);
                         var blockId = CalcBlockId(pos);

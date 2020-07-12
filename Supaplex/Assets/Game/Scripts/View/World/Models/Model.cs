@@ -21,7 +21,12 @@ namespace Game.View.World
 
         public static Texture2D GetTexture(string name)
         {
-            return Resources.Load<Texture2D>(name);
+            var texture = Resources.Load<Texture2D>(name);
+            if (texture == null)
+            {
+                return Resources.Load<Texture2D>("None");
+            }
+            return texture;
         }
 
         public static void Add(ModelType modelType, Model model)

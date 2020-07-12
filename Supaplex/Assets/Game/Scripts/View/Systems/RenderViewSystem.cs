@@ -183,28 +183,11 @@ namespace Game.View
                     if (GeometryUtility.TestPlanesAABB(planes, renderChunk.bounds))
                     {
                         renderChunk.SetFrameIndex(Time.frameCount);
-                        if (renderChunk.isCalculated)
-                        {
-                            queue.Enqueue(renderChunk);
-                        }
-                        else
-                        {
-                            View.setup.StartCoroutine(renderChunk.CalcVisibility());
-                        }
+                        queue.Enqueue(renderChunk);
                     }
                     else
                     {
-                        if (renderChunk.isCalculated)
-                        {
-                            if (renderChunk.mesh == null)
-                            {
-                                View.setup.StartCoroutine(renderChunk.CalcMesh());
-                            }
-                        }
-                        else
-                        {
-                            View.setup.StartCoroutine(renderChunk.CalcVisibility());
-                        }
+                        renderChunk.Update();
                     }
                 }
             }

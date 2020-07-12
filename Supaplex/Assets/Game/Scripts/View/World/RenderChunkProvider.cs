@@ -30,10 +30,6 @@ namespace Game.View.World
             var renderChunk = renderChunks[index];
             if (renderChunk == null || !renderChunk.chunk.position.ChunkEquals(pos))
             {
-                if (renderChunk != null)
-                {
-                    renderChunk.Dispose();
-                }
                 var chunk = world.GetChunk(pos);
                 renderChunk = new RenderChunk(world, chunk);
                 renderChunks[index] = renderChunk;

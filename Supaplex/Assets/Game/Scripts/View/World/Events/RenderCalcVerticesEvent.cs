@@ -13,17 +13,14 @@ namespace Game.View.World
         public IChunkReader chunk;
         BlockPos pos = new BlockPos();
         BlockPos offset = new BlockPos();
-        List<Vector3> vertices;
-        List<int> triangles;
-        List<Vector2> uv;
+        List<Vector3> vertices = new List<Vector3>();
+        List<int> triangles = new List<int>();
+        List<Vector2> uv = new List<Vector2>();
 
         public override void Execute()
         {
-            vertices = render.vertices;
             vertices.Clear();
-            triangles = render.triangles;
             triangles.Clear();
-            uv = render.uv;
             uv.Clear();
 
             var min = chunk.position.min;
@@ -80,25 +77,26 @@ namespace Game.View.World
 
             var e = render.calcMeshProvider.Create();
             e.render = render;
+            
+            var v = e.vertices;
+            e.vertices = vertices;
+            vertices = v;
+
+            var t = e.triangles;
+            e.triangles = triangles;
+            triangles = t;
+
+            var u = e.uv;
+            e.uv = uv;
+            uv = u;
+
             e.Publish();
         }
 
         void AddBlock(BlockPos pos, byte facings)
         {
             var blockData = chunk.GetBlockData(pos);
-            var objectType = blockData.GetBlockId();
             Vector3 p = pos.ToVector();
-            switch (objectType)
-            {
-                case BlockType.Stone:
-                    break;
-                case BlockType.Stone4x4:
-                    p = new Vector3(p.x + 1.5f, p.y + 1.5f, p.z + 1.5f);
-                    facings = (1 << (int)Facing.South) | (1 << (int)Facing.Up) | (1 << (int)Facing.Down) | (1 << (int)Facing.West) | (1 << (int)Facing.East);
-                    break;
-                default:
-                    break;
-            }
             var block = blockData.GetBlock();
             var state = blockData.GetBlockState();
             var model = Model.GetModel(block.model);
@@ -111,14 +109,7 @@ namespace Game.View.World
                     for (int i = 0; i < part.vertices.Length; i++)
                     {
                         var v = part.vertices[i];
-                        if (objectType == BlockType.Stone4x4)
-                        {
-                            vertices.Add(p + v * 4);
-                        }
-                        else
-                        {
-                            vertices.Add(p + v);
-                        }
+                        vertices.Add(p + v);
                     }
                     uv.AddRange(part.uv);
                     for (int i = 0; i < part.triangles.Length; i++)

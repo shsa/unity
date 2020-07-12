@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Game
+﻿namespace Game
 {
     public enum BlockType
     {
@@ -16,9 +10,8 @@ namespace Game
         Wall,
         Stone,
         Stone1,
-        Stone2x2,
-        Stone3x3,
-        Stone4x4
+        Masonry,
+        Rock
     }
 
     public enum ObjectState

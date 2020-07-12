@@ -34,7 +34,7 @@ namespace Game.Logic.World
         SD[] dirs;
         FacingDList[] set = new FacingDList[6];
 
-        public BlockRPGMakerTileSet() : base("Stone1", ModelType.RPGMakerTileSet)
+        public BlockRPGMakerTileSet(string name) : base(name, ModelType.RPGMakerTileSet)
         {
             var index = 0;
             for (int z = -1; z <= 1; z++)
