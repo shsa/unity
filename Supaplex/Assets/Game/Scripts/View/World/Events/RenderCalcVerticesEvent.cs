@@ -1,8 +1,8 @@
-﻿using Game.View.World;
+﻿using Game.Logic.World;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Game.Logic.World
+namespace Game.View.World
 {
     public sealed class RenderCalcVerticesEvent : ChunkEvent
     {

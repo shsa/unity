@@ -1,8 +1,6 @@
-﻿using Game.View.World;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using Game.Logic.World;
 
-namespace Game.Logic.World
+namespace Game.View.World
 {
     public sealed class RenderCalcMeshEvent : ChunkEvent
     {

@@ -116,28 +116,6 @@ namespace Game.Logic.World
             return result;
         }
 
-        public override void OnNeighborChange(NeighborChangeEvent e)
-        {
-
-        }
-
-        public override void OnBlockPlaced(BlockPlacedEvent e)
-        {
-            var state = BlockState.None;
-            var blockPos = e.blockPos;
-            var pos = e.pos;
-            foreach (var node in dirs)
-            {
-                var v = node.vector;
-                pos.Set(blockPos.x + v.x, blockPos.y + v.y, blockPos.z + v.z);
-                if (!e.world.GetBlockData(pos).IsEmpty())
-                {
-                    state |= (BlockState)(1 << node.index);
-                }
-            }
-            e.world.SetBlockData(blockPos, id.GetBlockData(state));
-        }
-
         public override void OnBlockChange(BlockChangeEvent e)
         {
             var state = BlockState.None;

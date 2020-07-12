@@ -28,21 +28,7 @@ namespace Game.View
             this.contexts = contexts;
             world = new WorldProvider(1);
             renderProvider = new RenderChunkProvider(world, View.setup.viewSize);
-            //material = new Material(Shader.Find("Standard"));
-            //material.SetTexture("_MainTex", View.setup.wallTexture);
-            //material.SetColor("_Color", Color.white);
-            material = View.setup.wallMaterial;
 
-            var texture = View.setup.wallMaterial.GetTexture("_MainTex");
-            Rect R(int i, int j)
-            {
-                var w = texture.width / 4f;
-                var h = texture.height / 3f;
-                return new Rect(i * w / texture.width, j * h / texture.height, w / texture.width, h / texture.height);
-            }
-
-            //cubeMeshes = Geometry.CreateCube(new Rect[] { R(1, 1), R(1, 3), R(0, 1), R(2, 1), R(1, 2), R(1, 0) });
-            //cube = Geometry.CreateCube2(new Rect[] { R(1, 1), R(1, 3), R(0, 1), R(2, 1), R(1, 2), R(1, 0) });
             var r = new Rect(0, 0, 1, 1);
             cube = Geometry.CreateCube2(new Rect[] { r, r, r, r, r, r });
             planes = new Plane[6];
@@ -109,8 +95,6 @@ namespace Game.View
             // Ordering: [0] = Left, [1] = Right, [2] = Down, [3] = Up, [4] = Near, [5] = Far
             GeometryUtility.CalculateFrustumPlanes(View.setup._camera, planes);
             float enter;
-
-            int count = 0;
 
             UnityEngine.Profiling.Profiler.BeginSample("Calc planes");
             var depth = View.setup.viewSize.z * 16;

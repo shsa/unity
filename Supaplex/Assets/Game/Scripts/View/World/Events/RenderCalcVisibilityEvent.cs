@@ -1,6 +1,6 @@
-﻿using Game.View.World;
+﻿using Game.Logic.World;
 
-namespace Game.Logic.World
+namespace Game.View.World
 {
     public sealed class RenderCalcVisibilityEvent : ChunkEvent
     {

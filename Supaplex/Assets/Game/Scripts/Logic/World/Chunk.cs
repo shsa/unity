@@ -32,17 +32,13 @@ namespace Game.Logic.World
         public int version = 0;
         BlockData[] data;
         ChunkEventManager eventManager;
-        ChunkEventProvider<BlockPlacedEvent> blockPlaced;
         ChunkEventProvider<BlockChangeEvent> blockChange;
-        ChunkEventProvider<NeighborChangeEvent> neighborChange;
         ChunkEventProvider<ChunkGenerateEvent> chunkGenerate;
 
         public Chunk(WorldProvider world, BlockPos pos)
         {
             eventManager = new ChunkLogicEventManager();
-            blockPlaced = new ChunkEventProvider<BlockPlacedEvent>(eventManager);
             blockChange = new ChunkEventProvider<BlockChangeEvent>(eventManager);
-            neighborChange = new ChunkEventProvider<NeighborChangeEvent>(eventManager);
             chunkGenerate = new ChunkEventProvider<ChunkGenerateEvent>(eventManager);
 
             this.world = world;
