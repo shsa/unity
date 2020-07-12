@@ -28,7 +28,7 @@ namespace Game.View
         {
             foreach (var gameEntity in entities)
             {
-                if (gameEntity.objectType.value == BlockType.Wall)
+                //if (gameEntity.objectType.value == BlockType.Wall)
                 {
                     //gameEntity.view.value.transform.localPosition = gameEntity.position.value;
                     //gameEntity.AddMatrix(Matrix4x4.Translate(gameEntity.position.value));

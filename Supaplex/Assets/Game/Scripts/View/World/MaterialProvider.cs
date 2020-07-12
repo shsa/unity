@@ -45,7 +45,7 @@ namespace Game.View.World
             var w = 2 << b;
             linePixels = w;
             uvKoef = 1.0f / linePixels;
-            uvBlockSize = blockSize * uvKoef;
+            uvBlockSize = (blockSize - 2) * uvKoef;
             var h = w;
             var count = (int)Enum.GetValues(typeof(TextureType)).Cast<TextureType>().Max() + 1;
             textures = new Texture2D[count];
@@ -65,6 +65,8 @@ namespace Game.View.World
             material.SetTexture("_MainTex", textures[(int)TextureType.Main]);
             //Set the Normal map using the Texture you assign in the Inspector
             material.SetTexture("_BumpMap", textures[(int)TextureType.Normal]);
+            material.SetFloat("_Metallic", 0);
+            material.SetFloat("_Glossiness", 0);
         }
 
         public static Texture2D GetBlockTexture()
@@ -110,7 +112,7 @@ namespace Game.View.World
             Graphics.CopyTexture(source, 0, 0, 0, 0, source.width, source.height, dst, 0, 0, x, y);
 
             RenderTexture.active = _active;
-            return new Rect(x * uvKoef, y * uvKoef, uvBlockSize, uvBlockSize);
+            return new Rect((x + 1) * uvKoef, (y + 1) * uvKoef, uvBlockSize, uvBlockSize);
         }
     }
 }

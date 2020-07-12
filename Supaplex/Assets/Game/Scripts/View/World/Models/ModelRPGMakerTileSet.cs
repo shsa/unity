@@ -24,9 +24,11 @@ namespace Game.View.World
             PrepareSamples();
         }
 
-        struct ModelInfo
+        class ModelInfo
         {
-            public string texture;
+            public string name;
+            public string texture = null;
+            public string normal = null;
         }
 
         string DefaultTextureName()
@@ -34,24 +36,22 @@ namespace Game.View.World
             return "TileSetDemo2";
         }
 
-        string LoadTextureName(string modelName)
+        ModelInfo LoadModel(string modelName)
         {
             var textAsset = Resources.Load<TextAsset>("Models/" + modelName);
             if (textAsset == null)
             {
-                return DefaultTextureName();
+                Debug.LogWarning("not found model " + modelName);
+                return new ModelInfo();
             }
-            ModelInfo info = JsonUtility.FromJson<ModelInfo>(textAsset.text);
-            if (info.texture == null)
-            {
-                return DefaultTextureName();
-            }
-            return info.texture;
+            var modelInfo = JsonUtility.FromJson<ModelInfo>(textAsset.text);
+            modelInfo.name = modelName;
+            return modelInfo;
         }
 
         public override void Register(Block block)
         {
-            parts[(int)block.id] = RegisterBlock(LoadTextureName(block.name));
+            parts[(int)block.id] = RegisterBlock(LoadModel(block.name));
         }
 
         #region Prepare
@@ -165,20 +165,28 @@ namespace Game.View.World
             }
         }
 
-        BlockParts RegisterBlock(string textureName)
+        BlockParts RegisterBlock(ModelInfo modelInfo)
         {
-            if (textures.TryGetValue(textureName, out var blockParts))
+            if (textures.TryGetValue(modelInfo.texture, out var blockParts))
             {
                 return blockParts;
             }
 
             var render = RenderTexture.active;
 
-            var texture = GetTexture(textureName);
+            var texture = GetTexture(modelInfo.texture);
+            var _normal = GetTexture(modelInfo.normal);
+            if (_normal == null)
+            {
+                Debug.LogError("not found normal texture for model " + modelInfo.name);
+            }
             var src = MaterialProvider.CreateTexture2D(texture.width, texture.height);
             Graphics.ConvertTexture(texture, src);
+            var normal = MaterialProvider.CreateTexture2D(texture.width, texture.height);
+            Graphics.ConvertTexture(_normal, normal);
             var tileSize = new Vector2Int(src.width / tileGridSize.x, src.height / tileGridSize.y);
             var tmpTxt = MaterialProvider.CreateTexture2D(tileSize.x * 2, tileSize.y * 2);
+            var normalTemp = MaterialProvider.CreateTexture2D(tileSize.x * 2, tileSize.y * 2);
 
             var corners = new Vec2i[4];
             corners[(int)CornerEnum.TL] = new Vec2i(0, tileSize.x);
@@ -192,9 +200,11 @@ namespace Game.View.World
                     var x = sample.corners[i].x * tileSize.x;
                     var y = sample.corners[i].y * tileSize.y;
                     Graphics.CopyTexture(src, 0, 0, x, y, tileSize.x, tileSize.y, tmpTxt, 0, 0, corners[i].x, corners[i].y);
+                    Graphics.CopyTexture(normal, 0, 0, x, y, tileSize.x, tileSize.y, normalTemp, 0, 0, corners[i].x, corners[i].y);
                 }
                 var index = MaterialProvider.AllocateBlock();
                 sample.uv = MaterialProvider.Replace(index, tmpTxt, TextureType.Main);
+                MaterialProvider.Replace(index, normalTemp, TextureType.Normal);
             }
             RenderTexture.active = render;
             UnityEngine.Object.Destroy(tmpTxt);
@@ -220,7 +230,7 @@ namespace Game.View.World
                 blockParts.parts[sides] = pp;
             }
 
-            textures.Add(textureName, blockParts);
+            textures.Add(modelInfo.texture, blockParts);
             return blockParts;
         }
 

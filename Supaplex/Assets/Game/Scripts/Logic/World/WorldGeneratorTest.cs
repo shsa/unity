@@ -19,7 +19,7 @@ namespace Game.Logic.World
             pos.Set(chunk.position);
             if ((pos.x >> 4) == 0 && (pos.y >> 4) == 0 && (pos.z >> 4) == 0)
             {
-                var blockId = BlockType.Stone1;
+                var blockId = BlockType.Stone;
                 pos.Set(e.chunk.position);
                 pos.Add(1, 1, 1);
                 chunk.SetBlockData(pos, blockId.GetBlockData());

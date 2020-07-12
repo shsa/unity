@@ -39,8 +39,13 @@ namespace Game.Logic.World
             return k;
         }
 
+        float GetNoise(BlockPos pos, float scale, Vec3i offset)
+        {
+            return (float)GetNoise(pos.x * scale + offset.x, pos.y * scale + offset.y, pos.z * scale + offset.z);
+        }
+
         float stoneScale = 0.05f;
-        bool CalcStone(int x, int y, int z, out float k)
+        bool CalcBlock(int x, int y, int z, out float k)
         {
             k = (float)GetNoise(x * stoneScale, y * stoneScale, z * stoneScale);
             var f = 0.7f;
@@ -52,22 +57,20 @@ namespace Game.Logic.World
             return false;
         }
 
+        float masonryScale = 0.05f;
+        Vec3i masonryOffset = new Vec3i(0, 0, 100);
         public virtual BlockType CalcBlockId(BlockPos pos)
         {
-            if (CalcStone(pos.x, pos.y, pos.z, out var k))
+            if (CalcBlock(pos.x, pos.y, pos.z, out var k))
             {
-                if (k > 0.8f)
+                k = GetNoise(pos, masonryScale, masonryOffset);
+                if (k > 0.5)
                 {
                     return BlockType.Masonry;
                 }
-                return BlockType.Stone1;
+                return BlockType.Rock;
             }
             return BlockType.Empty;
-        }
-
-        public bool IsStone(BlockPos pos)
-        {
-            return CalcBlockId(pos) == BlockType.Stone;
         }
 
         public virtual void Generate(ChunkGenerateEvent e)

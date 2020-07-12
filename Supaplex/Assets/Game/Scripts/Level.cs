@@ -28,9 +28,9 @@ namespace Game.Logic
 
     public class Level : IEnumerable<LevelObject>
     {
-        struct LevelData
+        class LevelData
         {
-            public string[] lines;
+            public string[] lines = null;
         }
 
         Dictionary<Vector2Int, LevelObject> data = new Dictionary<Vector2Int, LevelObject>();
@@ -59,7 +59,7 @@ namespace Game.Logic
                             {
                                 var obj = new Wall();
                                 obj.position = new Vector2Int(x, y);
-                                obj.type = BlockType.Wall;
+                                obj.type = BlockType.Rock;
                                 level.data.Add(obj.position, obj);
                             }
                             break;

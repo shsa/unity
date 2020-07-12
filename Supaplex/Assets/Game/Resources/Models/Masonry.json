@@ -1,3 +1,4 @@
 {
-  "texture": "Textures/Blocks/Masonry"
+  "texture": "Textures/Blocks/Masonry",
+  "normal": "Textures/Blocks/MasonryNormal"
 }

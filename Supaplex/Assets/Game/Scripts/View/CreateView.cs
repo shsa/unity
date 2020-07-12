@@ -19,7 +19,7 @@ namespace Game.View
             {
                 switch (entity.objectType.value)
                 {
-                    case BlockType.Wall:
+                    case BlockType.Rock:
                         view = GameObject.Instantiate(View.setup.wallPrefab, View.setup.gameRoot.transform);
                         break;
                     case BlockType.Stone:

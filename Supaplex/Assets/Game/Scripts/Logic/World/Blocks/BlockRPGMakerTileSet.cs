@@ -125,7 +125,7 @@ namespace Game.Logic.World
             {
                 var v = node.vector;
                 pos.Set(blockPos.x + v.x, blockPos.y + v.y, blockPos.z + v.z);
-                if (!e.world.GetBlockData(pos).IsEmpty())
+                if (e.world.GetBlockData(pos).GetBlockId() == id)
                 {
                     state |= (BlockState)(1 << node.index);
                 }

@@ -4,12 +4,7 @@
     {
         None,
         Empty,
-        OffsetDown,
-        OffsetSouth,
-        OffsetWest,
-        Wall,
         Stone,
-        Stone1,
         Masonry,
         Rock
     }
