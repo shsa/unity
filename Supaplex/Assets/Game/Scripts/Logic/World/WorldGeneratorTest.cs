@@ -16,15 +16,23 @@ namespace Game.Logic.World
         {
             var pos = e.pos;
             var chunk = e.chunk;
-            var blockId = BlockType.Stone1;
-            pos.Set(1, 1, 1);
-            chunk.SetBlockData(pos, blockId.GetBlockData());
-            pos.Set(2, 1, 1);
-            chunk.SetBlockData(pos, blockId.GetBlockData());
-            pos.Set(2, 2, 1);
-            chunk.SetBlockData(pos, blockId.GetBlockData());
-            pos.Set(1, 2, 1);
-            chunk.SetBlockData(pos, blockId.GetBlockData());
+            pos.Set(chunk.position);
+            if ((pos.x >> 4) == 0 && (pos.y >> 4) == 0 && (pos.z >> 4) == 0)
+            {
+                var blockId = BlockType.Stone1;
+                pos.Set(e.chunk.position);
+                pos.Add(1, 1, 1);
+                chunk.SetBlockData(pos, blockId.GetBlockData());
+                pos.Set(e.chunk.position);
+                pos.Add(2, 1, 1);
+                chunk.SetBlockData(pos, blockId.GetBlockData());
+                pos.Set(e.chunk.position);
+                pos.Add(2, 2, 1);
+                chunk.SetBlockData(pos, blockId.GetBlockData());
+                pos.Set(e.chunk.position);
+                pos.Add(1, 2, 1);
+                chunk.SetBlockData(pos, blockId.GetBlockData());
+            }
         }
     }
 }

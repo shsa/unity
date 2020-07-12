@@ -60,11 +60,25 @@ namespace Game.Logic.World
             this.z = pos.z;
         }
 
+        public void Set(BlockPos pos, Vec3i offset)
+        {
+            this.x = pos.x + offset.x;
+            this.y = pos.y + offset.y;
+            this.z = pos.z + offset.z;
+        }
+
         public void Add(Vec3i offset)
         {
             x = x + offset.x;
             y = y + offset.y;
             z = z + offset.z;
+        }
+
+        public void Add(int dx, int dy, int dz)
+        {
+            x = x + dx;
+            y = y + dy;
+            z = z + dz;
         }
 
         public void SetChunk(int x, int y, int z)

@@ -32,15 +32,16 @@ namespace Game.Logic.World
         /// <summary>
         /// Called when a block on a side of this block changes is created or is destroyed.
         /// </summary>
-        /// <param name="world"></param>
-        /// <param name="pos"></param>
-        /// <param name="neighbor"></param>
-        /// <param name="neighborData"></param>
-        public virtual void OnNeighborChange(IWorldAccess world, BlockPos pos, BlockPos neighbor, BlockData neighborData)
+        /// <param name="e"></param>
+        public virtual void OnNeighborChange(NeighborChangeEvent e)
         {
         }
 
         public virtual void OnBlockPlaced(BlockPlacedEvent e)
+        {
+        }
+
+        public virtual void OnBlockChange(BlockChangeEvent e)
         {
         }
 

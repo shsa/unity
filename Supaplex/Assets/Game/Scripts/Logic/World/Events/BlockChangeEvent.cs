@@ -1,6 +1,6 @@
 ﻿namespace Game.Logic.World
 {
-    public sealed class BlockPlacedEvent : ChunkEvent
+    public sealed class BlockChangeEvent : ChunkEvent
     {
         public BlockData blockData;
         public BlockPos blockPos = new BlockPos();
@@ -10,7 +10,7 @@
         public override void Execute()
         {
             var block = blockData.GetBlock();
-            block.OnBlockPlaced(this);
+            block.OnBlockChange(this);
         }
     }
 }

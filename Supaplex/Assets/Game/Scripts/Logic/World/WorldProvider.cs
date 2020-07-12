@@ -10,7 +10,7 @@ namespace Game.Logic.World
 
         public WorldProvider(int seed)
         {
-            generator = new WorldGeneratorTest(seed);
+            generator = new WorldGenerator(seed);
             chunks = new Dictionary<BlockPos, Chunk>();
             chunkCash = new Chunk[16 * 16 * 16];
         }

@@ -116,7 +116,7 @@ namespace Game.Logic.World
             return result;
         }
 
-        public override void OnNeighborChange(IWorldAccess world, BlockPos pos, BlockPos neighbor, BlockData neighborData)
+        public override void OnNeighborChange(NeighborChangeEvent e)
         {
 
         }
@@ -124,20 +124,35 @@ namespace Game.Logic.World
         public override void OnBlockPlaced(BlockPlacedEvent e)
         {
             var state = BlockState.None;
+            var blockPos = e.blockPos;
             var pos = e.pos;
-            var x = pos.x;
-            var y = pos.y;
-            var z = pos.z;
             foreach (var node in dirs)
             {
                 var v = node.vector;
-                pos.Set(x + v.x, y + v.y, z + v.z);
+                pos.Set(blockPos.x + v.x, blockPos.y + v.y, blockPos.z + v.z);
                 if (!e.world.GetBlockData(pos).IsEmpty())
                 {
                     state |= (BlockState)(1 << node.index);
                 }
             }
-            e.world.SetBlockData(e.pos, id.GetBlockData(state));
+            e.world.SetBlockData(blockPos, id.GetBlockData(state));
+        }
+
+        public override void OnBlockChange(BlockChangeEvent e)
+        {
+            var state = BlockState.None;
+            var blockPos = e.blockPos;
+            var pos = e.pos;
+            foreach (var node in dirs)
+            {
+                var v = node.vector;
+                pos.Set(blockPos.x + v.x, blockPos.y + v.y, blockPos.z + v.z);
+                if (!e.world.GetBlockData(pos).IsEmpty())
+                {
+                    state |= (BlockState)(1 << node.index);
+                }
+            }
+            e.world.SetBlockData(blockPos, id.GetBlockData(state));
         }
     }
 }

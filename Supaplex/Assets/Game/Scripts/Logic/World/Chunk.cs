@@ -25,50 +25,34 @@ namespace Game.Logic.World
 
     public class Chunk : IChunkWriter
     {
+        static Vec3i[] neighbors;
+
         public WorldProvider world { get; private set; }
         public BlockPos position { get; private set; }
         public int version = 0;
         BlockData[] data;
         ChunkEventManager eventManager;
         ChunkEventProvider<BlockPlacedEvent> blockPlaced;
+        ChunkEventProvider<BlockChangeEvent> blockChange;
+        ChunkEventProvider<NeighborChangeEvent> neighborChange;
         ChunkEventProvider<ChunkGenerateEvent> chunkGenerate;
-
-        public event EventHandler<ChunkChangeEvent> cubeChanged;
 
         public Chunk(WorldProvider world, BlockPos pos)
         {
             eventManager = new ChunkLogicEventManager();
             blockPlaced = new ChunkEventProvider<BlockPlacedEvent>(eventManager);
+            blockChange = new ChunkEventProvider<BlockChangeEvent>(eventManager);
+            neighborChange = new ChunkEventProvider<NeighborChangeEvent>(eventManager);
             chunkGenerate = new ChunkEventProvider<ChunkGenerateEvent>(eventManager);
 
             this.world = world;
-            this.position = new BlockPos(pos);
-            data = new BlockData[16 * 16 * 16];
+            position = new BlockPos(pos);
+            data = new BlockData[4096]; // 16 * 16 * 16
         }
 
         public BlockData GetBlockData(BlockPos pos)
         {
             return data[pos.GetIndex()];
-        }
-
-        public void SetBlockData(BlockPos pos, BlockData value)
-        {
-            var index = pos.GetIndex();
-            var oldValue = data[index];
-            if (oldValue != value)
-            {
-                data[index] = value;
-                if (cubeChanged != null)
-                {
-                    var e = new ChunkChangeEvent(pos, FacingSet.All, value);
-                    cubeChanged(this, e);
-                    for (var side = Facing.First; side <= Facing.Last; side++)
-                    {
-                        e.Set(pos.Offset(side), side.Opposite().ToSet(), BlockData.None);
-                        cubeChanged(this, e);
-                    }
-                }
-            }
         }
 
         public void Generate(IWorldGenerator generator)
@@ -81,7 +65,7 @@ namespace Game.Logic.World
             e.Publish();
         }
 
-        bool SetBlockDataInternal(BlockPos pos, BlockData value)
+        public void SetBlockData(BlockPos pos, BlockData value)
         {
             var index = pos.GetIndex();
             var oldValue = data[index];
@@ -89,20 +73,49 @@ namespace Game.Logic.World
             {
                 data[index] = value;
                 version++;
-                return true;
+
+                //if (oldValue.GetBlockId() != value.GetBlockId())
+                {
+                    if (eventManager.SetBit(pos))
+                    {
+                        var e = blockChange.Create();
+
+                        for (int i = 0; i < neighbors.Length; i++)
+                        {
+                            e.pos.Set(pos, neighbors[i]);
+                            var chunk = world.GetChunkOrNull(e.pos);
+                            if (chunk != null)
+                            {
+                                chunk.RegisterBlockChange(e.pos);
+                            }
+                        }
+
+                        e.blockPos.Set(pos);
+                        e.blockData = GetBlockData(pos);
+                        e.world = world;
+                        e.Publish();
+                    }
+                }
             }
-            return false;
         }
 
-        public bool IsEmpty(BlockPos pos)
+        public void RegisterBlockChange(BlockPos pos)
         {
-            switch (GetBlockData(pos).GetBlockId())
+            var blockData = GetBlockData(pos);
+            switch (blockData.GetBlockId())
             {
-                case BlockType.Empty:
                 case BlockType.None:
-                    return true;
+                    break;
                 default:
-                    return false;
+                    if (eventManager.SetBit(pos))
+                    {
+                        var e = blockChange.Create();
+                        e.blockPos.Set(pos);
+                        e.blockData = blockData;
+                        e.world = world;
+                        e.Publish();
+                    }
+                    break;
             }
         }
 
@@ -131,16 +144,28 @@ namespace Game.Logic.World
 
         void IChunkWriter.SetBlockData(BlockPos pos, BlockData blockData)
         {
-            if (SetBlockDataInternal(pos, blockData))
-            {
-                var e = blockPlaced.Create();
-                e.pos.Set(pos);
-                e.blockData = blockData;
-                e.world = this.world;
-                e.Publish();
-            }
+            SetBlockData(pos, blockData);
         }
 
         #endregion
+
+        static Chunk()
+        {
+            neighbors = new Vec3i[26];
+            var index = 0;
+            for (int x = -1; x <= 1; x++)
+            {
+                for (int y = -1; y <= 1; y++)
+                {
+                    for (int z = -1; z <= 1; z++)
+                    {
+                        if (x != 0 || y != 0 || z != 0)
+                        {
+                            neighbors[index++] = new Vec3i(x, y, z);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

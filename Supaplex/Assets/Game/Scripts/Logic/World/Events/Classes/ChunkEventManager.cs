@@ -21,15 +21,18 @@ namespace Game.Logic.World
 
         #endregion
 
-        object monitor = new object();
+        public object monitor = new object();
         Stack<ChunkEventManager> poolManager = new Stack<ChunkEventManager>();
         Stack<ChunkEventBucket> poolBucket = new Stack<ChunkEventBucket>();
         ChunkEventBucket currentBucket;
         protected HashSet<ChunkEventManager> hashSet;
         protected Type managerType;
+        short[] bits;
+        bool hasBits = false;
 
         public ChunkEventManager(HashSet<ChunkEventManager> hashSet, Type managerType)
         {
+            bits = new short[4096];
             this.hashSet = hashSet;
             this.managerType = managerType;
             currentBucket = new ChunkEventBucket(this);
@@ -38,6 +41,30 @@ namespace Game.Logic.World
             {
                 hashSet.Add(this);
             }
+        }
+
+        public bool SetBit(BlockPos pos)
+        {
+            int index = ((pos.x & 0xF) << 4) | (pos.y & 0xF);
+            lock (monitor)
+            {
+                if (((bits[index] >> (pos.z & 0xF)) & 1) == 0)
+                {
+                    bits[index] |= (short)(1 << (pos.z & 0xF));
+                    hasBits = true;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        public bool GetBit(BlockPos pos)
+        {
+            int index = ((pos.x & 0xF) << 4) | (pos.y & 0xF);
+            return (bits[index] >> (pos.z & 0xF)) == 1;
         }
 
         public ChunkEventManager Create()
@@ -84,6 +111,11 @@ namespace Game.Logic.World
                     else
                     {
                         currentBucket = new ChunkEventBucket(this);
+                    }
+                    if (hasBits)
+                    {
+                        hasBits = false;
+                        Array.Clear(bits, 0, bits.Length);
                     }
                     return true;
                 }
