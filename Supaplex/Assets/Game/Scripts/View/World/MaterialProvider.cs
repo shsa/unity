@@ -16,7 +16,9 @@ namespace Game.View.World
 
     public static class MaterialProvider
     {
+        static int blockBorder = 1; // for skip seam
         static int blockSize;
+        static Texture2D blockBorderTempTexture;
         static Texture2D blockTempTexture;
         static Texture2D[] textures;
 
@@ -37,7 +39,7 @@ namespace Game.View.World
 
         public static void Create(int blockSizeIn, int blockCount)
         {
-            blockSize = blockSizeIn;
+            blockSize = blockSizeIn + blockBorder;
             lineCount = Mathf.CeilToInt(Mathf.Sqrt(blockCount));
             currentIndex = 0;
             var t = lineCount * blockSize;
@@ -45,7 +47,7 @@ namespace Game.View.World
             var w = 2 << b;
             linePixels = w;
             uvKoef = 1.0f / linePixels;
-            uvBlockSize = (blockSize - 2) * uvKoef;
+            uvBlockSize = (blockSize - 2 * blockBorder) * uvKoef;
             var h = w;
             var count = (int)Enum.GetValues(typeof(TextureType)).Cast<TextureType>().Max() + 1;
             textures = new Texture2D[count];
@@ -53,7 +55,8 @@ namespace Game.View.World
             {
                 textures[i] = CreateTexture2D(w, h);
             }
-            blockTempTexture = CreateTexture2D(blockSize, blockSize);
+            blockBorderTempTexture = CreateTexture2D(blockSize, blockSize);
+            blockTempTexture = CreateTexture2D(blockSize - 2 * blockBorder, blockSize - 2 * blockBorder);
 
             // https://docs.unity3d.com/ScriptReference/Material.SetTexture.html
             material = new Material(Shader.Find("Standard"));
@@ -74,14 +77,10 @@ namespace Game.View.World
             return blockTempTexture;
         }
 
-        static Texture2D AjustTexture(Texture2D source)
+        static void AjustTexture(Texture2D source)
         {
-            if (source.width != blockSize || source.height != blockSize)
-            {
-                Graphics.ConvertTexture(source, blockTempTexture);
-                return blockTempTexture;
-            }
-            return source;
+            Graphics.ConvertTexture(source, blockBorderTempTexture);
+            Graphics.ConvertTexture(source, blockTempTexture);
         }
 
         public static int AllocateBlock()
@@ -100,7 +99,7 @@ namespace Game.View.World
                 Debug.LogError("oops");
             }
 
-            source = AjustTexture(source);
+            AjustTexture(source);
 
             //Graphics.CopyTexture(source, renderTexture);
             //var t = RenderTexture.active;
@@ -109,10 +108,11 @@ namespace Game.View.World
             //dst.Apply();
             //RenderTexture.active = t;
             
-            Graphics.CopyTexture(source, 0, 0, 0, 0, source.width, source.height, dst, 0, 0, x, y);
+            Graphics.CopyTexture(blockBorderTempTexture, 0, 0, 0, 0, blockBorderTempTexture.width, blockBorderTempTexture.height, dst, 0, 0, x, y);
+            Graphics.CopyTexture(blockTempTexture, 0, 0, 0, 0, blockTempTexture.width, blockTempTexture.height, dst, 0, 0, x + blockBorder, y + blockBorder);
 
             RenderTexture.active = _active;
-            return new Rect((x + 1) * uvKoef, (y + 1) * uvKoef, uvBlockSize, uvBlockSize);
+            return new Rect((x + blockBorder) * uvKoef, (y + blockBorder) * uvKoef, uvBlockSize, uvBlockSize);
         }
     }
 }

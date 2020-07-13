@@ -53,6 +53,7 @@ namespace Game.Logic.World
             Register(BlockType.Stone, new BlockStone());
             Register(BlockType.Rock, new BlockRPGMakerTileSet("Rock"));
             Register(BlockType.Masonry, new BlockRPGMakerTileSet("Masonry"));
+            Register(BlockType.Cobblestone, new BlockRPGMakerTileSet("Cobblestone"));
         }
     }
 }

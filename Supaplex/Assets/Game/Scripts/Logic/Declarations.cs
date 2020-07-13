@@ -6,7 +6,8 @@
         Empty,
         Stone,
         Masonry,
-        Rock
+        Rock,
+        Cobblestone
     }
 
     public enum ObjectState

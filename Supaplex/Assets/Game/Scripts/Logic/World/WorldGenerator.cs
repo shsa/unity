@@ -59,6 +59,8 @@ namespace Game.Logic.World
 
         float masonryScale = 0.05f;
         Vec3i masonryOffset = new Vec3i(0, 0, 100);
+        float cobblestoneScale = 0.05f;
+        Vec3i cobblestoneOffset = new Vec3i(100, 0, 0);
         public virtual BlockType CalcBlockId(BlockPos pos)
         {
             if (CalcBlock(pos.x, pos.y, pos.z, out var k))
@@ -67,6 +69,12 @@ namespace Game.Logic.World
                 if (k > 0.5)
                 {
                     return BlockType.Masonry;
+                }
+
+                k = GetNoise(pos, cobblestoneScale, cobblestoneOffset);
+                if (k > 0.5)
+                {
+                    return BlockType.Cobblestone;
                 }
                 return BlockType.Rock;
             }

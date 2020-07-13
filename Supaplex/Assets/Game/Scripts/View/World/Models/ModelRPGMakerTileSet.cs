@@ -29,9 +29,15 @@ namespace Game.View.World
             public string name;
             public string texture = null;
             public string normal = null;
+
+            public ModelInfo()
+            {
+                texture = DefaultTextureName();
+                normal = "NormalDefault";
+            }
         }
 
-        string DefaultTextureName()
+        static string DefaultTextureName()
         {
             return "TileSetDemo2";
         }
