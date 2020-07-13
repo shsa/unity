@@ -59,3 +59,7 @@ sysinfo.txt
 crashlytics-build.properties
 
 *.userproperties
+/Enitites/Assets/SampleScenes
+/Enitites/Assets/SampleScenes.meta
+/Enitites/Assets/Standard Assets
+/Enitites/Assets/Standard Assets.meta
