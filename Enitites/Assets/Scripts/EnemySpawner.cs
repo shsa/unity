@@ -6,34 +6,71 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Rendering;
 using Unity.Collections;
+using Unity.Jobs;
 
 // https://www.raywenderlich.com/7630142-entity-component-system-for-unity-getting-started
 public class EnemySpawner : MonoBehaviour
 {
     EntityManager entityManager;
 
-    [SerializeField]
-    private int spawnCount;
+    [Header("Spawner")]
 
     [SerializeField]
-    private int difficultyBonus = 0;
+    private int spawnCount = 30;
 
     [SerializeField]
-    private int spawnRadius = 20;
+    private float spawnInterval = 3f;
 
     [SerializeField]
-    private int minSpeed = 5;
+    private int difficultyBonus = 5;
+
     [SerializeField]
-    private int maxSpeed = 10;
+    private float spawnRadius = 20f;
+
+    [SerializeField]
+    private float minSpeed = 4f;
+    [SerializeField]
+    private float maxSpeed = 10f;
+
+    [Header("Enemy")]
 
     [SerializeField]
     private GameObject enemyPrefab = null;
     private Entity enemyEntityPrefab;
+    private WaitForSeconds spawnIntervalYield;
 
+    public struct SimpleJob : IJob
+    {
+        //[ReadOnly]
+        public EntityCommandBuffer.Concurrent ConcurrentCommands;
 
+        public NativeArray<float3> randoms;
+        public NativeArray<float> randomSpeeds;
+        public EntityManager entityManager;
+        public Entity enemyEntityPrefab;
+        public int spawnCount;
+        public float spawnRadius;
+        public float minSpeed;
+        public float maxSpeed;
+        public float3 playerPos;
+
+        public void Execute()
+        {
+            Debug.Log("Hello parallel world!");
+            for (int i = 0; i < spawnCount; i++)
+            {
+                var enemy = ConcurrentCommands.Instantiate(i, enemyEntityPrefab);
+                //var enemy = entityManager.Instantiate(enemyEntityPrefab);
+                //entityManager.SetComponentData(enemy, new Translation { Value = randoms[i] });
+                //entityManager.SetComponentData(enemy, new MoveForward { speed = randomSpeeds[i] });
+            }
+        }
+    }
     // Start is called before the first frame update
     void Start()
     {
+        spawnIntervalYield = new WaitForSeconds(spawnInterval);
+
         entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
         var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
@@ -41,7 +78,7 @@ public class EnemySpawner : MonoBehaviour
         enemyEntityPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(enemyPrefab, settings);
 
         //entityManager.Instantiate(enemyEntityPrefab);
-        SpawnWave();
+        //SpawnWave();
 
 
         //// 1
@@ -66,41 +103,63 @@ public class EnemySpawner : MonoBehaviour
         //    material = enemy.GetComponent<MeshRenderer>().sharedMaterial
         //});
 
+        StartCoroutine(SpawnRoutine());
+    }
+
+    IEnumerator SpawnRoutine()
+    {
+        while (true)
+        {
+            SpawnWave1();
+            yield return spawnIntervalYield;
+        }
+    }
+
+    void SpawnWave1()
+    {
+        var ecbSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+
+        var job = new SimpleJob();
+        job.ConcurrentCommands = ecbSystem.CreateCommandBuffer().ToConcurrent();
+        job.entityManager = entityManager;
+        job.enemyEntityPrefab = enemyEntityPrefab;
+        job.spawnCount = spawnCount;
+        job.maxSpeed = maxSpeed;
+        job.minSpeed = minSpeed;
+        job.spawnRadius = spawnRadius;
+        job.playerPos = GameManager.GetPlayerPosition();
+
+        job.randoms = new NativeArray<float3>(spawnCount, Allocator.TempJob);
+        job.randomSpeeds = new NativeArray<float>(spawnCount, Allocator.TempJob);
+        for (int i = 0; i < spawnCount; i++)
+        {
+            job.randoms[i] = RandomPointOnCircle(spawnRadius);
+            job.randomSpeeds[i] = UnityEngine.Random.Range(minSpeed, maxSpeed);
+        }
+
+        var h = job.Schedule();
+        h.Complete();
+        job.randomSpeeds.Dispose();
+        job.randoms.Dispose();
     }
 
     void SpawnWave()
     {
-        // 1
-        NativeArray<Entity> enemyArray = new NativeArray<Entity>(spawnCount, Allocator.Temp);
-
-        // 2
-        for (int i = 0; i < enemyArray.Length; i++)
+        //NativeArray<Entity> enemyArray = new NativeArray<Entity>(spawnCount, Allocator.Temp);
+        for (int i = 0; i < spawnCount; i++)
         {
-            enemyArray[i] = entityManager.Instantiate(enemyEntityPrefab);
-
-            // 3
-            entityManager.SetComponentData(enemyArray[i], new Translation { Value = RandomPointOnCircle(spawnRadius) });
-
-            // 4
-            entityManager.SetComponentData(enemyArray[i], new MoveForward { speed = UnityEngine.Random.Range(minSpeed, maxSpeed) });
+            //enemyArray[i] = entityManager.Instantiate(enemyEntityPrefab);
+            var enemy = entityManager.Instantiate(enemyEntityPrefab);
+            entityManager.SetComponentData(enemy, new Translation { Value = RandomPointOnCircle(spawnRadius) });
+            entityManager.SetComponentData(enemy, new MoveForward { speed = UnityEngine.Random.Range(minSpeed, maxSpeed) });
         }
-
-        // 5
-        enemyArray.Dispose();
-
-        // 6
+        //enemyArray.Dispose();
         spawnCount += difficultyBonus;
     }
 
-    float3 RandomPointOnCircle(int spawnRaduis)
+    float3 RandomPointOnCircle(float spawnRaduis)
     {
-        var pos = UnityEngine.Random.insideUnitCircle * spawnRadius;
-        return new float3(pos.x, 0, pos.y);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        var pos = UnityEngine.Random.insideUnitCircle.normalized * spawnRadius;
+        return new float3(pos.x, 0, pos.y) + (float3)GameManager.GetPlayerPosition();
     }
 }

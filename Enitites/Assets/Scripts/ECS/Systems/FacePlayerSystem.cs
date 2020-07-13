@@ -2,7 +2,7 @@
 using Unity.Mathematics;
 using Unity.Entities;
 
-public class FacePlayerSystem : ComponentSystem
+public class FacePlayerSystem : SystemBase
 {
     protected override void OnUpdate()
     {
@@ -14,6 +14,6 @@ public class FacePlayerSystem : ComponentSystem
             direction.y = 0f;
 
             rot.Value = quaternion.LookRotation(direction, math.up());
-        });
+        }).ScheduleParallel();
     }
 }
