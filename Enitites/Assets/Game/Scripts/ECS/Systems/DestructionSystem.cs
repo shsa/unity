@@ -10,7 +10,6 @@ namespace Game
 
         protected override void OnUpdate()
         {
-            return;
             float3 playerPosition = (float3)GameManager.GetPlayerPosition();
 
             Entities.WithAll<EnemyTag>()

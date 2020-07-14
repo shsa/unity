@@ -83,6 +83,7 @@ namespace Game
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
+            //if (Physics.Raycast(ray, out hit, groundLayerMask))
             if (Physics.Raycast(ray, out hit, groundLayerMask))
             {
                 return GetRotationToTarget(xform, hit.point);
