@@ -79,7 +79,11 @@ namespace Game
             public EntityCommandBuffer.Concurrent ConcurrentCommands;
 
             public int id;
+            [ReadOnly]
+            [DeallocateOnJobCompletion]
             public NativeArray<float3> randoms;
+            [ReadOnly]
+            [DeallocateOnJobCompletion]
             public NativeArray<float> randomSpeeds;
             public Entity enemyEntityPrefab;
             public int spawnCount;
@@ -172,9 +176,10 @@ namespace Game
             }
 
             var h = job.Schedule(spawnCount, 64);
-            h.Complete();
-            job.randomSpeeds.Dispose();
-            job.randoms.Dispose();
+            ecbSystem.AddJobHandleForProducer(h);
+            //h.Complete();
+            //job.randomSpeeds.Dispose();
+            //job.randoms.Dispose();
         }
 
         void SpawnWave()

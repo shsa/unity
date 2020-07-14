@@ -65,7 +65,7 @@ namespace Game
             entityManager.SetComponentData(bullet, new Rotation { Value = muzzleTransform.rotation });
 
             // plays one-shot sound (pew pew pew!)
-            soundFXSource?.Play();
+            //soundFXSource?.Play();
         }
 
         protected virtual void Update()
@@ -81,7 +81,7 @@ namespace Game
             if (shotTimer >= rateOfFire && isFireButtonDown)
             {
                 // fire and reset the timer
-                //FireBullet();
+                FireBullet();
                 shotTimer = 0f;
             }
         }
