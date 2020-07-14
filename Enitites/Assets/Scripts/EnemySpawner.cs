@@ -38,15 +38,16 @@ public class EnemySpawner : MonoBehaviour
     private GameObject enemyPrefab = null;
     private Entity enemyEntityPrefab;
     private WaitForSeconds spawnIntervalYield;
+    private int id = 1;
 
     public struct SimpleJob : IJob
     {
         //[ReadOnly]
         public EntityCommandBuffer.Concurrent ConcurrentCommands;
 
+        public int id;
         public NativeArray<float3> randoms;
         public NativeArray<float> randomSpeeds;
-        public EntityManager entityManager;
         public Entity enemyEntityPrefab;
         public int spawnCount;
         public float spawnRadius;
@@ -59,13 +60,44 @@ public class EnemySpawner : MonoBehaviour
             Debug.Log("Hello parallel world!");
             for (int i = 0; i < spawnCount; i++)
             {
-                var enemy = ConcurrentCommands.Instantiate(i, enemyEntityPrefab);
+                //var enemy = ConcurrentCommands.CreateEntity(i, enemyEntityPrefab);
+                var enemyPrefab = ConcurrentCommands.Instantiate(id, enemyEntityPrefab);
                 //var enemy = entityManager.Instantiate(enemyEntityPrefab);
-                //entityManager.SetComponentData(enemy, new Translation { Value = randoms[i] });
+                ConcurrentCommands.AddComponent(id, enemyPrefab, new Translation { Value = randoms[i] });
+                ConcurrentCommands.AddComponent(id, enemyPrefab, new MoveForward { speed = randomSpeeds[i] });
+                //ConcurrentCommands.SetComponentData(enemy, new Translation { Value = randoms[i] });
                 //entityManager.SetComponentData(enemy, new MoveForward { speed = randomSpeeds[i] });
             }
         }
     }
+
+    public struct SimpleJobParallelFor : IJobParallelFor
+    {
+        //[ReadOnly]
+        public EntityCommandBuffer.Concurrent ConcurrentCommands;
+
+        public int id;
+        public NativeArray<float3> randoms;
+        public NativeArray<float> randomSpeeds;
+        public Entity enemyEntityPrefab;
+        public int spawnCount;
+        public float spawnRadius;
+        public float minSpeed;
+        public float maxSpeed;
+        public float3 playerPos;
+
+        public void Execute(int index)
+        {
+            //var enemy = ConcurrentCommands.CreateEntity(i, enemyEntityPrefab);
+            var enemyPrefab = ConcurrentCommands.Instantiate(id, enemyEntityPrefab);
+            //var enemy = entityManager.Instantiate(enemyEntityPrefab);
+            ConcurrentCommands.AddComponent(id, enemyPrefab, new Translation { Value = randoms[index] });
+            ConcurrentCommands.AddComponent(id, enemyPrefab, new MoveForward { speed = randomSpeeds[index] });
+            //ConcurrentCommands.SetComponentData(enemy, new Translation { Value = randoms[i] });
+            //entityManager.SetComponentData(enemy, new MoveForward { speed = randomSpeeds[i] });
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -119,15 +151,15 @@ public class EnemySpawner : MonoBehaviour
     {
         var ecbSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
 
-        var job = new SimpleJob();
+        var job = new SimpleJobParallelFor();
         job.ConcurrentCommands = ecbSystem.CreateCommandBuffer().ToConcurrent();
-        job.entityManager = entityManager;
         job.enemyEntityPrefab = enemyEntityPrefab;
         job.spawnCount = spawnCount;
         job.maxSpeed = maxSpeed;
         job.minSpeed = minSpeed;
         job.spawnRadius = spawnRadius;
         job.playerPos = GameManager.GetPlayerPosition();
+        job.id = id++;
 
         job.randoms = new NativeArray<float3>(spawnCount, Allocator.TempJob);
         job.randomSpeeds = new NativeArray<float>(spawnCount, Allocator.TempJob);
@@ -137,7 +169,7 @@ public class EnemySpawner : MonoBehaviour
             job.randomSpeeds[i] = UnityEngine.Random.Range(minSpeed, maxSpeed);
         }
 
-        var h = job.Schedule();
+        var h = job.Schedule(spawnCount, 64);
         h.Complete();
         job.randomSpeeds.Dispose();
         job.randoms.Dispose();
