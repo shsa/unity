@@ -2,27 +2,30 @@
 using Unity.Mathematics;
 using Unity.Entities;
 
-public class DestructionSystem : SystemBase
+namespace Game
 {
-    float thresholdDistance = 2f;
-
-    protected override void OnUpdate()
+    public class DestructionSystem : SystemBase
     {
-        float3 playerPosition = (float3)GameManager.GetPlayerPosition();
+        float thresholdDistance = 2f;
 
-        Entities.WithAll<EnemyTag>()
-            .WithStructuralChanges()
-            .ForEach((Entity enemy, ref Translation enemyPos) =>
-            {
-                playerPosition.y = enemyPos.Value.y;
+        protected override void OnUpdate()
+        {
+            return;
+            float3 playerPosition = (float3)GameManager.GetPlayerPosition();
 
-                if (math.distance(enemyPos.Value, playerPosition) <= thresholdDistance)
+            Entities.WithAll<EnemyTag>()
+                .WithStructuralChanges()
+                .ForEach((Entity enemy, ref Translation enemyPos) =>
                 {
+                    playerPosition.y = enemyPos.Value.y;
+
+                    if (math.distance(enemyPos.Value, playerPosition) <= thresholdDistance)
+                    {
                     //FXManager.Instance.CreateExplosion(enemyPos.Value);
                     //FXManager.Instance.CreateExplosion(playerPosition);
                     //GameManager.EndGame();
                     EntityManager.DestroyEntity(enemy);
-                
+
                     //PostUpdateCommands.DestroyEntity(enemy);
                 }
 
@@ -40,5 +43,6 @@ public class DestructionSystem : SystemBase
                 //    }
                 //}).ScheduleParallel();
             }).Run();
+        }
     }
 }
