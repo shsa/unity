@@ -7,20 +7,30 @@ namespace Game
 {
     public class LifetimeSystem : SystemBase
     {
+        EndSimulationEntityCommandBufferSystem endSimulationEcbSystem;
+
+        protected override void OnCreate()
+        {
+            base.OnCreate();
+            endSimulationEcbSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        }
+
         protected override void OnUpdate()
         {
             var deltaTime = Time.DeltaTime;
+            var ecb = endSimulationEcbSystem.CreateCommandBuffer().ToConcurrent();
 
             Entities
-                .WithStructuralChanges()
-                .ForEach((Entity entity, ref Lifetime lifetime) =>
+                .ForEach((Entity entity, int entityInQueryIndex, ref Lifetime lifetime) =>
                 {
                     lifetime.Value -= deltaTime;
                     if (lifetime.Value <= 0)
                     {
-                        EntityManager.DestroyEntity(entity);
+                        ecb.DestroyEntity(entityInQueryIndex, entity);
                     }
-                }).Run();
+                }).ScheduleParallel();
+
+            endSimulationEcbSystem.AddJobHandleForProducer(Dependency);
         }
     }
 }

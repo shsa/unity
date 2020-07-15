@@ -95,10 +95,10 @@ namespace Game
             public void Execute(int index)
             {
                 //var enemy = ConcurrentCommands.CreateEntity(i, enemyEntityPrefab);
-                var enemyPrefab = ConcurrentCommands.Instantiate(id, enemyEntityPrefab);
+                var enemyPrefab = ConcurrentCommands.Instantiate(index, enemyEntityPrefab);
                 //var enemy = entityManager.Instantiate(enemyEntityPrefab);
-                ConcurrentCommands.AddComponent(id, enemyPrefab, new Translation { Value = randoms[index] });
-                ConcurrentCommands.AddComponent(id, enemyPrefab, new MoveForward { speed = randomSpeeds[index] });
+                ConcurrentCommands.AddComponent(index, enemyPrefab, new Translation { Value = randoms[index] });
+                ConcurrentCommands.AddComponent(index, enemyPrefab, new MoveForward { speed = randomSpeeds[index] });
                 //ConcurrentCommands.SetComponentData(enemy, new Translation { Value = randoms[i] });
                 //entityManager.SetComponentData(enemy, new MoveForward { speed = randomSpeeds[i] });
             }
