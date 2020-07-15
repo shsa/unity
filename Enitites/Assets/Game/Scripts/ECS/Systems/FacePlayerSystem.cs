@@ -4,11 +4,10 @@ using Unity.Entities;
 
 namespace Game
 {
-    public class FacePlayerSystem : SystemBase
+    public sealed class FacePlayerSystem : SystemBase
     {
         protected override void OnUpdate()
         {
-            return;
             float3 playerPos = (float3)GameManager.GetPlayerPosition();
 
             Entities.WithAll<EnemyTag>().ForEach((Entity entity, ref Translation trans, ref Rotation rot) =>

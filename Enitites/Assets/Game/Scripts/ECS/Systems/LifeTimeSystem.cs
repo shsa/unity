@@ -5,14 +5,14 @@ using System.Threading;
 
 namespace Game
 {
-    public class LifetimeSystem : SystemBase
+    public sealed class LifetimeSystem : SystemBase
     {
         EndSimulationEntityCommandBufferSystem endSimulationEcbSystem;
 
         protected override void OnCreate()
         {
             base.OnCreate();
-            endSimulationEcbSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+            endSimulationEcbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
 
         protected override void OnUpdate()

@@ -13,9 +13,8 @@ GameObject:
   - component: {fileID: 4389183442257318107}
   - component: {fileID: 4193241431683703302}
   - component: {fileID: 5586594813366264780}
-  - component: {fileID: 8649425446425598574}
   - component: {fileID: 1535560412919460328}
-  - component: {fileID: 4804009896122374826}
+  - component: {fileID: 8272728416755747014}
   m_Layer: 0
   m_Name: EnemyDrone
   m_TagString: Untagged
@@ -110,19 +109,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ConversionMode: 0
---- !u!114 &8649425446425598574
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2464246364125238354}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7b8861fff446e14da2d645e2d41095a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 9.05
 --- !u!114 &1535560412919460328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -136,7 +122,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Value: 5
---- !u!114 &4804009896122374826
+--- !u!114 &8272728416755747014
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -145,6 +131,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 2464246364125238354}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5da2493254c25ec4e876ca6232c6da79, type: 3}
+  m_Script: {fileID: 11500000, guid: 8bccf1e6b6b19ce429bb6177e71d38e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parent: {fileID: 0}
+  pos:
+    x: 0
+    y: 0
+    z: 0

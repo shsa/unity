@@ -15,3 +15,7 @@ https://forum.unity.com/threads/solved-how-automatic-is-systembases-dependency-m
 
 Collection Safety Error in ECS for using property that was also requested
 https://forum.unity.com/threads/collection-safety-error-in-ecs-for-using-property-that-was-also-requested.897299/
+
+
+-- 
+https://forum.unity.com/threads/looping-over-two-separate-entity-types.852580/#post-5657860

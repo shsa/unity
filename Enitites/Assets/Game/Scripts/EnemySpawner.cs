@@ -38,7 +38,6 @@ namespace Game
 
         [SerializeField]
         private GameObject enemyPrefab = null;
-        private Entity enemyEntityPrefab;
         private WaitForSeconds spawnIntervalYield;
 
         // Start is called before the first frame update
@@ -50,93 +49,29 @@ namespace Game
 
             var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
 
-            enemyEntityPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(enemyPrefab, settings);
+            var enemyPartEntityPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(enemyPrefab, settings);
 
-            //entityManager.Instantiate(enemyEntityPrefab);
-            //SpawnWave();
+            var enemyEntityPrefab = entityManager.CreateArchetype(
+                typeof(EnemyTag),
+                typeof(Lifetime),
+                typeof(Translation),
+                typeof(Rotation),
+                typeof(LocalToWorld));
 
-
-            //// 1
-            //var archetype = entityManager.CreateArchetype(
-            //    typeof(Translation),
-            //    typeof(Rotation),
-            //    typeof(RenderMesh),
-            //    typeof(RenderBounds),
-            //    typeof(LocalToWorld));
-
-            //// 2
-            //var entity = entityManager.CreateEntity(archetype);
-
-            //// 3
-            //entityManager.AddComponentData(entity, new Translation { Value = new float3(-3f, 0.5f, 5f) });
-
-            //entityManager.AddComponentData(entity, new Rotation { Value = quaternion.EulerXYZ(new float3(0f, 45f, 0f)) });
+            var spawnSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<SpawnSystem>();
+            spawnSystem.spawnCount = spawnCount;
+            spawnSystem.spawnInterval = spawnInterval;
+            spawnSystem.enemyPartPrefab = enemyPartEntityPrefab;
+            spawnSystem.enemyPrefab = enemyEntityPrefab;
+            spawnSystem.minSpeed = minSpeed;
+            spawnSystem.maxSpeed = maxSpeed;
+            spawnSystem.spawnRadius = spawnRadius;
 
             //entityManager.AddSharedComponentData(entity, new RenderMesh
             //{
             //    mesh = enemy.GetComponent<MeshFilter>().sharedMesh,
             //    material = enemy.GetComponent<MeshRenderer>().sharedMaterial
             //});
-
-            StartCoroutine(SpawnRoutine());
-        }
-
-        IEnumerator SpawnRoutine()
-        {
-            while (true)
-            {
-                SpawnWave1();
-                yield return spawnIntervalYield;
-            }
-        }
-
-        public struct SimpleJobParallelFor : IJobParallelFor
-        {
-            //[ReadOnly]
-            public EntityCommandBuffer.Concurrent ConcurrentCommands;
-
-            [ReadOnly]
-            [DeallocateOnJobCompletion]
-            public NativeArray<float3> randoms;
-            [ReadOnly]
-            [DeallocateOnJobCompletion]
-            public NativeArray<float> randomSpeeds;
-            public Entity enemyEntityPrefab;
-            public int spawnCount;
-
-            public void Execute(int index)
-            {
-                var enemyPrefab = ConcurrentCommands.Instantiate(index, enemyEntityPrefab);
-                ConcurrentCommands.AddComponent(index, enemyPrefab, new Translation { Value = randoms[index] });
-                ConcurrentCommands.AddComponent(index, enemyPrefab, new MoveForward { speed = randomSpeeds[index] });
-            }
-        }
-
-        void SpawnWave1()
-        {
-            var ecbSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
-
-            var job = new SimpleJobParallelFor();
-            job.ConcurrentCommands = ecbSystem.CreateCommandBuffer().ToConcurrent();
-            job.enemyEntityPrefab = enemyEntityPrefab;
-            job.spawnCount = spawnCount;
-
-            job.randoms = new NativeArray<float3>(spawnCount, Allocator.TempJob);
-            job.randomSpeeds = new NativeArray<float>(spawnCount, Allocator.TempJob);
-            for (int i = 0; i < spawnCount; i++)
-            {
-                job.randoms[i] = RandomPointOnCircle(spawnRadius);
-                job.randomSpeeds[i] = UnityEngine.Random.Range(minSpeed, maxSpeed);
-            }
-
-            var h = job.Schedule(spawnCount, 64);
-            ecbSystem.AddJobHandleForProducer(h);
-        }
-
-        float3 RandomPointOnCircle(float spawnRaduis)
-        {
-            var pos = UnityEngine.Random.insideUnitCircle.normalized * spawnRadius;
-            return new float3(pos.x, 0, pos.y) + (float3)GameManager.GetPlayerPosition();
         }
     }
 }

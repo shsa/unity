@@ -4,7 +4,7 @@ using Unity.Entities;
 
 namespace Game
 {
-    public class MovementSystem : SystemBase
+    public sealed class MovementSystem : SystemBase
     {
         protected override void OnUpdate()
         {

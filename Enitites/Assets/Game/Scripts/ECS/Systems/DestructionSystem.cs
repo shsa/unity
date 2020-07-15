@@ -6,7 +6,7 @@ using Unity.Jobs;
 
 namespace Game
 {
-    public class DestructionSystem : SystemBase
+    public sealed class DestructionSystem : SystemBase
     {
         EndSimulationEntityCommandBufferSystem endSimulationEcbSystem;
         private EntityQuery bulletQuery;
@@ -15,7 +15,7 @@ namespace Game
         protected override void OnCreate()
         {
             base.OnCreate();
-            endSimulationEcbSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+            endSimulationEcbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
             bulletQuery = GetEntityQuery(
                 ComponentType.ReadOnly<BulletTag>(),
                 ComponentType.ReadOnly<Translation>());
