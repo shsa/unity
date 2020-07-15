@@ -3,7 +3,7 @@
 namespace Game
 {
     [GenerateAuthoringComponent]
-    public class EnemyTag : IComponentData
+    public struct EnemyTag : IComponentData
     {
     }
 }

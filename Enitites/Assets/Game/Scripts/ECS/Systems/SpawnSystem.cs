@@ -58,10 +58,14 @@ namespace Game
                             ecb.AddComponent(index, enemy, new Translation { Value = randomPos[i] });
                             ecb.AddComponent(index, enemy, new MoveForward { speed = randomSpeeds[i] });
                             ecb.AddComponent(index, enemy, new Lifetime { Value = 5 });
+                            ecb.AddComponent<EnemyTag>(index, enemy);
 
                             index++;
                             var part = ecb.Instantiate(index, _enemyPartPrefab);
-                            ecb.AddComponent(index, part, new EnemyPartTag { parent = enemy });
+                            ecb.AddComponent(index, part, new EnemyPartTag { });
+                            ecb.AddComponent(index, part, new Parent { Value = enemy });
+                            ecb.AddComponent(index, part, new LocalToParent { });
+                            ecb.AddComponent(index, part, new Translation { Value = new float3(0, 0, 0) });
                         }
                     })
                     .Schedule(Dependency);
