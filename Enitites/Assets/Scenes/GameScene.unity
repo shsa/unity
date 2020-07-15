@@ -150,7 +150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35b295286834b944582c5bedb6c02e4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnCount: 10000
+  spawnCount: 100
   spawnInterval: 3
   difficultyBonus: 5
   spawnRadius: 20

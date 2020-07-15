@@ -24,14 +24,17 @@ namespace Game
         protected override void OnUpdate()
         {
             var ecb = endSimulationEcbSystem.CreateCommandBuffer().ToConcurrent();
-            var bulletPos = bulletQuery.ToComponentDataArrayAsync<Translation>(Allocator.TempJob, out var jobHandle1);
-            Dependency = JobHandle.CombineDependencies(Dependency, jobHandle1);
+            var ecb2 = endSimulationEcbSystem.CreateCommandBuffer().ToConcurrent();
+            var bullets = bulletQuery.ToEntityArrayAsync(Allocator.TempJob, out var jobHandle1);
+            var bulletPos = bulletQuery.ToComponentDataArrayAsync<Translation>(Allocator.TempJob, out var jobHandle2);
+            Dependency = JobHandle.CombineDependencies(Dependency, jobHandle1, jobHandle2);
 
             float3 playerPosition = (float3)GameManager.GetPlayerPosition();
             float dstSq = thresholdDistance * thresholdDistance;
 
             Dependency = Entities
                 .WithAll<EnemyTag>()
+                .WithDeallocateOnJobCompletion(bullets)
                 .WithDeallocateOnJobCompletion(bulletPos)
                 .ForEach((Entity enemy, int entityInQueryIndex, in Translation enemyPos) =>
                 {
@@ -48,6 +51,7 @@ namespace Game
                             if (math.distancesq(bulletPos[i].Value, enemyPos.Value) < dstSq)
                             {
                                 ecb.DestroyEntity(entityInQueryIndex, enemy);
+                                ecb2.DestroyEntity(i, bullets[i]);
                             }
                         }
                     }

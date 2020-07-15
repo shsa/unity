@@ -40,69 +40,6 @@ namespace Game
         private GameObject enemyPrefab = null;
         private Entity enemyEntityPrefab;
         private WaitForSeconds spawnIntervalYield;
-        private int id = 1;
-
-        public struct SimpleJob : IJob
-        {
-            //[ReadOnly]
-            public EntityCommandBuffer.Concurrent ConcurrentCommands;
-
-            public int id;
-            public NativeArray<float3> randoms;
-            public NativeArray<float> randomSpeeds;
-            public Entity enemyEntityPrefab;
-            public int spawnCount;
-            public float spawnRadius;
-            public float minSpeed;
-            public float maxSpeed;
-            public float3 playerPos;
-
-            public void Execute()
-            {
-                Debug.Log("Hello parallel world!");
-                for (int i = 0; i < spawnCount; i++)
-                {
-                    //var enemy = ConcurrentCommands.CreateEntity(i, enemyEntityPrefab);
-                    var enemyPrefab = ConcurrentCommands.Instantiate(id, enemyEntityPrefab);
-                    //var enemy = entityManager.Instantiate(enemyEntityPrefab);
-                    ConcurrentCommands.AddComponent(id, enemyPrefab, new Translation { Value = randoms[i] });
-                    ConcurrentCommands.AddComponent(id, enemyPrefab, new MoveForward { speed = randomSpeeds[i] });
-                    //ConcurrentCommands.SetComponentData(enemy, new Translation { Value = randoms[i] });
-                    //entityManager.SetComponentData(enemy, new MoveForward { speed = randomSpeeds[i] });
-                }
-            }
-        }
-
-        public struct SimpleJobParallelFor : IJobParallelFor
-        {
-            //[ReadOnly]
-            public EntityCommandBuffer.Concurrent ConcurrentCommands;
-
-            public int id;
-            [ReadOnly]
-            [DeallocateOnJobCompletion]
-            public NativeArray<float3> randoms;
-            [ReadOnly]
-            [DeallocateOnJobCompletion]
-            public NativeArray<float> randomSpeeds;
-            public Entity enemyEntityPrefab;
-            public int spawnCount;
-            public float spawnRadius;
-            public float minSpeed;
-            public float maxSpeed;
-            public float3 playerPos;
-
-            public void Execute(int index)
-            {
-                //var enemy = ConcurrentCommands.CreateEntity(i, enemyEntityPrefab);
-                var enemyPrefab = ConcurrentCommands.Instantiate(index, enemyEntityPrefab);
-                //var enemy = entityManager.Instantiate(enemyEntityPrefab);
-                ConcurrentCommands.AddComponent(index, enemyPrefab, new Translation { Value = randoms[index] });
-                ConcurrentCommands.AddComponent(index, enemyPrefab, new MoveForward { speed = randomSpeeds[index] });
-                //ConcurrentCommands.SetComponentData(enemy, new Translation { Value = randoms[i] });
-                //entityManager.SetComponentData(enemy, new MoveForward { speed = randomSpeeds[i] });
-            }
-        }
 
         // Start is called before the first frame update
         void Start()
@@ -153,6 +90,28 @@ namespace Game
             }
         }
 
+        public struct SimpleJobParallelFor : IJobParallelFor
+        {
+            //[ReadOnly]
+            public EntityCommandBuffer.Concurrent ConcurrentCommands;
+
+            [ReadOnly]
+            [DeallocateOnJobCompletion]
+            public NativeArray<float3> randoms;
+            [ReadOnly]
+            [DeallocateOnJobCompletion]
+            public NativeArray<float> randomSpeeds;
+            public Entity enemyEntityPrefab;
+            public int spawnCount;
+
+            public void Execute(int index)
+            {
+                var enemyPrefab = ConcurrentCommands.Instantiate(index, enemyEntityPrefab);
+                ConcurrentCommands.AddComponent(index, enemyPrefab, new Translation { Value = randoms[index] });
+                ConcurrentCommands.AddComponent(index, enemyPrefab, new MoveForward { speed = randomSpeeds[index] });
+            }
+        }
+
         void SpawnWave1()
         {
             var ecbSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
@@ -161,11 +120,6 @@ namespace Game
             job.ConcurrentCommands = ecbSystem.CreateCommandBuffer().ToConcurrent();
             job.enemyEntityPrefab = enemyEntityPrefab;
             job.spawnCount = spawnCount;
-            job.maxSpeed = maxSpeed;
-            job.minSpeed = minSpeed;
-            job.spawnRadius = spawnRadius;
-            job.playerPos = GameManager.GetPlayerPosition();
-            //job.id = id++;
 
             job.randoms = new NativeArray<float3>(spawnCount, Allocator.TempJob);
             job.randomSpeeds = new NativeArray<float>(spawnCount, Allocator.TempJob);
@@ -177,23 +131,6 @@ namespace Game
 
             var h = job.Schedule(spawnCount, 64);
             ecbSystem.AddJobHandleForProducer(h);
-            //h.Complete();
-            //job.randomSpeeds.Dispose();
-            //job.randoms.Dispose();
-        }
-
-        void SpawnWave()
-        {
-            //NativeArray<Entity> enemyArray = new NativeArray<Entity>(spawnCount, Allocator.Temp);
-            for (int i = 0; i < spawnCount; i++)
-            {
-                //enemyArray[i] = entityManager.Instantiate(enemyEntityPrefab);
-                var enemy = entityManager.Instantiate(enemyEntityPrefab);
-                entityManager.SetComponentData(enemy, new Translation { Value = RandomPointOnCircle(spawnRadius) });
-                entityManager.SetComponentData(enemy, new MoveForward { speed = UnityEngine.Random.Range(minSpeed, maxSpeed) });
-            }
-            //enemyArray.Dispose();
-            spawnCount += difficultyBonus;
         }
 
         float3 RandomPointOnCircle(float spawnRaduis)
