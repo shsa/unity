@@ -9,7 +9,7 @@ namespace Game
         protected override void OnUpdate()
         {
             float deltaTime = Time.DeltaTime;
-            Entities.ForEach((ref Translation trans, ref Rotation rot, ref MoveForward moveForward) =>
+            Entities.ForEach((ref Translation trans, in Rotation rot, in MoveForward moveForward) =>
             {
                 trans.Value += moveForward.speed * deltaTime * math.forward(rot.Value);
             }).ScheduleParallel();
