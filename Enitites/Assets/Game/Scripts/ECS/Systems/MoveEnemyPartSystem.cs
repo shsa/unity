@@ -8,11 +8,12 @@ namespace Game
     [UpdateAfter(typeof(MovementSystem))]
     public sealed class PrepareEnemyPartSystem : SystemBase
     {
+        const float PI2 = math.PI * 2;
+
         EndSimulationEntityCommandBufferSystem endSimulationEcbSystem;
         EntityQuery partsQuery;
         float angle = 0;
-        float speed = 0.1f;
-        float time = 0;
+        float speed = math.PI * 2;
 
         protected override void OnCreate()
         {
@@ -27,13 +28,12 @@ namespace Game
             var ecb = endSimulationEcbSystem.CreateCommandBuffer().ToConcurrent();
             var c = GetComponentDataFromEntity<Translation>(true);
             float deltaTime = Time.DeltaTime;
-            time += deltaTime;
 
             //var result = new NativeArray<float3>(partsQuery.CalculateEntityCount(), Allocator.TempJob);
-            angle += speed * time;
-            if (angle > (1 * math.PI))
+            angle += speed * deltaTime;
+            if (angle > PI2)
             {
-                angle -= 1 * math.PI;
+                angle -= PI2;
             }
             var r = quaternion.Euler(0, angle, 0);
             Dependency = Entities
