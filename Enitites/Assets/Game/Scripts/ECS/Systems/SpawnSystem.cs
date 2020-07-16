@@ -15,8 +15,7 @@ namespace Game
         public float minSpeed = 3;
         public float maxSpeed = 5;
 
-        public Entity enemyPartPrefab;
-        public EntityArchetype enemyPrefab;
+        public Entity[] enemyPrefabs;
 
         float lastSpawnTime = 0;
 
@@ -36,40 +35,33 @@ namespace Game
                 var ecb = endSimulationEcbSystem.CreateCommandBuffer().ToConcurrent();
                 var randomPos = new NativeArray<float3>(spawnCount, Allocator.TempJob);
                 var randomSpeeds = new NativeArray<float>(spawnCount, Allocator.TempJob);
+                var randomEnemy = new NativeArray<Entity>(spawnCount, Allocator.TempJob);
                 for (int i = 0; i < spawnCount; i++)
                 {
                     randomPos[i] = RandomPointOnCircle(spawnRadius);
                     randomSpeeds[i] = UnityEngine.Random.Range(minSpeed, maxSpeed);
+                    randomEnemy[i] = enemyPrefabs[UnityEngine.Random.Range(0, enemyPrefabs.Length)];
                 }
-
                 var _spawnCount = spawnCount;
-                var _enemyPrefab = enemyPrefab;
-                var _enemyPartPrefab = enemyPartPrefab;
                 Dependency = Job
                     .WithDeallocateOnJobCompletion(randomPos)
                     .WithDeallocateOnJobCompletion(randomSpeeds)
-                    .WithCode(() => 
+                    .WithDeallocateOnJobCompletion(randomEnemy)
+                    .WithCode(() =>
                     {
                         var index = 0;
                         for (int i = 0; i < _spawnCount; i++)
                         {
                             index++;
-                            var enemy = ecb.CreateEntity(index, _enemyPrefab);
+                            var enemy = ecb.Instantiate(index, randomEnemy[0]);
                             ecb.AddComponent(index, enemy, new Translation { Value = randomPos[i] });
                             ecb.AddComponent(index, enemy, new MoveForward { speed = randomSpeeds[i] });
                             ecb.AddComponent(index, enemy, new Lifetime { Value = 5 });
                             ecb.AddComponent<EnemyTag>(index, enemy);
-
-                            index++;
-                            var part = ecb.Instantiate(index, _enemyPartPrefab);
-                            ecb.AddComponent(index, part, new EnemyPartTag { });
-                            ecb.AddComponent(index, part, new Parent { Value = enemy });
-                            ecb.AddComponent(index, part, new LocalToParent { });
-                            ecb.AddComponent(index, part, new Translation { Value = new float3(0, 0, 0) });
                         }
                     })
                     .Schedule(Dependency);
-                
+
                 endSimulationEcbSystem.AddJobHandleForProducer(Dependency);
             }
         }

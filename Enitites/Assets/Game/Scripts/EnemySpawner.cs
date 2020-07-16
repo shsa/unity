@@ -37,7 +37,7 @@ namespace Game
         [Header("Enemy")]
 
         [SerializeField]
-        private GameObject enemyPrefab = null;
+        private GameObject[] enemyPrefabs;
         private WaitForSeconds spawnIntervalYield;
 
         // Start is called before the first frame update
@@ -47,31 +47,20 @@ namespace Game
 
             entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
-            var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
-
-            var enemyPartEntityPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(enemyPrefab, settings);
-
-            var enemyEntityPrefab = entityManager.CreateArchetype(
-                typeof(EnemyTag),
-                typeof(Lifetime),
-                typeof(Translation),
-                typeof(Rotation),
-                typeof(LocalToWorld));
-
             var spawnSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<SpawnSystem>();
             spawnSystem.spawnCount = spawnCount;
             spawnSystem.spawnInterval = spawnInterval;
-            spawnSystem.enemyPartPrefab = enemyPartEntityPrefab;
-            spawnSystem.enemyPrefab = enemyEntityPrefab;
             spawnSystem.minSpeed = minSpeed;
             spawnSystem.maxSpeed = maxSpeed;
             spawnSystem.spawnRadius = spawnRadius;
+            spawnSystem.enemyPrefabs = new Entity[enemyPrefabs.Length];
 
-            //entityManager.AddSharedComponentData(entity, new RenderMesh
-            //{
-            //    mesh = enemy.GetComponent<MeshFilter>().sharedMesh,
-            //    material = enemy.GetComponent<MeshRenderer>().sharedMaterial
-            //});
+            var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
+            for (int i = 0; i < enemyPrefabs.Length; i++)
+            {
+                var entity = GameObjectConversionUtility.ConvertGameObjectHierarchy(enemyPrefabs[i], settings);
+                spawnSystem.enemyPrefabs[i] = entity;
+            }
         }
     }
 }
