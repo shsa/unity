@@ -2,82 +2,78 @@
 using Unity.Mathematics;
 using Unity.Entities;
 using Unity.Collections;
+using System;
+using Random = Unity.Mathematics.Random;
 
 namespace Game
 {
-    public sealed class SpawnSystem : SystemBase
+    public sealed class SpawnSystem : EntityCommandBufferSystem
     {
-        EndSimulationEntityCommandBufferSystem endSimulationEcbSystem;
-
-        public int spawnCount = 100;
-        public float spawnRadius = 20;
-        public float spawnInterval = 3;
-        public float minSpeed = 3;
-        public float maxSpeed = 5;
-
-        public Entity enemyPartPrefab;
-        public EntityArchetype enemyPrefab;
+        EnemySpawner setup = null;
 
         float lastSpawnTime = 0;
+        Random random;
+        NativeArray<Entity> enemyPrefabs;
 
-        protected override void OnCreate()
+        protected override void OnStartRunning()
         {
-            base.OnCreate();
-            endSimulationEcbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+            base.OnStartRunning();
+            setup = EnemySpawner.Instance;
+
+            var settings = GameObjectConversionSettings.FromWorld(World, null);
+
+            enemyPrefabs = new NativeArray<Entity>(setup.enemyPrefabs.Length, Allocator.Persistent);
+            for (int i = 0; i < setup.enemyPrefabs.Length; i++)
+            {
+                enemyPrefabs[i] = GameObjectConversionUtility.ConvertGameObjectHierarchy(setup.enemyPrefabs[i], settings);
+            }
+            random = new Random(1);
         }
 
-        protected override void OnUpdate()
+        protected override void OnStopRunning()
+        {
+            base.OnStopRunning();
+            enemyPrefabs.Dispose();
+        }
+
+        protected override void OnUpdate(in EntityCommandBuffer entityCommandBuffer)
         {
             lastSpawnTime -= Time.DeltaTime;
             if (lastSpawnTime <= 0)
             {
-                lastSpawnTime = spawnInterval;
+                lastSpawnTime = setup.spawnInterval;
+                var ecb = entityCommandBuffer.ToConcurrent();
 
-                var ecb = endSimulationEcbSystem.CreateCommandBuffer().ToConcurrent();
-                var randomPos = new NativeArray<float3>(spawnCount, Allocator.TempJob);
-                var randomSpeeds = new NativeArray<float>(spawnCount, Allocator.TempJob);
-                for (int i = 0; i < spawnCount; i++)
+                var spawnCount = setup.spawnCount;
+                var spawnRadius = setup.spawnRadius;
+                var minSpeed = setup.minSpeed;
+                var maxSpeed = setup.maxSpeed;
+                var playerPos = (float3)GameManager.GetPlayerPosition();
+                var rnd = new Random(random.NextUInt(uint.MinValue, uint.MaxValue));
+
+                float3 RandomPointOnCircle(float spawnRaduis)
                 {
-                    randomPos[i] = RandomPointOnCircle(spawnRadius);
-                    randomSpeeds[i] = UnityEngine.Random.Range(minSpeed, maxSpeed);
+                    var pos = rnd.NextFloat2Direction() * spawnRaduis;
+                    return new float3(pos.x, 0, pos.y) + playerPos;
                 }
 
-                var _spawnCount = spawnCount;
-                var _enemyPrefab = enemyPrefab;
-                var _enemyPartPrefab = enemyPartPrefab;
-                Dependency = Job
-                    .WithDeallocateOnJobCompletion(randomPos)
-                    .WithDeallocateOnJobCompletion(randomSpeeds)
+                var prefabs = enemyPrefabs;
+                Job
                     .WithCode(() => 
                     {
                         var index = 0;
-                        for (int i = 0; i < _spawnCount; i++)
+                        for (int i = 0; i < spawnCount; i++)
                         {
-                            index++;
-                            var enemy = ecb.CreateEntity(index, _enemyPrefab);
-                            ecb.AddComponent(index, enemy, new Translation { Value = randomPos[i] });
-                            ecb.AddComponent(index, enemy, new MoveForward { speed = randomSpeeds[i] });
+                            var enemy = ecb.Instantiate(index, prefabs[rnd.NextInt(0, prefabs.Length)]);
+                            ecb.AddComponent(index, enemy, new Translation { Value = RandomPointOnCircle(spawnRadius) });
+                            ecb.AddComponent(index, enemy, new MoveForward { speed = rnd.NextFloat(minSpeed, maxSpeed) });
                             ecb.AddComponent(index, enemy, new Lifetime { Value = 5 });
                             ecb.AddComponent<EnemyTag>(index, enemy);
-
-                            index++;
-                            var part = ecb.Instantiate(index, _enemyPartPrefab);
-                            ecb.AddComponent(index, part, new EnemyPartTag { });
-                            ecb.AddComponent(index, part, new Parent { Value = enemy });
-                            ecb.AddComponent(index, part, new LocalToParent { });
-                            ecb.AddComponent(index, part, new Translation { Value = new float3(0, 0, 0) });
+                            //ecb.AddComponent<IsCreated>(index, enemy);
                         }
                     })
-                    .Schedule(Dependency);
-                
-                endSimulationEcbSystem.AddJobHandleForProducer(Dependency);
+                    .Schedule();
             }
-        }
-
-        float3 RandomPointOnCircle(float spawnRaduis)
-        {
-            var pos = UnityEngine.Random.insideUnitCircle.normalized * spawnRadius;
-            return new float3(pos.x, 0, pos.y) + (float3)GameManager.GetPlayerPosition();
         }
     }
 }

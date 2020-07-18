@@ -13,7 +13,7 @@ namespace Game
     public class PlayerMover : MonoBehaviour
     {
         // reference to tank body/chassis; should be untransformed relative to player transform
-        [SerializeField] private Transform chassisTransform;
+        [SerializeField] private Transform chassisTransform = null;
 
         // translation speed in units per second 
         [SerializeField] private float moveSpeed = 3f;

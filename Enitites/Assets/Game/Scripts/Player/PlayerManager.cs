@@ -11,7 +11,7 @@ namespace Game
     [RequireComponent(typeof(PlayerMover), typeof(PlayerInput), typeof(PlayerWeapon))]
     public class PlayerManager : MonoBehaviour
     {
-        [SerializeField] private Camera sceneCamera;
+        [SerializeField] private Camera sceneCamera = null;
 
         private PlayerMover playerMover;
         private PlayerInput playerInput;

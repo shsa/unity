@@ -150,14 +150,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35b295286834b944582c5bedb6c02e4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnCount: 2
-  spawnInterval: 1
+  spawnCount: 1
+  spawnInterval: 3
   difficultyBonus: 5
   spawnRadius: 20
   minSpeed: 5
   maxSpeed: 10
-  enemyPrefab: {fileID: 2464246364125238354, guid: fb8fa1ddddaa717458caa722034060d8,
-    type: 3}
+  enemyPrefabs:
+  - {fileID: 7679519361960810562, guid: d871d33e682f4d347a9bb4da23cedb5a, type: 3}
 --- !u!4 &239751952
 Transform:
   m_ObjectHideFlags: 0
@@ -196,7 +196,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 449370506}
-  m_LocalRotation: {x: 0.63002986, y: -0.14505194, z: 0.12133273, w: 0.75319374}
+  m_LocalRotation: {x: 0.63002986, y: -0.14505188, z: 0.1213327, w: 0.7531937}
   m_LocalPosition: {x: 2, y: 30, z: -5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -614,7 +614,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: 0.63002986, y: -0.14505194, z: 0.12133273, w: 0.75319374}
+  m_LocalRotation: {x: 0.63002986, y: -0.14505188, z: 0.1213327, w: 0.7531937}
   m_LocalPosition: {x: 2, y: 30, z: -5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -1065,6 +1065,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Plane
+      objectReference: {fileID: 0}
+    - target: {fileID: 2082710004051701857, guid: 97272fd6200cc7b4ba588ab0cd53a784,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2082710004051701917, guid: 97272fd6200cc7b4ba588ab0cd53a784,
         type: 3}
