@@ -15,7 +15,7 @@ namespace Game
 
         float time = 0;
         float maxTime = 0.1f;
-        protected override void OnUpdate(in EntityCommandBuffer entityCommandBuffer)
+        protected override void OnUpdate(EntityCommandBuffer.Concurrent ecb)
         {
             var deltaTime = Time.DeltaTime;
             time += deltaTime;
@@ -28,7 +28,6 @@ namespace Game
             {
                 k = time / maxTime;
             }
-            var ecb = entityCommandBuffer.ToConcurrent();
             var cdfe = GetComponentDataFromEntity<Translation>(true);
             Entities
                 .WithReadOnly(cdfe)

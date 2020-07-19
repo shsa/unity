@@ -19,3 +19,6 @@ https://forum.unity.com/threads/collection-safety-error-in-ecs-for-using-propert
 
 -- 
 https://forum.unity.com/threads/looping-over-two-separate-entity-types.852580/#post-5657860
+
+Entity disappears when material is changed in RenderMesh
+https://forum.unity.com/threads/entity-disappears-when-material-is-changed-in-rendermesh.711170/

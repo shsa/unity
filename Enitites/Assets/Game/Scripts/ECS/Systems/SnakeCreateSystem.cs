@@ -9,9 +9,8 @@ namespace Game
 {
     public sealed class SnakeCreateSystem : EntityCommandBufferSystem
     {
-        protected override void OnUpdate(in EntityCommandBuffer entityCommandBuffer)
+        protected override void OnUpdate(EntityCommandBuffer.Concurrent ecb)
         {
-            var ecb = entityCommandBuffer.ToConcurrent();
             Entities
                 .WithChangeFilter<Snake>()
                 .ForEach((Entity entity, int entityInQueryIndex, in Snake snake, in Translation pos, in MoveForward move) =>
@@ -22,7 +21,8 @@ namespace Game
                         var tail = ecb.Instantiate(entityInQueryIndex, snake.tailPrefab);
                         ecb.AddComponent(entityInQueryIndex, tail, pos);
                         ecb.AddComponent(entityInQueryIndex, tail, new Chain { head = head, start = pos.Value, finish = pos.Value });
-                        ecb.AddComponent(entityInQueryIndex, tail, move);
+                        //ecb.AddComponent(entityInQueryIndex, tail, move);
+                        //ecb.AddComponent(entityInQueryIndex, tail, )
 
                         head = tail;
                     }

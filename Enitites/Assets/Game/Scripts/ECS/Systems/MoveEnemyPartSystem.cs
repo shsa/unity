@@ -5,7 +5,7 @@ using Unity.Collections;
 
 namespace Game
 {
-    [UpdateAfter(typeof(MovementSystem))]
+    [UpdateAfter(typeof(MoveForwardSystem))]
     public sealed class PrepareEnemyPartSystem : SystemBase
     {
         EndSimulationEntityCommandBufferSystem endSimulationEcbSystem;

@@ -36,13 +36,12 @@ namespace Game
             enemyPrefabs.Dispose();
         }
 
-        protected override void OnUpdate(in EntityCommandBuffer entityCommandBuffer)
+        protected override void OnUpdate(EntityCommandBuffer.Concurrent ecb)
         {
             lastSpawnTime -= Time.DeltaTime;
             if (lastSpawnTime <= 0)
             {
                 lastSpawnTime = setup.spawnInterval;
-                var ecb = entityCommandBuffer.ToConcurrent();
 
                 var spawnCount = setup.spawnCount;
                 var spawnRadius = setup.spawnRadius;
@@ -66,8 +65,13 @@ namespace Game
                         {
                             var enemy = ecb.Instantiate(index, prefabs[rnd.NextInt(0, prefabs.Length)]);
                             ecb.AddComponent(index, enemy, new Translation { Value = RandomPointOnCircle(spawnRadius) });
-                            ecb.AddComponent(index, enemy, new MoveForward { speed = rnd.NextFloat(minSpeed, maxSpeed) });
-                            ecb.AddComponent(index, enemy, new Lifetime { Value = 5 });
+                            ecb.AddComponent(index, enemy, new Movement { 
+                                speed = rnd.NextFloat(minSpeed, maxSpeed),
+                                time = 0,
+                                type = MovementEnum.Spiral
+                            });
+                            //ecb.AddComponent(index, enemy, new MoveForward { speed = rnd.NextFloat(minSpeed, maxSpeed) });
+                            ecb.AddComponent(index, enemy, new Lifetime { Value = 15 });
                             ecb.AddComponent<EnemyTag>(index, enemy);
                             //ecb.AddComponent<IsCreated>(index, enemy);
                         }

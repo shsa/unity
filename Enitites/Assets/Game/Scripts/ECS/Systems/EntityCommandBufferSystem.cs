@@ -18,7 +18,7 @@ namespace Game
 
         protected override void OnUpdate()
         {
-            OnUpdate(endSimulationEcbSystem.CreateCommandBuffer());
+            OnUpdate(endSimulationEcbSystem.CreateCommandBuffer().ToConcurrent());
             AddJobHandleForProducer(Dependency);
         }
 
@@ -27,6 +27,6 @@ namespace Game
             endSimulationEcbSystem.AddJobHandleForProducer(jobHandle);
         }
 
-        protected abstract void OnUpdate(in EntityCommandBuffer entityCommandBuffer);
+        protected abstract void OnUpdate(EntityCommandBuffer.Concurrent ecb);
     }
 }
