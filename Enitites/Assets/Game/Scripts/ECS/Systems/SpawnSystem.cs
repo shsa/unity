@@ -71,7 +71,7 @@ namespace Game
                                 type = MovementEnum.Spiral
                             });
                             //ecb.AddComponent(index, enemy, new MoveForward { speed = rnd.NextFloat(minSpeed, maxSpeed) });
-                            ecb.AddComponent(index, enemy, new Lifetime { Value = 15 });
+                            ecb.AddComponent(index, enemy, new Lifetime { Value = 30 });
                             ecb.AddComponent<EnemyTag>(index, enemy);
                             //ecb.AddComponent<IsCreated>(index, enemy);
                         }

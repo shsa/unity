@@ -17,7 +17,7 @@ namespace Game
                     {
                         case MovementEnum.Spiral:
                             {
-                                ecb.AddComponent(entityInQueryIndex, entity, new MovementSpiral { angle = 0, speed = 7, time = 0 });
+                                ecb.AddComponent(entityInQueryIndex, entity, new MovementSpiral { angle = math.PI * 2, speed = 7, time = 0 });
                             }
                             break;
                     }

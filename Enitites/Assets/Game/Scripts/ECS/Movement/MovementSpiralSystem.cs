@@ -10,13 +10,17 @@ namespace Game
         {
             float deltaTime = Time.DeltaTime;
             Entities
-                .ForEach((ref Translation trans, ref MovementSpiral movement, in Rotation rot) =>
+                .ForEach((ref Translation trans, ref MovementSpiral movement, ref Rotation rot) =>
                 {
                     //trans.Value += moveForward.speed * deltaTime * math.forward(rot.Value);
                     movement.time += deltaTime;
-                    //movement.angle += 0.001f;
-                    var p = 1.0f / (2 * math.PI) * movement.angle;
-                    trans.Value = new float3(p * math.cos(movement.angle), 0, p * math.sin(movement.angle));
+                    movement.angle -= 0.01f;
+                    var p = 20.0f / (2 * math.PI) * movement.angle;
+                    var next = new float3(p * math.cos(movement.angle), 0, p * math.sin(movement.angle));
+                    var dir = next - trans.Value;
+                    trans.Value = next;
+
+                    rot.Value = quaternion.LookRotation(dir, math.up());
                 })
                 .ScheduleParallel();
         }

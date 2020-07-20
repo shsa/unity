@@ -15,7 +15,7 @@ namespace Game
                 float3 direction = playerPos - trans.Value;
                 direction.y = 0f;
 
-                rot.Value = quaternion.LookRotation(direction, math.up());
+                //rot.Value = quaternion.LookRotation(direction, math.up());
             }).ScheduleParallel();
         }
     }
