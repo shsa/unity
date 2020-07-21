@@ -4,6 +4,7 @@ using Unity.Entities;
 
 namespace Game
 {
+    [UpdateInGroup(typeof(MovementGroup0))]
     public sealed class MovementSystem : EntityCommandBufferSystem
     {
         protected override void OnUpdate(EntityCommandBuffer.Concurrent ecb)

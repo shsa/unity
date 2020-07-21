@@ -22,3 +22,6 @@ https://forum.unity.com/threads/looping-over-two-separate-entity-types.852580/#p
 
 Entity disappears when material is changed in RenderMesh
 https://forum.unity.com/threads/entity-disappears-when-material-is-changed-in-rendermesh.711170/
+
+World, system groups, update order, and the player loop
+https://gametorrahod.com/world-system-groups-update-order-and-the-player-loop/
