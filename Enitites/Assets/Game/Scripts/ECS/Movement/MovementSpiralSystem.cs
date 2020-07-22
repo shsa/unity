@@ -16,7 +16,7 @@ namespace Game
                 .ForEach((ref Translation trans, ref MovementSpiral movement, ref Rotation rot) =>
                 {
                     var speed = 0.1f; // movement.speed
-                    var step = 1f;
+                    var step = 0.5f;
                     var offset = playerPos - movement.pos;
                     var l2 = math.length(offset) * 2;
                     step = step / (math.PI * l2 / step);

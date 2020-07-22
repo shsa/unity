@@ -1,6 +1,7 @@
 ﻿using Unity.Transforms;
 using Unity.Mathematics;
 using Unity.Entities;
+using TMPro;
 
 namespace Game
 {
@@ -11,6 +12,7 @@ namespace Game
         protected override void OnStartRunning()
         {
             base.OnStartRunning();
+            //Enabled = false;
         }
 
         float time = 0;
