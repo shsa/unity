@@ -2,7 +2,7 @@
 
 namespace Game
 {
-    public struct IsCreated : IComponentData
+    public struct CreatedTag : IComponentData
     {
     }
 }

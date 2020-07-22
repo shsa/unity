@@ -64,16 +64,19 @@ namespace Game
                         for (int i = 0; i < spawnCount; i++)
                         {
                             var enemy = ecb.Instantiate(index, prefabs[rnd.NextInt(0, prefabs.Length)]);
-                            ecb.AddComponent(index, enemy, new Translation { Value = RandomPointOnCircle(spawnRadius) });
-                            ecb.AddComponent(index, enemy, new Movement { 
+                            var pos = RandomPointOnCircle(spawnRadius);
+                            ecb.AddComponent(index, enemy, new Translation { Value = pos });
+                            ecb.AddComponent(index, enemy, new Movement
+                            {
                                 speed = rnd.NextFloat(minSpeed, maxSpeed),
                                 time = 0,
-                                type = MovementEnum.Spiral
+                                type = MovementEnum.Spiral,
                             });
                             //ecb.AddComponent(index, enemy, new MoveForward { speed = rnd.NextFloat(minSpeed, maxSpeed) });
                             ecb.AddComponent(index, enemy, new Lifetime { Value = 30 });
                             ecb.AddComponent<EnemyTag>(index, enemy);
-                            //ecb.AddComponent<IsCreated>(index, enemy);
+                            ecb.AddComponent(index, enemy, new Snake { angle = 0, step = 0.1f });
+                            ecb.AddComponent<CreatedTag>(index, enemy);
                         }
                     })
                     .Schedule();

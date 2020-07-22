@@ -12,13 +12,13 @@ namespace Game
             float deltaTime = Time.DeltaTime;
             Entities
                 .WithChangeFilter<Movement>()
-                .ForEach((Entity entity, int entityInQueryIndex, in Movement movement) =>
+                .ForEach((Entity entity, int entityInQueryIndex, in Movement movement, in Translation trans) =>
                 {
                     switch (movement.type)
                     {
                         case MovementEnum.Spiral:
                             {
-                                ecb.AddComponent(entityInQueryIndex, entity, new MovementSpiral { angle = math.PI * 2, speed = 7, time = 0 });
+                                ecb.AddComponent(entityInQueryIndex, entity, new MovementSpiral { angle = math.PI * 2, speed = 7, time = 0, pos = trans.Value });
                             }
                             break;
                     }

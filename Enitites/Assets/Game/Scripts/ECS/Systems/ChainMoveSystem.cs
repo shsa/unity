@@ -31,7 +31,7 @@ namespace Game
             var cdfe = GetComponentDataFromEntity<Translation>(true);
             Entities
                 .WithReadOnly(cdfe)
-                .ForEach((Entity entity, int entityInQueryIndex, ref Chain chain, in MoveForward move) =>
+                .ForEach((Entity entity, int entityInQueryIndex, ref Chain chain) =>
                 {
                     if (cdfe.Exists(chain.head))
                     {

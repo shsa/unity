@@ -1,8 +1,6 @@
 ﻿using Unity.Transforms;
 using Unity.Mathematics;
 using Unity.Entities;
-using Unity.Collections;
-using System.Diagnostics;
 
 namespace Game
 {
@@ -19,7 +17,7 @@ namespace Game
                 {
                     var speed = 0.1f; // movement.speed
                     var step = 1f;
-                    var offset = playerPos - trans.Value;
+                    var offset = playerPos - movement.pos;
                     var l2 = math.length(offset) * 2;
                     step = step / (math.PI * l2 / step);
                     var a = math.acos(speed / l2);
@@ -28,7 +26,8 @@ namespace Game
                     var dir = math.rotate(q, offset);
                     offset = dir * speed + offset * step;
 
-                    trans.Value += offset;
+                    movement.pos += offset;
+                    trans.Value = movement.pos;
 
                     rot.Value = quaternion.LookRotation(offset, math.up());
                 })

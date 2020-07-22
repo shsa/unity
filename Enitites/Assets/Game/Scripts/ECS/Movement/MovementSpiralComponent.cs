@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
 
 namespace Game
 {
@@ -7,5 +8,6 @@ namespace Game
         public float time;
         public float speed;
         public float angle;
+        public float3 pos;
     }
 }
