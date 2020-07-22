@@ -13,6 +13,7 @@ namespace Game
         {
             base.OnCreate();
             endSimulationEcbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+            Enabled = false;
         }
 
         protected override void OnUpdate()

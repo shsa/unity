@@ -75,7 +75,7 @@ namespace Game
                             //ecb.AddComponent(index, enemy, new MoveForward { speed = rnd.NextFloat(minSpeed, maxSpeed) });
                             ecb.AddComponent(index, enemy, new Lifetime { Value = 30 });
                             ecb.AddComponent<EnemyTag>(index, enemy);
-                            ecb.AddComponent(index, enemy, new Snake { angle = 0, step = 0.1f });
+                            ecb.AddComponent(index, enemy, new Snake { step = 0f });
                             ecb.AddComponent<CreatedTag>(index, enemy);
                         }
                     })

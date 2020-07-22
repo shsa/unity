@@ -30,7 +30,7 @@ namespace Game
                     ecb.RemoveComponent<CreatedTag>(entityInQueryIndex, entity);
 
                     var head = entity;
-                    for (int i = 0; i < 3; i++)
+                    for (int i = 0; i < 10; i++)
                     {
                         var tail = ecb.Instantiate(entityInQueryIndex, _tailPrefab);
                         ecb.AddComponent(entityInQueryIndex, tail, pos);
