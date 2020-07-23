@@ -42,6 +42,7 @@ namespace Game
             if (lastSpawnTime <= 0)
             {
                 lastSpawnTime = setup.spawnInterval;
+                lastSpawnTime = float.MaxValue;
 
                 var spawnCount = setup.spawnCount;
                 var spawnRadius = setup.spawnRadius;
@@ -69,13 +70,16 @@ namespace Game
                             ecb.AddComponent(index, enemy, new Movement
                             {
                                 speed = rnd.NextFloat(minSpeed, maxSpeed),
-                                time = 0,
+                                pos = pos,
+                                dir = new float3(0, 0, 1),
                                 type = MovementEnum.Spiral,
                             });
                             //ecb.AddComponent(index, enemy, new MoveForward { speed = rnd.NextFloat(minSpeed, maxSpeed) });
                             ecb.AddComponent(index, enemy, new Lifetime { Value = 30 });
                             ecb.AddComponent<EnemyTag>(index, enemy);
-                            ecb.AddComponent(index, enemy, new Snake { step = 0f });
+                            ecb.AddComponent(index, enemy, new Snake { 
+                                time = 0
+                            });
                             ecb.AddComponent<CreatedTag>(index, enemy);
                         }
                     })

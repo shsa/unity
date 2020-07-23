@@ -6,9 +6,8 @@ namespace Game
     public struct Movement : IComponentData
     {
         public MovementEnum type;
-        public float time;
         public float speed;
-        public float3 offset;
-        public quaternion rotation;
+        public float3 pos;
+        public float3 dir;
     }
 }

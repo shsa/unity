@@ -6,6 +6,9 @@ namespace Game
     [GenerateAuthoringComponent]
     public struct Snake : IComponentData
     {
-        public float step;
+        public Entity head;
+        public float3 pos;
+        public float3 dir;
+        public float time;
     }
 }

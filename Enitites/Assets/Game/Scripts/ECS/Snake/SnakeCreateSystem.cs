@@ -24,19 +24,31 @@ namespace Game
         {
             var _tailPrefab = tailPrefab;
             Entities
-                .WithAll<Snake, CreatedTag>()
-                .ForEach((Entity entity, int entityInQueryIndex, in Translation pos) =>
+                .WithAll<CreatedTag>()
+                .ForEach((Entity entity, int entityInQueryIndex, in Snake snake, in Movement movement) =>
                 {
                     ecb.RemoveComponent<CreatedTag>(entityInQueryIndex, entity);
+                    ecb.AddComponent(entityInQueryIndex, entity, new MovementSpiral { });
 
+                    var dir = math.normalize(movement.dir);
+                    var pos = movement.pos;
+                    var time = snake.time;
                     var head = entity;
-                    for (int i = 0; i < 10; i++)
+                    for (int i = 0; i < 0; i++)
                     {
                         var tail = ecb.Instantiate(entityInQueryIndex, _tailPrefab);
-                        ecb.AddComponent(entityInQueryIndex, tail, pos);
-                        ecb.AddComponent(entityInQueryIndex, tail, new Chain { head = head, start = pos.Value, finish = pos.Value });
-                        //ecb.AddComponent(entityInQueryIndex, tail, move);
-                        //ecb.AddComponent(entityInQueryIndex, tail, )
+                        ecb.AddComponent(entityInQueryIndex, tail, new Snake 
+                        {
+                            time = time
+                        });
+                        pos -= dir;
+                        time -= 0.01f;
+                        ecb.AddComponent(entityInQueryIndex, tail, new Movement { 
+                            speed = movement.speed,
+                            pos = pos,
+                            dir = dir
+                        });
+                        ecb.AddComponent(entityInQueryIndex, tail, new Chain { head = head });
 
                         head = tail;
                     }

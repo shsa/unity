@@ -9,6 +9,7 @@ namespace Game
     {
         protected override void OnUpdate(EntityCommandBuffer.Concurrent ecb)
         {
+            return;
             float deltaTime = Time.DeltaTime;
             Entities
                 .WithChangeFilter<Movement>()
@@ -18,7 +19,7 @@ namespace Game
                     {
                         case MovementEnum.Spiral:
                             {
-                                ecb.AddComponent(entityInQueryIndex, entity, new MovementSpiral { angle = math.PI * 2, speed = 7, time = 0, pos = trans.Value });
+                                ecb.AddComponent(entityInQueryIndex, entity, new MovementSpiral { });
                             }
                             break;
                     }
