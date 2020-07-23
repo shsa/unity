@@ -34,21 +34,29 @@ namespace Game
                     var pos = movement.pos;
                     var time = snake.time;
                     var head = entity;
-                    for (int i = 0; i < 0; i++)
+                    for (int i = 0; i < 10; i++)
                     {
+                        pos -= dir;
+                        time -= 0.1f;
+
                         var tail = ecb.Instantiate(entityInQueryIndex, _tailPrefab);
                         ecb.AddComponent(entityInQueryIndex, tail, new Snake 
                         {
                             time = time
                         });
-                        pos -= dir;
-                        time -= 0.01f;
-                        ecb.AddComponent(entityInQueryIndex, tail, new Movement { 
+                        ecb.AddComponent(entityInQueryIndex, tail, new Movement 
+                        { 
                             speed = movement.speed,
                             pos = pos,
                             dir = dir
                         });
-                        ecb.AddComponent(entityInQueryIndex, tail, new Chain { head = head });
+                        ecb.AddComponent(entityInQueryIndex, tail, new Chain 
+                        {
+                            head = head,
+                            pos = pos,
+                            dir = dir,
+                            dist = 1f
+                        });
 
                         head = tail;
                     }

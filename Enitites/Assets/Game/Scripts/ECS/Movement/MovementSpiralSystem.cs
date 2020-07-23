@@ -30,8 +30,9 @@ namespace Game
                     offset = dir * speed + offset * step;
 
                     movement.pos += offset;
+                    movement.dir = math.normalize(offset);
                     trans.Value = movement.pos;
-                    rot.Value = quaternion.LookRotation(offset, math.up());
+                    rot.Value = quaternion.LookRotation(offset, up);
                 })
                 .ScheduleParallel();
         }

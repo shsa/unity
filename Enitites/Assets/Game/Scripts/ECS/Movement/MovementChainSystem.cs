@@ -12,7 +12,6 @@ namespace Game
         {
             float deltaTime = Time.DeltaTime;
             var up = new float3(0, 1, 0);
-            var dir = new float3(0, 0, 0.5f);
 
             var cdfe = GetComponentDataFromEntity<Movement>(true);
             Entities
@@ -22,11 +21,8 @@ namespace Game
                     if (cdfe.Exists(chain.head))
                     {
                         var m = cdfe[chain.head];
-                        var l = math.length(m.pos - movement.pos);
-                        var speed = movement.speed * deltaTime;
-                        var k = speed / l;
-                        chain.dir = math.normalize(math.lerp(movement.dir, m.dir, k));
-                        chain.pos += chain.dir * speed;
+                        chain.dir = math.normalize(m.pos - movement.pos);
+                        chain.pos = m.pos - chain.dir * chain.dist;
                     }
                     else
                     {
@@ -41,7 +37,7 @@ namespace Game
                     movement.pos = chain.pos;
                     movement.dir = chain.dir;
                     trans.Value = movement.pos;
-                    rot.Value = quaternion.LookRotation(movement.dir, math.up()); ;
+                    rot.Value = quaternion.LookRotation(movement.dir, up); ;
                 })
                 .ScheduleParallel();
         }
