@@ -44,6 +44,8 @@ namespace Game
             // create entity prefab from the game object prefab, using default conversion settings
             var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
             bulletEntityPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(bulletPrefab, settings);
+            //entityManager.AddComponent(bulletEntityPrefab, new Unity.par ParticleSystem { });
+            bulletEntityPrefab = new Entity { Index = 0, Version = 1 };
         }
 
         public void FireBulletNonECS()

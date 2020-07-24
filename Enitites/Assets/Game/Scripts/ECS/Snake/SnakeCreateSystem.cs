@@ -34,7 +34,7 @@ namespace Game
                     var pos = movement.pos;
                     var time = snake.time;
                     var head = entity;
-                    for (int i = 0; i < 10; i++)
+                    for (int i = 0; i < 0; i++)
                     {
                         pos -= dir;
                         time -= 0.1f;
