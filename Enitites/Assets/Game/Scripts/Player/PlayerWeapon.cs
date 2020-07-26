@@ -28,6 +28,7 @@ namespace Game
 
         // prefab converted into an entityPrefab
         private Entity bulletEntityPrefab;
+        public Entity bb;
 
         // timer until weapon and shoot again
         private float shotTimer;
@@ -42,10 +43,9 @@ namespace Game
             entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
             // create entity prefab from the game object prefab, using default conversion settings
-            var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
-            bulletEntityPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(bulletPrefab, settings);
+            //var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
+            //bulletEntityPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(bulletPrefab, settings);
             //entityManager.AddComponent(bulletEntityPrefab, new Unity.par ParticleSystem { });
-            bulletEntityPrefab = new Entity { Index = 0, Version = 1 };
         }
 
         public void FireBulletNonECS()
@@ -60,12 +60,20 @@ namespace Game
         public virtual void FireBullet()
         {
             // create an entity based on the entity prefab
-            Entity bullet = entityManager.Instantiate(bulletEntityPrefab);
+            GameObject instance = Instantiate(bulletPrefab, muzzleTransform.position, muzzleTransform.rotation, null);
+            //var bullet = instance.GetComponent<GameObjectEntity>().Entity;
+            //var bullet = instance.GetComponent<BulletEntity>().entity;
+            //var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
+            //var bullet = GameObjectConversionUtility.ConvertGameObjectHierarchy(instance, settings);
+
+            //Entity bullet = entityManager.Instantiate(bulletEntityPrefab);
 
             // set it to the muzzle angle and position
-            entityManager.SetComponentData(bullet, new Translation { Value = muzzleTransform.position });
-            entityManager.SetComponentData(bullet, new Rotation { Value = muzzleTransform.rotation });
+            //entityManager.SetComponentData(bullet, new Translation { Value = muzzleTransform.position });
+            //entityManager.SetComponentData(bullet, new Rotation { Value = muzzleTransform.rotation });
+            //entityManager.AddComponentData(bullet, new CopyTransformToGameObject());
 
+            //Debug.Log(bullet);
             // plays one-shot sound (pew pew pew!)
             //soundFXSource?.Play();
         }
