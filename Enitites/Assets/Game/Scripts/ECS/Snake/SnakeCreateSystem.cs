@@ -10,12 +10,13 @@ namespace Game
     public sealed class SnakeCreateSystem : EntityCommandBufferSystem
     {
         Entity tailPrefab;
+        SnakeSetup setup;
 
         protected override void OnStartRunning()
         {
             base.OnStartRunning();
 
-            var setup = EnemySpawner.Instance.GetComponent<SnakeSetup>();
+            setup = EnemySpawner.Instance.GetComponent<SnakeSetup>();
             var settings = GameObjectConversionSettings.FromWorld(World, null);
             tailPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(setup.snakeTail, settings);
         }
@@ -23,6 +24,7 @@ namespace Game
         protected override void OnUpdate(EntityCommandBuffer.Concurrent ecb)
         {
             var _tailPrefab = tailPrefab;
+            var tailLength = setup.tailLength;
             Entities
                 .WithAll<CreatedTag>()
                 .ForEach((Entity entity, int entityInQueryIndex, in Snake snake, in Movement movement) =>
@@ -34,12 +36,13 @@ namespace Game
                     var pos = movement.pos;
                     var time = snake.time;
                     var head = entity;
-                    for (int i = 0; i < 0; i++)
+                    for (int i = 0; i < tailLength; i++)
                     {
                         pos -= dir;
                         time -= 0.1f;
 
                         var tail = ecb.Instantiate(entityInQueryIndex, _tailPrefab);
+                        ecb.AddComponent<EnemyTag>(entityInQueryIndex, tail);
                         ecb.AddComponent(entityInQueryIndex, tail, new Snake 
                         {
                             time = time
