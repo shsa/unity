@@ -12,15 +12,13 @@ namespace Game
             float deltaTime = Time.DeltaTime;
 
             Entities
-                .ForEach((ref Snake snake, ref Translation trans, ref Rotation rot, in Movement movement) =>
+                .ForEach((ref Snake snake, ref Translation trans) =>
                 {
                     snake.time += deltaTime;
                     var step = snake.time * 10f;
                     var dx = math.cos(step) * 0.5f;
                     var offset = new float3(dx, 0, 0);
-                    offset = math.rotate(rot.Value, offset);
-                    trans.Value = movement.pos + offset;
-                    //rot.Value = math.mul(q, rot.Value);
+                    trans.Value = offset;
                 })
                 .ScheduleParallel();
         }

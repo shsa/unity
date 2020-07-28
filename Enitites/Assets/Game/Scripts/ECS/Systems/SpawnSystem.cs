@@ -4,6 +4,8 @@ using Unity.Entities;
 using Unity.Collections;
 using System;
 using Random = Unity.Mathematics.Random;
+using Unity.Burst;
+using System.Linq;
 
 namespace Game
 {
@@ -15,10 +17,23 @@ namespace Game
         Random random;
         NativeArray<Entity> enemyPrefabs;
 
+        [ReadOnly]
+        static float minSpeed;
+        [ReadOnly]
+        static float maxSpeed;
+
+        [ReadOnly]
+        public static EntityArchetype enemyPrefab;
+        [ReadOnly]
+        public static EntityArchetype enemyTypePrefab;
+
         protected override void OnStartRunning()
         {
             base.OnStartRunning();
             setup = EnemySpawner.Instance;
+
+            minSpeed = setup.minSpeed;
+            maxSpeed = setup.maxSpeed;
 
             var settings = GameObjectConversionSettings.FromWorld(World, null);
 
@@ -28,6 +43,30 @@ namespace Game
                 enemyPrefabs[i] = GameObjectConversionUtility.ConvertGameObjectHierarchy(setup.enemyPrefabs[i], settings);
             }
             random = new Random(1);
+
+            enemyPrefab = CreateEnemyArchetype();
+            enemyTypePrefab = CreateEnemyTypeArchetype();
+        }
+
+        public EntityArchetype CreateEnemyArchetype()
+        {
+            return EntityManager.CreateArchetype(
+                typeof(Translation), 
+                typeof(Rotation),
+                typeof(LocalToWorld)
+                );
+        }
+
+        public EntityArchetype CreateEnemyTypeArchetype()
+        {
+            return EntityManager.CreateArchetype(
+                typeof(Translation),
+                typeof(Rotation),
+                typeof(LocalToWorld),
+                typeof(LocalToParent),
+                typeof(Parent),
+                typeof(SubObject)
+                );
         }
 
         protected override void OnStopRunning()
@@ -46,8 +85,6 @@ namespace Game
 
                 var spawnCount = setup.spawnCount;
                 var spawnRadius = setup.spawnRadius;
-                var minSpeed = setup.minSpeed;
-                var maxSpeed = setup.maxSpeed;
                 var playerPos = (float3)GameManager.GetPlayerPosition();
                 var rnd = new Random(random.NextUInt(uint.MinValue, uint.MaxValue));
 
@@ -61,30 +98,66 @@ namespace Game
                 Job
                     .WithCode(() => 
                     {
-                        var index = 0;
+                        var jobIndex = 0;
                         for (int i = 0; i < spawnCount; i++)
                         {
-                            var enemy = ecb.Instantiate(index, prefabs[rnd.NextInt(0, prefabs.Length)]);
                             var pos = RandomPointOnCircle(spawnRadius);
-                            ecb.AddComponent(index, enemy, new Translation { Value = pos });
-                            ecb.AddComponent(index, enemy, new Movement
-                            {
-                                speed = rnd.NextFloat(minSpeed, maxSpeed),
-                                pos = pos,
-                                dir = new float3(0, 0, 1),
-                                type = MovementEnum.Spiral,
-                            });
-                            //ecb.AddComponent(index, enemy, new MoveForward { speed = rnd.NextFloat(minSpeed, maxSpeed) });
-                            ecb.AddComponent(index, enemy, new Lifetime { Value = 30 });
-                            ecb.AddComponent<EnemyTag>(index, enemy);
-                            ecb.AddComponent(index, enemy, new Snake { 
-                                time = 0
-                            });
-                            ecb.AddComponent<CreatedTag>(index, enemy);
+                            var enemy = ecb.CreateEntity(jobIndex, enemyPrefab);
+                            ecb.AddComponent(jobIndex, enemy, new Translation { Value = pos });
+                            AddMovement(ecb, jobIndex, enemy, rnd);
+                            AddEnemyType(ecb, jobIndex, enemy, rnd);
                         }
                     })
                     .Schedule();
             }
+        }
+
+        static readonly int MovementEnumCount;
+        static readonly int EnemyEnumCount;
+
+        [BurstCompile]
+        public static void AddMovement(in EntityCommandBuffer.Concurrent ecb, int jobIndex, in Entity enemy, in Random random)
+        {
+            var index = (MovementEnum)random.NextInt(0, MovementEnumCount);
+            switch (index)
+            {
+                case MovementEnum.Linear:
+                    break;
+                case MovementEnum.Spiral:
+                    ecb.AddComponent(jobIndex, enemy, new MovementSpiral 
+                    { 
+                        speed = random.NextFloat(minSpeed, maxSpeed)
+                    });
+                    break;
+            }
+        }
+
+        [BurstCompile]
+        public static Entity AddEnemyType(in EntityCommandBuffer.Concurrent ecb, int jobIndex, in Entity enemy, in Random random)
+        {
+            var subEnemy = ecb.CreateEntity(jobIndex, enemyTypePrefab);
+            ecb.AddComponent(jobIndex, subEnemy, new Parent { Value = enemy });
+            ecb.AddComponent(jobIndex, enemy, new SubObject { Value = subEnemy });
+
+            var index = (EnemyEnum)random.NextInt(0, EnemyEnumCount);
+            switch (index)
+            {
+                case EnemyEnum.Snake:
+                    {
+                        ecb.AddComponent(jobIndex, subEnemy, new Snake { });
+                    }
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+
+            return subEnemy;
+        }
+
+        static SpawnSystem()
+        {
+            MovementEnumCount = (int)Enum.GetValues(typeof(MovementEnum)).Cast<MovementEnum>().Max() + 1;
+            EnemyEnumCount = (int)Enum.GetValues(typeof(EnemyEnum)).Cast<EnemyEnum>().Max() + 1;
         }
     }
 }

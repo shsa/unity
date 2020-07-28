@@ -13,12 +13,11 @@ namespace Game
             float deltaTime = Time.DeltaTime;
             var up = new float3(0, 1, 0);
             Entities
-                .WithAll<MovementSpiral>()
-                .ForEach((ref Movement movement, ref Translation trans, ref Rotation rot) =>
+                .ForEach((ref Translation trans, ref Rotation rot, in MovementSpiral movement) =>
                 {
                     var speed = movement.speed * deltaTime;
                     var step = 0.5f;
-                    var offset = playerPos - movement.pos;
+                    var offset = playerPos - trans.Value;
                     
                     // https://geleot.ru/education/math/geometry/angle/isosceles_triangle
                     var l2 = math.length(offset) * 2;
@@ -29,9 +28,7 @@ namespace Game
                     var dir = math.rotate(q, offset);
                     offset = dir * speed + offset * step;
 
-                    movement.pos += offset;
-                    movement.dir = math.normalize(offset);
-                    trans.Value = movement.pos;
+                    trans.Value += offset;
                     rot.Value = quaternion.LookRotation(offset, up);
                 })
                 .ScheduleParallel();

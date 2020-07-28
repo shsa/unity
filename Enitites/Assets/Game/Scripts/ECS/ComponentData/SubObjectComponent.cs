@@ -3,8 +3,8 @@ using Unity.Mathematics;
 
 namespace Game
 {
-    public struct MovementSpiral : IComponentData
+    public struct SubObject : IComponentData
     {
-        public float speed;
+        public Entity Value;
     }
 }

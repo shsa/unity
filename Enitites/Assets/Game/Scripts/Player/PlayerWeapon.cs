@@ -61,19 +61,6 @@ namespace Game
         {
             // create an entity based on the entity prefab
             GameObject instance = Instantiate(bulletPrefab, muzzleTransform.position, muzzleTransform.rotation, null);
-            //var bullet = instance.GetComponent<GameObjectEntity>().Entity;
-            //var bullet = instance.GetComponent<BulletEntity>().entity;
-            //var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
-            //var bullet = GameObjectConversionUtility.ConvertGameObjectHierarchy(instance, settings);
-
-            //Entity bullet = entityManager.Instantiate(bulletEntityPrefab);
-
-            // set it to the muzzle angle and position
-            //entityManager.SetComponentData(bullet, new Translation { Value = muzzleTransform.position });
-            //entityManager.SetComponentData(bullet, new Rotation { Value = muzzleTransform.rotation });
-            //entityManager.AddComponentData(bullet, new CopyTransformToGameObject());
-
-            //Debug.Log(bullet);
             // plays one-shot sound (pew pew pew!)
             //soundFXSource?.Play();
         }
