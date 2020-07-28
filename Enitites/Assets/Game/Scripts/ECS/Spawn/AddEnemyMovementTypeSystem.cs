@@ -8,32 +8,28 @@ namespace Game
 {
     public sealed class AddEnemyMovementTypeSystem : EntityCommandBufferSystem
     {
-        static readonly int MovementEnumCount;
+        int MovementEnumCount;
 
         EnemySpawner setup = null;
 
         Random mainRandom;
-
-        [ReadOnly]
-        static float minSpeed;
-        [ReadOnly]
-        static float maxSpeed;
 
         protected override void OnStartRunning()
         {
             base.OnStartRunning();
             setup = EnemySpawner.Instance;
 
-            minSpeed = setup.minSpeed;
-            maxSpeed = setup.maxSpeed;
-
             mainRandom = new Random(1);
+            MovementEnumCount = (int)Enum.GetValues(typeof(MovementEnum)).Cast<MovementEnum>().Max() + 1;
         }
 
         protected override void OnUpdate(EntityCommandBuffer.Concurrent ecb)
         {
             var random = new Random(mainRandom.NextUInt(uint.MinValue, uint.MaxValue));
-            
+            var minSpeed = setup.minSpeed;
+            var maxSpeed = setup.maxSpeed;
+            var movementEnumCount = MovementEnumCount;
+
             Entities
                 .WithAll<EnemyTag>()
                 .WithNone<MovementTypeTag>()
@@ -41,7 +37,7 @@ namespace Game
                 {
                     ecb.AddComponent<MovementTypeTag>(entityInQueryIndex, entity);
 
-                    var index = (MovementEnum)random.NextInt(0, MovementEnumCount);
+                    var index = (MovementEnum)random.NextInt(0, movementEnumCount);
                     index = MovementEnum.Spiral;
                     switch (index)
                     {
@@ -57,11 +53,6 @@ namespace Game
 
                 })
                 .ScheduleParallel();
-        }
-
-        static AddEnemyMovementTypeSystem()
-        {
-            MovementEnumCount = (int)Enum.GetValues(typeof(MovementEnum)).Cast<MovementEnum>().Max() + 1;
         }
     }
 }

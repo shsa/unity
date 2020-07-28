@@ -16,7 +16,6 @@ namespace Game
         float lastSpawnTime = 0;
         Random mainRandom;
 
-        [ReadOnly]
         public static EntityArchetype enemyPrefab;
 
         protected override void OnStartRunning()
@@ -46,6 +45,7 @@ namespace Game
                 var spawnRadius = setup.spawnRadius;
                 var playerPos = (float3)GameManager.GetPlayerPosition();
                 var random = new Random(mainRandom.NextUInt(uint.MinValue, uint.MaxValue));
+                var enemyArchetype = enemyPrefab;
 
                 float3 RandomPointOnCircle(float spawnRaduis)
                 {
@@ -59,7 +59,7 @@ namespace Game
                         var jobIndex = 0;
                         for (int i = 0; i < spawnCount; i++)
                         {
-                            var enemy = ecb.CreateEntity(jobIndex, enemyPrefab);
+                            var enemy = ecb.CreateEntity(jobIndex, enemyArchetype);
                             ecb.AddComponent(jobIndex, enemy, new Translation { Value = RandomPointOnCircle(spawnRadius) });
                         }
                     })

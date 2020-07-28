@@ -13,12 +13,8 @@ namespace Game
 
         SnakeSetup setup;
 
-        [ReadOnly]
         static Entity headPrefab;
-        [ReadOnly]
         static Entity tailPrefab;
-        [ReadOnly]
-        static int tailLength;
 
         protected override void OnStartRunning()
         {
@@ -28,11 +24,16 @@ namespace Game
             var settings = GameObjectConversionSettings.FromWorld(World, null);
             headPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(setup.headPrefab, settings);
             tailPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(setup.tailPrefab, settings);
-            tailLength = setup.tailLength;
         }
 
         protected override void OnUpdate(EntityCommandBuffer.Concurrent ecb)
         {
+            var enemyArchetype = SpawnSystem.enemyPrefab;
+            var enemyTypeArchetype = AddEnemyTypeSystem.enemyTypePrefab;
+            var headModel = headPrefab;
+            var tailModel = tailPrefab;
+            var tailLength = setup.tailLength;
+
             var cdfePos = GetComponentDataFromEntity<Translation>(true);
             Entities
                 .WithNone<CreatedTag>()
@@ -43,15 +44,15 @@ namespace Game
 
                     var dir = math.rotate(rot.Value, front);
 
-                    var headModel = ecb.Instantiate(entityInQueryIndex, headPrefab);
-                    ecb.AddComponent(entityInQueryIndex, headModel, new Translation { Value = float3.zero });
-                    ecb.AddComponent(entityInQueryIndex, headModel, new Rotation { Value = quaternion.identity });
-                    ecb.AddComponent(entityInQueryIndex, headModel, new Parent { Value = entity });
-                    ecb.AddComponent(entityInQueryIndex, headModel, new LocalToParent { });
+                    var model = ecb.Instantiate(entityInQueryIndex, headModel);
+                    ecb.AddComponent(entityInQueryIndex, model, new Translation { Value = float3.zero });
+                    ecb.AddComponent(entityInQueryIndex, model, new Rotation { Value = quaternion.identity });
+                    ecb.AddComponent(entityInQueryIndex, model, new Parent { Value = entity });
+                    ecb.AddComponent(entityInQueryIndex, model, new LocalToParent { });
 
                     snake.time = time;
                     ecb.AddComponent<CreatedTag>(entityInQueryIndex, entity);
-                    ecb.AddComponent(entityInQueryIndex, entity, new Model { Value = headModel });
+                    ecb.AddComponent(entityInQueryIndex, entity, new Model { Value = model });
                     ecb.AddComponent<EntityAliveTag>(entityInQueryIndex, entity);
 
                     var pos = cdfePos[parent.Value].Value;
@@ -61,9 +62,9 @@ namespace Game
                         time -= 0.1f;
                         pos -= dir * 1f;
 
-                        var chain = ecb.CreateEntity(entityInQueryIndex, SpawnSystem.enemyPrefab);
-                        var tail = ecb.CreateEntity(entityInQueryIndex, AddEnemyTypeSystem.enemyTypePrefab);
-                        var tailModel = ecb.Instantiate(entityInQueryIndex, tailPrefab);
+                        var chain = ecb.CreateEntity(entityInQueryIndex, enemyArchetype);
+                        var tail = ecb.CreateEntity(entityInQueryIndex, enemyTypeArchetype);
+                        model = ecb.Instantiate(entityInQueryIndex, tailModel);
 
                         ecb.AddComponent(entityInQueryIndex, chainParent, new ChainChild { Value = chain });
 
@@ -78,14 +79,14 @@ namespace Game
                         ecb.AddComponent<CreatedTag>(entityInQueryIndex, tail);
                         ecb.AddComponent(entityInQueryIndex, tail, new Parent { Value = chain });
                         ecb.AddComponent(entityInQueryIndex, tail, new Snake { time = time });
-                        ecb.AddComponent(entityInQueryIndex, tail, new Model { Value = tailModel });
+                        ecb.AddComponent(entityInQueryIndex, tail, new Model { Value = model });
                         ecb.AddComponent<EntityAliveTag>(entityInQueryIndex, tail);
                         ecb.AddComponent<CreatedTag>(entityInQueryIndex, tail);
 
-                        ecb.AddComponent(entityInQueryIndex, tailModel, new Translation { Value = float3.zero });
-                        ecb.AddComponent(entityInQueryIndex, tailModel, new Rotation { Value = quaternion.identity });
-                        ecb.AddComponent(entityInQueryIndex, tailModel, new Parent { Value = tail });
-                        ecb.AddComponent(entityInQueryIndex, tailModel, new LocalToParent { });
+                        ecb.AddComponent(entityInQueryIndex, model, new Translation { Value = float3.zero });
+                        ecb.AddComponent(entityInQueryIndex, model, new Rotation { Value = quaternion.identity });
+                        ecb.AddComponent(entityInQueryIndex, model, new Parent { Value = tail });
+                        ecb.AddComponent(entityInQueryIndex, model, new LocalToParent { });
 
                         chainParent = chain;
                     }

@@ -9,14 +9,11 @@ namespace Game
 {
     public sealed class AddEnemyTypeSystem : EntityCommandBufferSystem
     {
-        static readonly int EnemyEnumCount;
+        public static EntityArchetype enemyTypePrefab;
 
         EnemySpawner setup = null;
-
         Random mainRandom;
-
-        [ReadOnly]
-        public static EntityArchetype enemyTypePrefab;
+        int EnemyEnumCount;
 
         protected override void OnStartRunning()
         {
@@ -32,24 +29,27 @@ namespace Game
                 );
 
             mainRandom = new Random(1);
+            EnemyEnumCount = (int)Enum.GetValues(typeof(EnemyEnum)).Cast<EnemyEnum>().Max() + 1;
         }
 
         protected override void OnUpdate(EntityCommandBuffer.Concurrent ecb)
         {
             var random = new Random(mainRandom.NextUInt(uint.MinValue, uint.MaxValue));
-            
+            var enemyTypeArchetype = enemyTypePrefab;
+            var enemyEnumCount = EnemyEnumCount;
+
             Entities
                 .WithAll<EnemyTag>()
                 .WithNone<EnemyType>()
                 .ForEach((Entity entity, int entityInQueryIndex) =>
                 {
-                    var enemyType = ecb.CreateEntity(entityInQueryIndex, enemyTypePrefab);
+                    var enemyType = ecb.CreateEntity(entityInQueryIndex, enemyTypeArchetype);
 
                     ecb.AddComponent(entityInQueryIndex, enemyType, new Parent { Value = entity });
                     ecb.AddComponent(entityInQueryIndex, entity, new EnemyType { Value = enemyType });
                     ecb.AddComponent<EntityAliveTag>(entityInQueryIndex, entity);
 
-                    var index = (EnemyEnum)random.NextInt(0, EnemyEnumCount);
+                    var index = (EnemyEnum)random.NextInt(0, enemyEnumCount);
                     switch (index)
                     {
                         case EnemyEnum.Snake:
@@ -62,11 +62,6 @@ namespace Game
                     }
                 })
                 .ScheduleParallel();
-        }
-
-        static AddEnemyTypeSystem()
-        {
-            EnemyEnumCount = (int)Enum.GetValues(typeof(EnemyEnum)).Cast<EnemyEnum>().Max() + 1;
         }
     }
 }
