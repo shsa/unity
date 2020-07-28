@@ -1,8 +1,9 @@
 ﻿using Unity.Entities;
-using Unity.Collections;
 using System;
 using Random = Unity.Mathematics.Random;
 using System.Linq;
+using Unity.Transforms;
+using Unity.Mathematics;
 
 namespace Game
 {
@@ -19,7 +20,7 @@ namespace Game
             base.OnStartRunning();
             setup = EnemySpawner.Instance;
 
-            mainRandom = new Random(1);
+            mainRandom = new Random((uint)System.DateTime.Now.Millisecond);
             MovementEnumCount = (int)Enum.GetValues(typeof(MovementEnum)).Cast<MovementEnum>().Max() + 1;
         }
 
@@ -33,9 +34,11 @@ namespace Game
             Entities
                 .WithAll<EnemyTag>()
                 .WithNone<MovementTypeTag>()
-                .ForEach((Entity entity, int entityInQueryIndex) =>
+                .ForEach((Entity entity, int entityInQueryIndex, ref Rotation rot) =>
                 {
                     ecb.AddComponent<MovementTypeTag>(entityInQueryIndex, entity);
+                    var i = random.NextInt(0, 1) * 2 - 1; // -1 or 1
+                    rot.Value = quaternion.Euler(0, i * math.PI / 2, 0);
 
                     var index = (MovementEnum)random.NextInt(0, movementEnumCount);
                     index = MovementEnum.Spiral;

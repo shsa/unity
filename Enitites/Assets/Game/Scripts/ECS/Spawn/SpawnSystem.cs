@@ -23,7 +23,7 @@ namespace Game
             base.OnStartRunning();
             setup = EnemySpawner.Instance;
 
-            mainRandom = new Random(1);
+            mainRandom = new Random((uint)System.DateTime.Now.Millisecond);
 
             enemyPrefab = EntityManager.CreateArchetype(
                 typeof(EnemyTag),
@@ -61,6 +61,7 @@ namespace Game
                         {
                             var enemy = ecb.CreateEntity(jobIndex, enemyArchetype);
                             ecb.AddComponent(jobIndex, enemy, new Translation { Value = RandomPointOnCircle(spawnRadius) });
+                            ecb.AddComponent(jobIndex, enemy, new Rotation { Value = quaternion.Euler(0, random.NextFloat(-math.PI, math.PI), 0) });
                         }
                     })
                     .Schedule();

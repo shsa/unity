@@ -21,7 +21,7 @@ namespace Game
             base.OnStartRunning();
 
             setup = EnemySpawner.Instance.GetComponent<SnakeSetup>();
-            var settings = GameObjectConversionSettings.FromWorld(World, null);
+            var settings = GameObjectConversionSettings.FromWorld(World, new BlobAssetStore());
             headPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(setup.headPrefab, settings);
             tailPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(setup.tailPrefab, settings);
         }
