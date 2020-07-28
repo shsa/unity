@@ -61,7 +61,7 @@ namespace Game
                         pos -= dir * 1f;
 
                         var chain = ecb.CreateEntity(entityInQueryIndex, SpawnSystem.enemyPrefab);
-                        var tail = ecb.CreateEntity(entityInQueryIndex, SpawnSystem.enemyTypePrefab);
+                        var tail = ecb.CreateEntity(entityInQueryIndex, AddEnemyTypeSystem.enemyTypePrefab);
                         var tailModel = ecb.Instantiate(entityInQueryIndex, tailPrefab);
 
                         ecb.AddComponent(entityInQueryIndex, chainParent, new ChainChild { Value = chain });
@@ -70,7 +70,8 @@ namespace Game
                         ecb.AddComponent(entityInQueryIndex, chain, new Rotation { Value = rot.Value });
                         ecb.AddComponent(entityInQueryIndex, chain, new Chain { dist = 1f });
                         ecb.AddComponent(entityInQueryIndex, chain, new ChainParent { Value = chainParent });
-                        ecb.AddComponent(entityInQueryIndex, chain, new SubObject { Value = tail });
+                        ecb.AddComponent(entityInQueryIndex, chain, new EnemyType { Value = tail });
+                        ecb.AddComponent<MovementTypeTag>(entityInQueryIndex, chain);
 
                         ecb.AddComponent<CreatedTag>(entityInQueryIndex, tail);
                         ecb.AddComponent(entityInQueryIndex, tail, new Parent { Value = chain });
