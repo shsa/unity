@@ -52,6 +52,7 @@ namespace Game
                     snake.time = time;
                     ecb.AddComponent<CreatedTag>(entityInQueryIndex, entity);
                     ecb.AddComponent(entityInQueryIndex, entity, new Model { Value = headModel });
+                    ecb.AddComponent<EntityAliveTag>(entityInQueryIndex, entity);
 
                     var pos = cdfePos[parent.Value].Value;
                     var chainParent = parent.Value;
@@ -71,12 +72,14 @@ namespace Game
                         ecb.AddComponent(entityInQueryIndex, chain, new Chain { dist = 1f });
                         ecb.AddComponent(entityInQueryIndex, chain, new ChainParent { Value = chainParent });
                         ecb.AddComponent(entityInQueryIndex, chain, new EnemyType { Value = tail });
+                        ecb.AddComponent<EntityAliveTag>(entityInQueryIndex, chain);
                         ecb.AddComponent<MovementTypeTag>(entityInQueryIndex, chain);
 
                         ecb.AddComponent<CreatedTag>(entityInQueryIndex, tail);
                         ecb.AddComponent(entityInQueryIndex, tail, new Parent { Value = chain });
-                        ecb.AddComponent(entityInQueryIndex, tail, new Model { Value = tailModel });
                         ecb.AddComponent(entityInQueryIndex, tail, new Snake { time = time });
+                        ecb.AddComponent(entityInQueryIndex, tail, new Model { Value = tailModel });
+                        ecb.AddComponent<EntityAliveTag>(entityInQueryIndex, tail);
                         ecb.AddComponent<CreatedTag>(entityInQueryIndex, tail);
 
                         ecb.AddComponent(entityInQueryIndex, tailModel, new Translation { Value = float3.zero });

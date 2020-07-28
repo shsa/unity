@@ -189,7 +189,7 @@ MonoBehaviour:
     type: 3}
   tailPrefab: {fileID: 4676936387497493338, guid: c2dc98ced0143b547be73419fabc3356,
     type: 3}
-  tailLength: 10
+  tailLength: 20
 --- !u!1 &449370506
 GameObject:
   m_ObjectHideFlags: 0

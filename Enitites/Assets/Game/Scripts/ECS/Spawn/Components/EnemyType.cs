@@ -2,7 +2,7 @@
 
 namespace Game
 {
-    public struct EnemyType : IComponentData
+    public struct EnemyType : ISystemStateComponentData
     {
         public Entity Value;
     }

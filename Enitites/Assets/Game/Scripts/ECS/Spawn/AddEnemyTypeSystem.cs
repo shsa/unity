@@ -28,8 +28,7 @@ namespace Game
                 typeof(Rotation),
                 typeof(LocalToWorld),
                 typeof(LocalToParent),
-                typeof(Parent),
-                typeof(SubObject)
+                typeof(Parent)
                 );
 
             mainRandom = new Random(1);
@@ -46,8 +45,9 @@ namespace Game
                 {
                     var enemyType = ecb.CreateEntity(entityInQueryIndex, enemyTypePrefab);
 
-                    ecb.AddComponent(entityInQueryIndex, entity, new EnemyType { Value = enemyType });
                     ecb.AddComponent(entityInQueryIndex, enemyType, new Parent { Value = entity });
+                    ecb.AddComponent(entityInQueryIndex, entity, new EnemyType { Value = enemyType });
+                    ecb.AddComponent<EntityAliveTag>(entityInQueryIndex, entity);
 
                     var index = (EnemyEnum)random.NextInt(0, EnemyEnumCount);
                     switch (index)

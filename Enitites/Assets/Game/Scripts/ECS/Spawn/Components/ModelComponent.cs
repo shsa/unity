@@ -3,7 +3,7 @@ using Unity.Mathematics;
 
 namespace Game
 {
-    public struct Model : IComponentData
+    public struct Model : ISystemStateComponentData
     {
         public Entity Value;
     }

@@ -37,7 +37,10 @@ namespace Game
                     }
                     else
                     {
-                        ecb.DestroyEntity(entityInQueryIndex, entity);
+                        //ecb.DestroyEntity(entityInQueryIndex, entity);
+                        ecb.RemoveComponent<Chain>(entityInQueryIndex, entity);
+                        ecb.RemoveComponent<ChainParent>(entityInQueryIndex, entity);
+                        ecb.RemoveComponent<MovementTypeTag>(entityInQueryIndex, entity);
                     }
                 })
                 .ScheduleParallel();
