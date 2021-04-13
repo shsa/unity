@@ -17,6 +17,10 @@ namespace LeoECS
         {
             // create ecs environment.
             _world = new EcsWorld();
+
+#if UNITY_EDITOR
+            Leopotam.Ecs.UnityIntegration.EcsWorldObserver.Create(_world);
+#endif
             _systems = new EcsSystems(_world)
                 .Add(new DemoInitSystem())
                 .Add(new InputSystem())
@@ -32,6 +36,10 @@ namespace LeoECS
                 .OneFrame<PositionUpdated>()
                 ;
             _systems.Init();
+
+#if UNITY_EDITOR
+            Leopotam.Ecs.UnityIntegration.EcsSystemsObserver.Create(_systems);
+#endif
         }
 
         void Update()
