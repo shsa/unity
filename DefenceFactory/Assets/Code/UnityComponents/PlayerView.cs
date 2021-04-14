@@ -9,8 +9,8 @@ namespace DefenceFactory
         {
             transform.DOKill();
             transform.DOLocalMove(new Vector2(x, y), 5f)
-                .SetSpeedBased(true)
-                .SetEase(Ease.OutCubic);
+                //.SetSpeedBased(true)
+                .SetEase(Ease.InOutCubic);
         }
     }
 }

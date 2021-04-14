@@ -15,7 +15,7 @@ namespace DefenceFactory.Ecs
             //        .Replace(new Input { Coordinate = coord });
             //}
 
-            if (_input.GetCursorCoordinate(out var coord))
+            if (_input.GetClickedCoordinate(out var coord))
             {
                 _world.NewEntity()
                     .Replace(new Input { Coordinate = coord });

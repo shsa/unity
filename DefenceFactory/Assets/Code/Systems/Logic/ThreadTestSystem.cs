@@ -1,12 +1,8 @@
 ﻿using Leopotam.Ecs;
 using Leopotam.Ecs.Threads;
 using Leopotam.Ecs.Types;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
+using Random = System.Random;
 
 namespace DefenceFactory.Ecs
 {
@@ -14,6 +10,7 @@ namespace DefenceFactory.Ecs
     {
         readonly EcsWorld _world = default;
         readonly EcsFilter<ThreadComponent> _filter = default;
+        readonly Random _random = default;
 
         /// <summary>
         /// Returns filter for processing entities in it at background threads.
@@ -53,19 +50,12 @@ namespace DefenceFactory.Ecs
         /// </summary>
         static void Worker(EcsMultiThreadWorkerDesc workerDesc)
         {
+            var rnd = new Random();
+
             foreach (var idx in workerDesc)
             {
                 ref var c = ref workerDesc.Filter.Get1(idx);
-                //c.Result = (float)System.Math.Sqrt(c.A + c.B + c.C + c.D + c.E + c.F + c.G + c.H + c.I + c.J);
-                //c.Result = (float)System.Math.Sin(c.A + c.B + c.C + c.D + c.E + c.F + c.G + c.H + c.I + c.J);
-                //c.Result = (float)System.Math.Cos(c.A + c.B + c.C + c.D + c.E + c.F + c.G + c.H + c.I + c.J);
-                //c.Result = (float)System.Math.Tan(c.A + c.B + c.C + c.D + c.E + c.F + c.G + c.H + c.I + c.J);
-                //c.Result = (float)System.Math.Log10(c.A + c.B + c.C + c.D + c.E + c.F + c.G + c.H + c.I + c.J);
-                //c.Result = (float)System.Math.Sqrt(c.A + c.B + c.C + c.D + c.E + c.F + c.G + c.H + c.I + c.J);
-                //c.Result = (float)System.Math.Sin(c.A + c.B + c.C + c.D + c.E + c.F + c.G + c.H + c.I + c.J);
-                //c.Result = (float)System.Math.Cos(c.A + c.B + c.C + c.D + c.E + c.F + c.G + c.H + c.I + c.J);
-                //c.Result = (float)System.Math.Tan(c.A + c.B + c.C + c.D + c.E + c.F + c.G + c.H + c.I + c.J);
-                //c.Result = (float)System.Math.Log10(c.A + c.B + c.C + c.D + c.E + c.F + c.G + c.H + c.I + c.J);
+                c.Value = new Int2(rnd.Next(-10, 10), rnd.Next(-10, 10));
             }
         }
     }

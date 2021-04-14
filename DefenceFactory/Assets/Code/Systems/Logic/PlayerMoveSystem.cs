@@ -22,8 +22,9 @@ namespace DefenceFactory.Ecs
                 foreach (var p in _positions)
                 {
                     var e = _positions.GetEntity(p);
-                    e.Replace(new Position { Value = coordinate });
-                    e.Get<PositionUpdatedFlag>();
+                    //e.Replace(new Position { Value = coordinate });
+                    //e.Get<PositionUpdatedFlag>();
+                    e.Get<ThreadComponent>();
                 }
             }
         }

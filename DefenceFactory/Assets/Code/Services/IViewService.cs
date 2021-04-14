@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Leopotam.Ecs.Types;
 
 namespace DefenceFactory
 {
     interface IViewService
     {
-        IView CreatePlayerView(int x, int y);
+        IView CreatePlayerView(int x, int y, Float3 color);
     }
 }

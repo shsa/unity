@@ -13,7 +13,7 @@ namespace DefenceFactory.Ecs
     {
         private readonly IViewService _viewService = default;
 
-        private readonly EcsFilter<Position>.Exclude<View> _views = default;
+        private readonly EcsFilter<Position, Color>.Exclude<View> _views = default;
 
         void IEcsRunSystem.Run()
         {
@@ -22,10 +22,10 @@ namespace DefenceFactory.Ecs
 
             foreach (var i in _views)
             {
-                var position = _views.Get1(i).Value;
+                ref var position = ref _views.Get1(i).Value;
+                ref var color = ref _views.Get2(i).Value;
 
-                var view = _viewService.CreatePlayerView(position.X, position.Y);
-                view.UpdatePosition(position.X, position.Y);
+                var view = _viewService.CreatePlayerView(position.X, position.Y, color);
 
                 _views.GetEntity(i).Get<View>().Value = view;
             }

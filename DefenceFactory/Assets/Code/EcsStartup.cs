@@ -31,6 +31,7 @@ namespace DefenceFactory
                 // register one-frame components (order is important), for example:
                 .OneFrame<PositionUpdatedFlag>()
                 .OneFrame<Ecs.Input>()
+                .OneFrame<ThreadComponent>()
 
                 // inject service instances here (order doesn't important), for example:
                 .Inject(GetComponent<IInputService>())
@@ -46,6 +47,8 @@ namespace DefenceFactory
             systems
                 .Add(new GameInitSystem())
                 .Add(new PlayerMoveSystem())
+                .Add(new ThreadTestSystem())
+                .Add(new ApplyThreadSystem())
                 ;
             return systems;
         }
