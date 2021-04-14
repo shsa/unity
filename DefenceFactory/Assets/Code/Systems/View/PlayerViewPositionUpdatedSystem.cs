@@ -12,17 +12,19 @@ namespace DefenceFactory.Ecs
     sealed class PlayerViewPositionUpdatedSystem : IEcsRunSystem
     {
         private readonly IViewService _viewService = default;
-        private readonly EcsFilter<Position, PlayerTag, PositionUpdatedFlag> _views = default;
+        private readonly EcsFilter<Position, PositionUpdatedFlag, PlayerTag> _filter = default;
 
         void IEcsRunSystem.Run()
         {
-            if (_views.IsEmpty())
-                return;
-
-            foreach (var i in _views)
+            if (_filter.IsEmpty())
             {
-                var pos = _views.Get1(i).Value;
-                _views.UpdatePosition(pos.X, pos.Y);
+                return;
+            }
+
+            foreach (var i in _filter)
+            {
+                var pos = _filter.Get1(i).Value;
+                _viewService.SetPlayerPosition(pos.X, pos.Y);
             }
         }
     }

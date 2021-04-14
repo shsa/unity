@@ -1,4 +1,5 @@
 ﻿using DefenceFactory.World;
+using DG.Tweening;
 using Leopotam.Ecs.Types;
 using UnityEngine;
 
@@ -34,7 +35,10 @@ namespace DefenceFactory
 
         public void SetPlayerPosition(int x, int y)
         {
-            throw new System.NotImplementedException();
+            _camera.DOKill();
+            _camera.DOLocalMove(new Vector2(x, y), 5f)
+                .SetSpeedBased(true)
+                .SetEase(Ease.Linear);
         }
     }
 }

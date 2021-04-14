@@ -12,6 +12,23 @@ namespace DefenceFactory.World
         public int y { get; set; }
         public int z { get; set; }
 
+        public ChunkPos(int x, int y, int z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+
+        public BlockPos MinBlockPos()
+        {
+            return new BlockPos(x << 4, y << 4, z << 4);
+        }
+
+        public BlockPos MaxBlockPos()
+        {
+            return new BlockPos(x << 4 | 0xF, y << 4 | 0xF, z << 4 | 0xF);
+        }
+
         public override bool Equals(object obj)
         {
             if (obj is ChunkPos pos)

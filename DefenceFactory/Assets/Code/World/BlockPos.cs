@@ -12,6 +12,24 @@ namespace DefenceFactory.World
         public int y { get; set; }
         public int z { get; set; }
 
+        public BlockPos()
+        {
+        }
+
+        public BlockPos(int x, int y, int z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+
+        public void Set(int x, int y, int z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+
         public int GetChunkIndex()
         {
             return ((y & 0xF) << 8) | ((x & 0xF) << 4) | (z & 0xF);

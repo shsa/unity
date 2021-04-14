@@ -1,4 +1,5 @@
-﻿using Leopotam.Ecs;
+﻿using DefenceFactory.World;
+using Leopotam.Ecs;
 using Leopotam.Ecs.Types;
 using System;
 using System.Collections.Generic;
@@ -11,11 +12,22 @@ namespace DefenceFactory.Ecs
 {
     sealed class PlayerMoveSystem : IEcsRunSystem
     {
-        private readonly EcsFilter<Input> _inputs = default;
-        private readonly EcsFilter<PlayerTag, Position, PositionUpdatedFlag> _positions = default;
+        private readonly GameWorld _gameWorld = default;
+        private readonly EcsFilter<Position, PositionUpdatedFlag, PlayerTag> _filter = default;
 
         void IEcsRunSystem.Run()
         {
+            if (_filter.IsEmpty())
+            {
+                return;
+            }
+
+            foreach (var i in _filter)
+            {
+                ref var pos = ref _filter.Get1(i).Value;
+                var chunkPos = new ChunkPos(pos.X, pos.Y, 0);
+                var chunk = _gameWorld.GetOrCreateChunk(chunkPos);
+            }
         }
     }
 }

@@ -16,15 +16,15 @@ namespace DefenceFactory.World
         {
             World = world;
             Position = pos;
-            data = new BlockData[256];
+            data = new BlockData[4096]; // 16 * 16 * 16
         }
 
-        public BlockData GetBlockData(BlockPos pos)
+        public BlockData GetBlockData(in BlockPos pos)
         {
             return data[pos.GetChunkIndex()];
         }
 
-        public void SetBlockData(BlockPos pos, BlockData value)
+        public void SetBlockData(in BlockPos pos, BlockData value)
         {
             var index = pos.GetChunkIndex();
             var oldValue = data[index];

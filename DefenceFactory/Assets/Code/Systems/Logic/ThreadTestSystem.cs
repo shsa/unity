@@ -41,14 +41,14 @@ namespace DefenceFactory.Ecs
         /// </summary>
         protected override EcsMultiThreadWorker GetWorker()
         {
-            return Worker;
+            return (p) => Worker(1, p);
         }
 
         /// <summary>
         /// Our worker callback for processing entities.
         /// Important: better to use static methods as workers - you cant touch any instance data without additional sync.
         /// </summary>
-        static void Worker(EcsMultiThreadWorkerDesc workerDesc)
+        static void Worker(int param, EcsMultiThreadWorkerDesc workerDesc)
         {
             var rnd = new Random();
 

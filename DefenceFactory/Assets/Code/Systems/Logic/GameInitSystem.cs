@@ -13,7 +13,10 @@ namespace DefenceFactory.Ecs
 
         public void Init()
         {
-
+            var player = _world.NewEntity();
+            player.Get<PlayerTag>();
+            player.Get<Position>().Value.Set(0, 0);
+            player.Get<PositionUpdatedFlag>();
 
             //for (int i = 0; i < 1000; i++)
             //{
