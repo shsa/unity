@@ -1,4 +1,5 @@
 using DefenceFactory.Ecs;
+using DefenceFactory.World;
 using Leopotam.Ecs;
 using UnityEngine;
 using Random = System.Random;
@@ -36,6 +37,7 @@ namespace DefenceFactory
                 // inject service instances here (order doesn't important), for example:
                 .Inject(GetComponent<IInputService>())
                 .Inject(GetComponent<IViewService>())
+                .Inject(new GameWorld())
                 .Inject(new Random())
 
                 .Init();
@@ -58,7 +60,7 @@ namespace DefenceFactory
             var systems = new EcsSystems(_world);
             systems
                 .Add(new PlayerViewCreateSystem())
-                .Add(new PlayerViewUpdatePositionSystem())
+                .Add(new PlayerViewPositionUpdatedSystem())
                 ;
             return systems;
         }

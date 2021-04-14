@@ -9,9 +9,10 @@ using UnityEngine;
 
 namespace DefenceFactory.Ecs
 {
-    sealed class PlayerViewUpdatePositionSystem : IEcsRunSystem
+    sealed class PlayerViewPositionUpdatedSystem : IEcsRunSystem
     {
-        private readonly EcsFilter<View, Position, PositionUpdatedFlag> _views = default;
+        private readonly IViewService _viewService = default;
+        private readonly EcsFilter<Position, PlayerTag, PositionUpdatedFlag> _views = default;
 
         void IEcsRunSystem.Run()
         {
@@ -20,9 +21,8 @@ namespace DefenceFactory.Ecs
 
             foreach (var i in _views)
             {
-                var view = _views.Get1(i).Value;
-                var pos = _views.Get2(i).Value;
-                view.UpdatePosition(pos.X, pos.Y);
+                var pos = _views.Get1(i).Value;
+                _views.UpdatePosition(pos.X, pos.Y);
             }
         }
     }
