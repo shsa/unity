@@ -30,6 +30,12 @@ namespace DefenceFactory.World
             this.z = z;
         }
 
+        public ChunkPos ChunkPos {
+            get {
+                return new ChunkPos(x >> 4, y >> 4, z >> 4);
+            }
+        }
+
         public int GetChunkIndex()
         {
             return ((y & 0xF) << 8) | ((x & 0xF) << 4) | (z & 0xF);

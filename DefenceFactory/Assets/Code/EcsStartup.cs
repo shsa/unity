@@ -33,6 +33,7 @@ namespace DefenceFactory
                 .OneFrame<PositionUpdatedFlag>()
                 .OneFrame<Ecs.Input>()
                 .OneFrame<ThreadComponent>()
+                .OneFrame<DestroyedFlag>()
 
                 // inject service instances here (order doesn't important), for example:
                 .Inject(GetComponent<IInputService>())
@@ -48,9 +49,12 @@ namespace DefenceFactory
             var systems = new EcsSystems(_world);
             systems
                 .Add(new GameInitSystem())
+                .Add(new PlayerInputSystem())
                 .Add(new PlayerMoveSystem())
                 .Add(new ThreadTestSystem())
-                .Add(new ApplyThreadSystem())
+                //.Add(new ApplyThreadSystem())
+                .Add(new CreateChunkSystem())
+                .Add(new DestroyChunkSystem())
                 ;
             return systems;
         }
@@ -61,6 +65,8 @@ namespace DefenceFactory
             systems
                 .Add(new PlayerViewCreateSystem())
                 .Add(new PlayerViewPositionUpdatedSystem())
+                .Add(new CreateChunkViewSystem())
+                .Add(new DestroyChunkViewSystem())
                 ;
             return systems;
         }

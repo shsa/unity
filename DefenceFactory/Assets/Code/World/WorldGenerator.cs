@@ -66,18 +66,17 @@ namespace DefenceFactory.World
         {
             if (CalcBlock(pos.x, pos.y, pos.z, out var k))
             {
-                //k = GetNoise(pos, masonryScale, masonryOffset);
-                //if (k > 0.5)
-                //{
-                //    return BlockType.Stone;
-                //}
+                k = GetNoise(pos, masonryScale, masonryOffset);
+                if (k > 0.5)
+                {
+                    return BlockType.Stone;
+                }
 
                 //k = GetNoise(pos, cobblestoneScale, cobblestoneOffset);
                 //if (k > 0.5)
                 //{
                 //    return BlockType.Stone;
                 //}
-                return BlockType.Stone;
             }
             return BlockType.Empty;
         }

@@ -29,6 +29,14 @@ namespace DefenceFactory.World
             return new BlockPos(x << 4 | 0xF, y << 4 | 0xF, z << 4 | 0xF);
         }
 
+        public void Set(int x, int y, int z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+
+
         public override bool Equals(object obj)
         {
             if (obj is ChunkPos pos)
@@ -56,7 +64,7 @@ namespace DefenceFactory.World
 
         public override string ToString()
         {
-            return $"({x}, {y}, {z}), ({x >> 4}.{x & 0xF}, {y >> 4}.{y & 0xF}, {z >> 4}.{z & 0xF})";
+            return $"({x}, {y}, {z})";
         }
 
     }

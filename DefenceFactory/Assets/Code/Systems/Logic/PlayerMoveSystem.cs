@@ -25,8 +25,17 @@ namespace DefenceFactory.Ecs
             foreach (var i in _filter)
             {
                 ref var pos = ref _filter.Get1(i).Value;
-                var chunkPos = new ChunkPos(pos.X, pos.Y, 0);
-                var chunk = _gameWorld.GetOrCreateChunk(chunkPos);
+                var blockPos = new BlockPos(pos.X, pos.Y, 0);
+                var chunkPos = blockPos.ChunkPos;
+                var cp = new ChunkPos(0, 0, 0);
+                for (int x = -3; x <= 3; x++)
+                {
+                    for (int y = -3; y <= 3; y++)
+                    {
+                        cp.Set(chunkPos.x + x, chunkPos.y + y, 0);
+                        _gameWorld.GetOrCreateChunk(cp);
+                    }
+                }
             }
         }
     }

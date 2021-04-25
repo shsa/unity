@@ -3,5 +3,7 @@
     interface IView
     {
         void UpdatePosition(int x, int y);
+
+        void Destroy();
     }
 }

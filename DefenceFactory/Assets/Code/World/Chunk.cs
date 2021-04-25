@@ -10,12 +10,14 @@ namespace DefenceFactory.World
     {
         public GameWorld World { get; private set; }
         public ChunkPos Position { get; private set; }
+        public bool IsDestroyed { get; set; } = false;
+
         BlockData[] data;
 
         public Chunk(GameWorld world, ChunkPos pos)
         {
             World = world;
-            Position = pos;
+            Position = new ChunkPos(pos.x, pos.y, pos.z);
             data = new BlockData[4096]; // 16 * 16 * 16
         }
 

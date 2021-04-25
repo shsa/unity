@@ -7,6 +7,7 @@ namespace DefenceFactory
     {
         IView CreatePlayerView(int x, int y, Float3 color);
         IView CreateBlock(BlockPos pos, BlockData blockData);
+        IView CreateChunk(Chunk chunk);
 
         void SetPlayerPosition(int x, int y);
     }
