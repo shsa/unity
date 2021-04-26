@@ -1,5 +1,9 @@
 {
   "dependencies": {
+    "com.leopotam.ecs": "https://github.com/Leopotam/ecs.git",
+    "com.leopotam.ecs-threads": "https://github.com/Leopotam/ecs-threads.git",
+    "com.leopotam.ecs-types": "https://github.com/Leopotam/ecs-types.git",
+    "com.leopotam.ecs-unityintegration": "https://github.com/Leopotam/ecs-unityintegration.git",
     "com.unity.2d.animation": "5.0.4",
     "com.unity.2d.pixel-perfect": "4.0.1",
     "com.unity.2d.psdimporter": "4.0.2",
@@ -12,7 +16,7 @@
     "com.unity.ide.vscode": "1.2.3",
     "com.unity.test-framework": "1.1.24",
     "com.unity.textmeshpro": "3.0.4",
-    "com.unity.timeline": "1.4.6",
+    "com.unity.timeline": "1.4.7",
     "com.unity.ugui": "1.0.0",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
@@ -44,10 +48,6 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0",
-    "com.leopotam.ecs-types": "https://github.com/Leopotam/ecs-types.git",
-    "com.leopotam.ecs": "https://github.com/Leopotam/ecs.git",
-    "com.leopotam.ecs-threads": "https://github.com/Leopotam/ecs-threads.git",
-    "com.leopotam.ecs-unityintegration": "https://github.com/Leopotam/ecs-unityintegration.git"
+    "com.unity.modules.xr": "1.0.0"
   }
 }

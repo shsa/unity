@@ -21,19 +21,28 @@ namespace DefenceFactory
         }
 
         private bool _mouseDown = false;
-        bool IInputService.GetCursorCoordinate(out Int2 coord)
+        private Vector3 _startPos;
+        private Vector3 _startWorldPos;
+        void UpdateInput()
         {
-            coord = new Int2();
-
             if (Input.GetMouseButtonDown(0))
             {
                 _mouseDown = true;
+                _startPos = Input.mousePosition;
+                _startWorldPos = _camera.ScreenToWorldPoint(_startPos);
             }
             else
             if (Input.GetMouseButtonUp(0))
             {
                 _mouseDown = false;
             }
+        }
+
+        bool IInputService.GetCursorCoordinate(out Int2 coord)
+        {
+            UpdateInput();
+
+            coord = new Int2();
 
             if (_mouseDown)
             {
@@ -46,5 +55,20 @@ namespace DefenceFactory
             }
             return false;
         }
-    }
+
+        bool IInputService.GetShift(out Float2 coord)
+        {
+            UpdateInput();
+            if (_mouseDown)
+            {
+                var worldPos = _camera.ScreenToWorldPoint(Input.mousePosition);
+                coord = new Float2(worldPos.x - _startWorldPos.x, worldPos.y - _startWorldPos.y);
+                return true;
+            }
+            else
+            {
+                coord = default;
+                return false;
+            }
+        }
 }
