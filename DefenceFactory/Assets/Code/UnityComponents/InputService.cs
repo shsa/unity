@@ -71,4 +71,35 @@ namespace DefenceFactory
                 return false;
             }
         }
+
+        Float2 GetInputCoord()
+        {
+            var worldPos = _camera.ScreenToWorldPoint(Input.mousePosition);
+            return new Float2(worldPos.x, worldPos.y);
+        }
+
+        bool IInputService.GetDrag(out Float2 coord, out DefenceFactory.Ecs.DragEnum state)
+        {
+            UpdateInput();
+            if (Input.GetMouseButtonDown(0))
+            {
+                state = Ecs.DragEnum.Begin;
+                coord = GetInputCoord();
+                return true;
+            }
+
+            if (_mouseDown)
+            {
+                state = Ecs.DragEnum.Current;
+                coord = GetInputCoord();
+                return true;
+            }
+            else
+            {
+                state = Ecs.DragEnum.None;
+                coord = default;
+                return false;
+            }
+        }
+    }
 }

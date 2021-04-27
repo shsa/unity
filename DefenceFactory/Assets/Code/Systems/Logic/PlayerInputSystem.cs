@@ -14,28 +14,49 @@ namespace DefenceFactory.Ecs
     {
         private readonly GameWorld _gameWorld = default;
         private readonly EcsFilter<Input> _input = default;
+        private readonly EcsFilter<Drag> _drag = default;
         private readonly EcsFilter<Position, PlayerTag> _filter = default;
 
+        Float2 startDrag;
         void IEcsRunSystem.Run()
         {
-            if (_input.IsEmpty())
-            {
-                return;
-            }
-
             if (_filter.IsEmpty())
             {
                 return;
             }
 
-            foreach (var j in _input)
+            if (!_input.IsEmpty())
             {
-                ref var coord = ref _input.Get1(j).Coordinate;
-                foreach (var i in _filter)
+                foreach (var j in _input)
                 {
-                    ref var pos = ref _filter.Get1(i).Value;
-                    pos.Set(coord.X, coord.Y);
-                    _filter.GetEntity(i).Get<PositionUpdatedFlag>();
+                    ref var coord = ref _input.Get1(j).Coordinate;
+                    foreach (var i in _filter)
+                    {
+                        ref var pos = ref _filter.Get1(i).Value;
+                        pos.Set(coord.X, coord.Y);
+                        _filter.GetEntity(i).Get<PositionUpdatedFlag>();
+                    }
+                }
+            }
+
+            if (!_drag.IsEmpty())
+            {
+                foreach (var j in _drag)
+                {
+                    ref var currentDrag = ref _drag.Get1(j).Position;
+                    var state = _drag.Get1(j).State;
+                    if (state == DragEnum.Begin)
+                    {
+                        startDrag = currentDrag;
+                    }
+
+                    var newPosition = startDrag - (currentDrag - startDrag);
+                    foreach (var i in _filter)
+                    {
+                        ref var pos = ref _filter.Get1(i).Value;
+                        pos.Set((int)newPosition.X, (int)newPosition.Y);
+                        _filter.GetEntity(i).Get<PositionUpdatedFlag>();
+                    }
                 }
             }
         }

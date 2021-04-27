@@ -1,4 +1,5 @@
 ﻿using Leopotam.Ecs;
+using UnityEngine;
 
 namespace DefenceFactory.Ecs
 {
@@ -15,10 +16,15 @@ namespace DefenceFactory.Ecs
             //        .Replace(new Input { Coordinate = coord });
             //}
 
-            if (_input.GetClickedCoordinate(out var coord))
+            if (_input.GetDrag(out var pos, out var state))
             {
+                Debug.Log($"{pos}, {state}");
                 _world.NewEntity()
-                    .Replace(new Input { Coordinate = coord });
+                    .Replace(new Drag
+                    {
+                        Position = pos,
+                        State = state
+                    });
             }
         }
     }

@@ -60,10 +60,11 @@ namespace DefenceFactory
 
         public void SetPlayerPosition(int x, int y)
         {
-            _camera.DOKill();
-            _camera.DOLocalMove(new Vector3(x, y, _camera.localPosition.z), 1f)
-                //.SetSpeedBased(true)
-                .SetEase(Ease.Linear);
+            _camera.localPosition = new Vector3(x, y, _camera.localPosition.z);
+            //_camera.DOKill();
+            //_camera.DOLocalMove(new Vector3(x, y, _camera.localPosition.z), 1f)
+            //    //.SetSpeedBased(true)
+            //    .SetEase(Ease.Linear);
         }
     }
 }
