@@ -21,15 +21,15 @@ namespace DefenceFactory
         }
 
         private bool _mouseDown = false;
-        private Vector3 _startPos;
+        private Vector3 _startScreenPos;
         private Vector3 _startWorldPos;
         void UpdateInput()
         {
             if (Input.GetMouseButtonDown(0))
             {
                 _mouseDown = true;
-                _startPos = Input.mousePosition;
-                _startWorldPos = _camera.ScreenToWorldPoint(_startPos);
+                _startScreenPos = Input.mousePosition;
+                _startWorldPos = _camera.ScreenToWorldPoint(_startScreenPos);
             }
             else
             if (Input.GetMouseButtonUp(0))
@@ -72,26 +72,30 @@ namespace DefenceFactory
             }
         }
 
-        Float2 GetInputCoord()
+        Float2 ScreenToWorldFloat2(Vector3 screenPoint)
         {
-            var worldPos = _camera.ScreenToWorldPoint(Input.mousePosition);
+            var worldPos = _camera.ScreenToWorldPoint(screenPoint);
             return new Float2(worldPos.x, worldPos.y);
         }
 
+        private Float2 _startWorldPosFloat2;
         bool IInputService.GetDrag(out Float2 coord, out DefenceFactory.Ecs.DragEnum state)
         {
             UpdateInput();
             if (Input.GetMouseButtonDown(0))
             {
                 state = Ecs.DragEnum.Begin;
-                coord = GetInputCoord();
+                coord = ScreenToWorldFloat2(Input.mousePosition);
+                _startWorldPosFloat2 = coord;
                 return true;
             }
 
             if (_mouseDown)
             {
                 state = Ecs.DragEnum.Current;
-                coord = GetInputCoord();
+                var c0 = ScreenToWorldFloat2(_startScreenPos);
+                var offset = c0 - _startWorldPosFloat2;
+                coord = ScreenToWorldFloat2(Input.mousePosition) - offset;
                 return true;
             }
             else

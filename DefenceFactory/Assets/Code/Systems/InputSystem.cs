@@ -18,7 +18,6 @@ namespace DefenceFactory.Ecs
 
             if (_input.GetDrag(out var pos, out var state))
             {
-                Debug.Log($"{pos}, {state}");
                 _world.NewEntity()
                     .Replace(new Drag
                     {

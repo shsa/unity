@@ -32,6 +32,7 @@ namespace DefenceFactory
                 // register one-frame components (order is important), for example:
                 .OneFrame<PositionUpdatedFlag>()
                 .OneFrame<Ecs.Input>()
+                .OneFrame<Drag>()
                 .OneFrame<ThreadComponent>()
                 .OneFrame<DestroyedFlag>()
 

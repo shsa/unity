@@ -18,6 +18,7 @@ namespace DefenceFactory.Ecs
         private readonly EcsFilter<Position, PlayerTag> _filter = default;
 
         Float2 startDrag;
+        Int2 startPos;
         void IEcsRunSystem.Run()
         {
             if (_filter.IsEmpty())
@@ -45,17 +46,22 @@ namespace DefenceFactory.Ecs
                 {
                     ref var currentDrag = ref _drag.Get1(j).Position;
                     var state = _drag.Get1(j).State;
-                    if (state == DragEnum.Begin)
-                    {
-                        startDrag = currentDrag;
-                    }
-
-                    var newPosition = startDrag - (currentDrag - startDrag);
                     foreach (var i in _filter)
                     {
                         ref var pos = ref _filter.Get1(i).Value;
-                        pos.Set((int)newPosition.X, (int)newPosition.Y);
-                        _filter.GetEntity(i).Get<PositionUpdatedFlag>();
+
+                        if (state == DragEnum.Begin)
+                        {
+                            startDrag = currentDrag;
+                            startPos = pos;
+                        }
+                        else
+                        {
+                            var offset = currentDrag - startDrag;
+
+                            pos.Set((int)(startPos.X - offset.X), (int)(startPos.Y - offset.Y));
+                            _filter.GetEntity(i).Get<PositionUpdatedFlag>();
+                        }
                     }
                 }
             }
