@@ -22,6 +22,7 @@ namespace DefenceFactory
             {
                 newBlock = Instantiate(blockPrefab, transform);
                 newBlock.name = blockPrefab.name;
+                newBlock.gameObject.isStatic = true;
             }
             else
             {

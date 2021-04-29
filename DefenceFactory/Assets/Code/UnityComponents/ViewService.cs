@@ -24,12 +24,13 @@ namespace DefenceFactory
                 var gameObject = new GameObject();
                 chunkView = gameObject.AddComponent<ChunkView>();
                 chunkView.ViewService = this;
+                chunkView.transform.SetParent(transform);
+                chunkView.gameObject.isStatic = true;
             }
             else
             {
                 //chunkView.gameObject.SetActive(true);
             }
-            chunkView.transform.localPosition = Vector3.zero;
             chunkView.name = $"{chunk.Position.x}, {chunk.Position.y}";
             chunkView.CreateBlocks(chunk);
             return chunkView;
