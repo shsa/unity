@@ -4,23 +4,29 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DefenceFactory.World
+namespace DefenceFactory.Game.World
 {
-    public sealed class BlockPos
+    public sealed class ChunkPos
     {
         public int x { get; set; }
         public int y { get; set; }
         public int z { get; set; }
 
-        public BlockPos()
-        {
-        }
-
-        public BlockPos(int x, int y, int z)
+        public ChunkPos(int x, int y, int z)
         {
             this.x = x;
             this.y = y;
             this.z = z;
+        }
+
+        public BlockPos MinBlockPos()
+        {
+            return new BlockPos(x << 4, y << 4, z << 4);
+        }
+
+        public BlockPos MaxBlockPos()
+        {
+            return new BlockPos(x << 4 | 0xF, y << 4 | 0xF, z << 4 | 0xF);
         }
 
         public void Set(int x, int y, int z)
@@ -30,16 +36,6 @@ namespace DefenceFactory.World
             this.z = z;
         }
 
-        public ChunkPos ChunkPos {
-            get {
-                return new ChunkPos(x >> 4, y >> 4, z >> 4);
-            }
-        }
-
-        public int GetChunkIndex()
-        {
-            return ((y & 0xF) << 8) | ((x & 0xF) << 4) | (z & 0xF);
-        }
 
         public override bool Equals(object obj)
         {
@@ -68,7 +64,7 @@ namespace DefenceFactory.World
 
         public override string ToString()
         {
-            return $"({x}, {y}, {z}), ({x >> 4}.{x & 0xF}, {y >> 4}.{y & 0xF}, {z >> 4}.{z & 0xF})";
+            return $"({x}, {y}, {z})";
         }
 
     }

@@ -2,8 +2,8 @@
 
 namespace DefenceFactory.Ecs
 {
-    struct Chunk
+    struct InventoryItem
     {
-        public Game.World.Chunk Value;
+        public Game.Inventory.Item Value;
     }
 }

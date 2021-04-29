@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DefenceFactory.World
+namespace DefenceFactory.Game.World
 {
     public class WorldGenerator : IWorldGenerator
     {

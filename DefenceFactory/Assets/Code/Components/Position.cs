@@ -4,6 +4,6 @@ namespace DefenceFactory.Ecs
 {
     struct Position
     {
-        public Int2 Value;
+        public Float2 Value;
     }
 }

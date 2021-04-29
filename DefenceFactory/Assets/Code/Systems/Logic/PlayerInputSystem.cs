@@ -1,4 +1,4 @@
-﻿using DefenceFactory.World;
+﻿using DefenceFactory.Game.World;
 using Leopotam.Ecs;
 using Leopotam.Ecs.Types;
 using System;
@@ -12,13 +12,12 @@ namespace DefenceFactory.Ecs
 {
     sealed class PlayerInputSystem : IEcsRunSystem
     {
-        private readonly GameWorld _gameWorld = default;
         private readonly EcsFilter<Input> _input = default;
         private readonly EcsFilter<Drag> _drag = default;
         private readonly EcsFilter<Position, PlayerTag> _filter = default;
 
         Float2 startDrag;
-        Int2 startPos;
+        Float2 startPos;
         void IEcsRunSystem.Run()
         {
             if (_filter.IsEmpty())
@@ -59,7 +58,7 @@ namespace DefenceFactory.Ecs
                         {
                             var offset = currentDrag - startDrag;
 
-                            pos.Set((int)(startPos.X - offset.X), (int)(startPos.Y - offset.Y));
+                            pos.Set(startPos.X - offset.X, startPos.Y - offset.Y);
                             _filter.GetEntity(i).Get<PositionUpdatedFlag>();
                         }
                     }

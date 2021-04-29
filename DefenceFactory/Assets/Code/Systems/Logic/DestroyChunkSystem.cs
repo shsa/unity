@@ -1,4 +1,4 @@
-using DefenceFactory.World;
+using DefenceFactory.Game.World;
 using Leopotam.Ecs;
 
 namespace DefenceFactory

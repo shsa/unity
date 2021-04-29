@@ -8,9 +8,7 @@ namespace DefenceFactory.Ecs
 {
     sealed class ThreadTestSystem : EcsMultiThreadSystem<EcsFilter<ThreadComponent>>
     {
-        readonly EcsWorld _world = default;
         readonly EcsFilter<ThreadComponent> _filter = default;
-        readonly Random _random = default;
 
         /// <summary>
         /// Returns filter for processing entities in it at background threads.

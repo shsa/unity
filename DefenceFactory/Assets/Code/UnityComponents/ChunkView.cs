@@ -5,7 +5,7 @@ namespace DefenceFactory
 {
     sealed class ChunkView : MonoBehaviour, IView
     {
-        public void UpdatePosition(int x, int y)
+        public void UpdatePosition(float x, float y)
         {
             transform.localPosition = new Vector3(x, y, 0);
         }

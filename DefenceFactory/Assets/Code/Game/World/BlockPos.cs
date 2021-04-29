@@ -1,32 +1,27 @@
-﻿using System;
+﻿using Leopotam.Ecs.Types;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DefenceFactory.World
+namespace DefenceFactory.Game.World
 {
-    public sealed class ChunkPos
+    public sealed class BlockPos
     {
         public int x { get; set; }
         public int y { get; set; }
         public int z { get; set; }
 
-        public ChunkPos(int x, int y, int z)
+        public BlockPos()
+        {
+        }
+
+        public BlockPos(int x, int y, int z)
         {
             this.x = x;
             this.y = y;
             this.z = z;
-        }
-
-        public BlockPos MinBlockPos()
-        {
-            return new BlockPos(x << 4, y << 4, z << 4);
-        }
-
-        public BlockPos MaxBlockPos()
-        {
-            return new BlockPos(x << 4 | 0xF, y << 4 | 0xF, z << 4 | 0xF);
         }
 
         public void Set(int x, int y, int z)
@@ -36,6 +31,25 @@ namespace DefenceFactory.World
             this.z = z;
         }
 
+        public ChunkPos ChunkPos {
+            get {
+                return new ChunkPos(x >> 4, y >> 4, z >> 4);
+            }
+        }
+
+        public int GetChunkIndex()
+        {
+            return ((y & 0xF) << 8) | ((x & 0xF) << 4) | (z & 0xF);
+        }
+
+        public static BlockPos From(in Float2 pos)
+        {
+            return new BlockPos
+            {
+                x = (int)pos.X,
+                y = (int)pos.Y
+            };
+        }
 
         public override bool Equals(object obj)
         {
@@ -64,7 +78,7 @@ namespace DefenceFactory.World
 
         public override string ToString()
         {
-            return $"({x}, {y}, {z})";
+            return $"({x}, {y}, {z}), ({x >> 4}.{x & 0xF}, {y >> 4}.{y & 0xF}, {z >> 4}.{z & 0xF})";
         }
 
     }

@@ -4,7 +4,6 @@ namespace DefenceFactory
 {
     sealed class DestroyChunkViewSystem : IEcsRunSystem
     {
-        readonly EcsWorld _world = default;
         readonly EcsFilter<Ecs.Chunk, Ecs.View, Ecs.DestroyedFlag> _filter = default;
 
         void IEcsRunSystem.Run()

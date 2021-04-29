@@ -1,5 +1,5 @@
 using DefenceFactory.Ecs;
-using DefenceFactory.World;
+using DefenceFactory.Game.World;
 using Leopotam.Ecs;
 using UnityEngine;
 using Random = System.Random;
@@ -29,16 +29,18 @@ namespace DefenceFactory
                 .Add(LogicSystems())
                 .Add(ViewSystems())
 
-                // register one-frame components (order is important), for example:
+                // register one-frame components (order is important):
                 .OneFrame<PositionUpdatedFlag>()
                 .OneFrame<Ecs.Input>()
                 .OneFrame<Drag>()
+                .OneFrame<PlaceItemFlag>()
                 .OneFrame<ThreadComponent>()
                 .OneFrame<DestroyedFlag>()
 
-                // inject service instances here (order doesn't important), for example:
+                // inject service instances here (order doesn't important):
                 .Inject(GetComponent<IInputService>())
                 .Inject(GetComponent<IViewService>())
+                .Inject(GetComponent<IInventoryService>())
                 .Inject(new GameWorld())
                 .Inject(new Random())
 

@@ -1,4 +1,4 @@
-﻿using DefenceFactory.World;
+﻿using DefenceFactory.Game.World;
 using DG.Tweening;
 using Leopotam.Ecs.Types;
 using UnityEngine;
@@ -8,7 +8,7 @@ namespace DefenceFactory
     class ViewService : MonoBehaviour, IViewService
     {
         [SerializeField] private Transform _root;
-        [SerializeField] private PlayerView _playerViewPrefab;
+        [SerializeField] private PlayerView _playerView;
         [SerializeField] private Transform _camera;
         [SerializeField] private BlockView _stoneBlock;
 
@@ -47,24 +47,10 @@ namespace DefenceFactory
             return view;
         }
 
-        public IView CreatePlayerView(int x, int y, Float3 color)
+        public IView CreatePlayerView(float x, float y)
         {
-            var position = new Vector2(x, y);
-            var rotation = Quaternion.identity;
-
-            var view = Instantiate(_playerViewPrefab, position, rotation, _root);
-            var sr = view.GetComponent<SpriteRenderer>();
-            sr.color = new Color(color.X, color.Y, color.Z);
-            return view;
-        }
-
-        public void SetPlayerPosition(int x, int y)
-        {
-            _camera.localPosition = new Vector3(x, y, _camera.localPosition.z);
-            //_camera.DOKill();
-            //_camera.DOLocalMove(new Vector3(x, y, _camera.localPosition.z), 1f)
-            //    //.SetSpeedBased(true)
-            //    .SetEase(Ease.Linear);
+            _playerView.transform.localPosition = new Vector3(x, y, _playerView.transform.localPosition.z);
+            return _playerView.GetComponent<IView>();
         }
     }
 }

@@ -2,7 +2,7 @@
 {
     interface IView
     {
-        void UpdatePosition(int x, int y);
+        void UpdatePosition(float x, float y);
 
         void Destroy();
     }

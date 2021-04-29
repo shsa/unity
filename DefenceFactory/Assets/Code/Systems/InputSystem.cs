@@ -7,6 +7,8 @@ namespace DefenceFactory.Ecs
     {
         private readonly EcsWorld _world = default;
         private readonly IInputService _input = default;
+        private readonly IInventoryService _inventory = default;
+        private readonly EcsFilter<InventoryItem> _inventoryFilter = default;
 
         void IEcsRunSystem.Run()
         {
@@ -24,6 +26,25 @@ namespace DefenceFactory.Ecs
                         Position = pos,
                         State = state
                     });
+            }
+
+            if (_inventory.GetBlock(out var item))
+            {
+                var e = _world.NewEntity();
+                e.Get<InventoryItem>();
+            }
+
+            if (_input.GetClicked(out pos))
+            {
+                foreach (var i in _inventoryFilter)
+                {
+                    var e = _inventoryFilter.GetEntity(i);
+                    e.Get<PlaceItemFlag>();
+                    e.Replace(new Position
+                    {
+                        Value = pos
+                    });
+                }
             }
         }
     }

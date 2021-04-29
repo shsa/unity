@@ -1,4 +1,4 @@
-﻿namespace DefenceFactory.World
+﻿namespace DefenceFactory.Game.World
 {
     public interface IWorldGenerator
     {

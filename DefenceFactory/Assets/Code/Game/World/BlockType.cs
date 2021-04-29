@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DefenceFactory.World
+namespace DefenceFactory.Game.World
 {
     using BT = System.Int64;
 

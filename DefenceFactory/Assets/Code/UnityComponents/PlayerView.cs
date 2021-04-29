@@ -5,18 +5,13 @@ namespace DefenceFactory
 {
     sealed class PlayerView : MonoBehaviour, IView
     {
-        public void UpdatePosition(int x, int y)
+        public void UpdatePosition(float x, float y)
         {
-            //transform.DOKill();
-            //transform.DOLocalMove(new Vector2(x, y), 0.1f)
-            //    //.SetSpeedBased(true)
-            //    .SetEase(Ease.Linear);
-            transform.position = new Vector3(x, y);
+            transform.position = new Vector3(x, y, transform.position.z);
         }
 
         void IView.Destroy()
         {
-            throw new System.NotImplementedException();
         }
     }
 }
