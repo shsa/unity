@@ -1,15 +1,34 @@
 ﻿using System.Collections.Generic;
 
+public class Pool<TValue>
+{
+    Stack<TValue> _pool = new Stack<TValue>();
+
+    public void Push(TValue value)
+    {
+        _pool.Push(value);
+    }
+
+    public TValue Pop()
+    {
+        if (_pool.Count > 0)
+        {
+            return _pool.Pop();
+        }
+        return default(TValue);
+    }
+}
+
 public class Pool<TKey, TValue>
 {
-    private Dictionary<TKey, Stack<TValue>> _pool = new Dictionary<TKey, Stack<TValue>>();
+    private Dictionary<TKey, Pool<TValue>> _pool = new Dictionary<TKey, Pool<TValue>>();
 
     public void Push(TKey key, TValue value)
     {
-        Stack<TValue> stack;
+        Pool<TValue> stack;
         if (!_pool.TryGetValue(key, out stack))
         {
-            stack = new Stack<TValue>();
+            stack = new Pool<TValue>();
             _pool.Add(key, stack);
         }
         stack.Push(value);
@@ -17,13 +36,10 @@ public class Pool<TKey, TValue>
 
     public TValue Pop(TKey key)
     {
-        Stack<TValue> stack;
+        Pool<TValue> stack;
         if (_pool.TryGetValue(key, out stack))
         {
-            if (stack.Count > 0)
-            {
-                return stack.Pop();
-            }
+            return stack.Pop();
         }
         return default(TValue);
     }

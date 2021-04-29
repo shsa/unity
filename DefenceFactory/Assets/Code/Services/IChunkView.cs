@@ -4,6 +4,6 @@ namespace DefenceFactory
 {
     interface IChunkView : IView
     {
-        void Update(Chunk chunk);
+        void UpdateBlocks(Chunk chunk);
     }
 }

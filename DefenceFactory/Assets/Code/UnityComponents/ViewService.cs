@@ -12,22 +12,42 @@ namespace DefenceFactory
         [SerializeField] private Transform _camera;
         [SerializeField] private BlockView _emptyBlock;
         [SerializeField] private BlockView _stoneBlock;
+        [SerializeField] private Transform _pool;
+
+        Pool<ChunkView> chunkPool = new Pool<ChunkView>();
 
         public IChunkView CreateChunk(Chunk chunk)
         {
-            var gameObject = new GameObject($"{chunk.Position.x}, {chunk.Position.y}");
-            var chunkView = gameObject.AddComponent<ChunkView>();
-            chunkView.ViewService = this;
-            chunkView.Create(chunk);
+            var chunkView = chunkPool.Pop();
+            if (chunkView == null)
+            {
+                var gameObject = new GameObject();
+                chunkView = gameObject.AddComponent<ChunkView>();
+                chunkView.ViewService = this;
+            }
+            else
+            {
+                //chunkView.gameObject.SetActive(true);
+            }
+            chunkView.transform.localPosition = Vector3.zero;
+            chunkView.name = $"{chunk.Position.x}, {chunk.Position.y}";
+            chunkView.CreateBlocks(chunk);
             return chunkView;
         }
 
-        public BlockView CreateBlock(Transform transform, BlockData blockData)
+        public void PoolChunk(ChunkView chunkView)
+        {
+            chunkPool.Push(chunkView);
+            //chunkView.gameObject.SetActive(false);
+            chunkView.transform.position = new Vector3(0, 0, -1000);
+        }
+
+        public BlockView GetBlockPrefab(BlockData blockData)
         {
             switch (blockData.GetBlockId())
             {
-                case BlockType.Stone: return Instantiate(_stoneBlock, transform);
-                default: return Instantiate(_emptyBlock, transform);
+                case BlockType.Stone: return _stoneBlock;
+                default: return _emptyBlock;
             }
         }
 

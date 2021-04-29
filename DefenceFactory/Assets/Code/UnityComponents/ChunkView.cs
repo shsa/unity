@@ -8,12 +8,38 @@ namespace DefenceFactory
     {
         public ViewService ViewService { get; set; }
 
+        Pool<string, BlockView> blockPool = new Pool<string, BlockView>();
+
         public void UpdatePosition(float x, float y)
         {
             transform.localPosition = new Vector3(x, y, 0);
         }
 
-        public void Create(Chunk chunk)
+        BlockView CreateBlock(BlockView blockPrefab, Transform transform)
+        {
+            var newBlock = blockPool.Pop(blockPrefab.name);
+            if (newBlock == default)
+            {
+                newBlock = Instantiate(blockPrefab, transform);
+                newBlock.name = blockPrefab.name;
+            }
+            else
+            {
+                //newBlock.transform.SetParent(transform);
+                //newBlock.gameObject.SetActive(true);
+            }
+
+            return newBlock;
+        }
+
+        public void PoolBlock(BlockView block)
+        {
+            blockPool.Push(block.name, block);
+            //block.gameObject.SetActive(false);
+            block.transform.position = new Vector3(0, 0, -1000);
+        }
+
+        public void CreateBlocks(Chunk chunk)
         {
             var minPos = chunk.Position.MinBlockPos();
             var maxPos = chunk.Position.MaxBlockPos();
@@ -26,31 +52,32 @@ namespace DefenceFactory
                 {
                     blockPos.Set(x, y, 0);
                     var blockData = chunk.GetBlockData(blockPos);
-                    var block = ViewService.CreateBlock(transform, blockData);
+                    var blockPrefab = ViewService.GetBlockPrefab(blockData);
+                    var block = CreateBlock(blockPrefab, transform);
                     block.transform.localPosition = new Vector3(x - minPos.x, y - minPos.y, 0);
                 }
             }
         }
 
-        public void Update(Chunk chunk)
+        public void UpdateBlocks(Chunk chunk)
         {
-            Clear();
-            Create(chunk);
+            ClearBlocks();
+            CreateBlocks(chunk);
         }
 
-        void Clear()
+        void ClearBlocks()
         {
             for (int i = 0; i < transform.childCount; i++)
             {
                 var c = transform.GetChild(i);
-                Destroy(c.gameObject);
+                PoolBlock(c.GetComponent<BlockView>());
             }
         }
 
         void IView.Destroy()
         {
-            Clear();
-            Destroy(gameObject);
+            ClearBlocks();
+            ViewService.PoolChunk(this);
         }
     }
 }

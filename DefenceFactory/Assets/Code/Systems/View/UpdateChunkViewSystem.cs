@@ -20,7 +20,7 @@ namespace DefenceFactory
                     var view = _filter.Get2(i).Value as IChunkView;
                     if (view != default)
                     {
-                        view.Update(chunk);
+                        view.UpdateBlocks(chunk);
                     }
                     chunk.IsChanged = false;
                 }
