@@ -5,8 +5,8 @@ namespace DefenceFactory
 {
     sealed class DestroyChunkSystem : IEcsRunSystem
     {
-        readonly EcsWorld _world = default;
-        private readonly GameWorld _gameWorld = default;
+        //readonly EcsWorld _world = default;
+        //private readonly GameWorld _gameWorld = default;
         readonly EcsFilter<Ecs.Chunk> _filter = default;
 
         void IEcsRunSystem.Run()

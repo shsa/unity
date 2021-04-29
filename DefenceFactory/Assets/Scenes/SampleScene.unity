@@ -232,6 +232,7 @@ GameObject:
   - component: {fileID: 1254520783}
   - component: {fileID: 1254520782}
   - component: {fileID: 1254520786}
+  - component: {fileID: 1254520787}
   m_Layer: 0
   m_Name: Game
   m_TagString: Untagged
@@ -267,6 +268,7 @@ MonoBehaviour:
   _root: {fileID: 1254520785}
   _playerView: {fileID: 519420030}
   _camera: {fileID: 519420032}
+  _emptyBlock: {fileID: 8002320854628026304, guid: cd21a4d572e2dba4b8d2a5f0c365b330, type: 3}
   _stoneBlock: {fileID: 2297925242151190088, guid: 59a0fc86ead8d174ea70700e1d6673df, type: 3}
 --- !u!114 &1254520784
 MonoBehaviour:
@@ -304,5 +306,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 116fa2559714f4444b2ff6f319c73b6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1254520787
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1254520781}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72db936bbe0da384cb229fe7a6dc5a34, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

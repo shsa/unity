@@ -5,6 +5,6 @@ namespace DefenceFactory
 {
     interface IInventoryService
     {
-        bool GetBlock(out Game.World.Block block);
+        bool GetBlock(out BlockType blockType);
     }
 }

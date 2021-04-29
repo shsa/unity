@@ -5,46 +5,30 @@ using UnityEngine;
 
 namespace DefenceFactory
 {
-    class ViewService : MonoBehaviour, IViewService
+    sealed class ViewService : MonoBehaviour, IViewService
     {
         [SerializeField] private Transform _root;
         [SerializeField] private PlayerView _playerView;
         [SerializeField] private Transform _camera;
+        [SerializeField] private BlockView _emptyBlock;
         [SerializeField] private BlockView _stoneBlock;
 
-        public IView CreateChunk(Chunk chunk)
+        public IChunkView CreateChunk(Chunk chunk)
         {
             var gameObject = new GameObject($"{chunk.Position.x}, {chunk.Position.y}");
             var chunkView = gameObject.AddComponent<ChunkView>();
-            var minPos = chunk.Position.MinBlockPos();
-            var maxPos = chunk.Position.MaxBlockPos();
-            chunkView.transform.localPosition = new Vector3(minPos.x, minPos.y, 0);
-
-            var rotation = Quaternion.identity;
-
-            var blockPos = new BlockPos();
-            for (var x = minPos.x; x <= maxPos.x; x++)
-            {
-                for (var y = minPos.y; y <= maxPos.y; y++)
-                {
-                    blockPos.Set(x, y, 0);
-                    if (chunk.GetBlockData(blockPos).GetBlockId() == BlockType.Stone)
-                    {
-                        var block = Instantiate(_stoneBlock, chunkView.transform, true);
-                        block.transform.localPosition = new Vector3(x - minPos.x, y - minPos.y, 0);
-                    }
-                }
-            }
+            chunkView.ViewService = this;
+            chunkView.Create(chunk);
             return chunkView;
         }
 
-        public IView CreateBlock(BlockPos pos, BlockData blockData)
+        public BlockView CreateBlock(Transform transform, BlockData blockData)
         {
-            var position = new Vector2(pos.x, pos.y);
-            var rotation = Quaternion.identity;
-
-            var view = Instantiate(_stoneBlock, position, rotation, _root);
-            return view;
+            switch (blockData.GetBlockId())
+            {
+                case BlockType.Stone: return Instantiate(_stoneBlock, transform);
+                default: return Instantiate(_emptyBlock, transform);
+            }
         }
 
         public IView CreatePlayerView(float x, float y)

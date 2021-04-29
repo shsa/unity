@@ -1,9 +1,10 @@
-﻿using Leopotam.Ecs.Types;
+﻿using DefenceFactory.Game.World;
+using Leopotam.Ecs.Types;
 
 namespace DefenceFactory.Ecs
 {
     struct InventoryItem
     {
-        public Game.Inventory.Item Value;
+        public BlockType Value;
     }
 }

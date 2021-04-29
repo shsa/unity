@@ -24,7 +24,8 @@ namespace DefenceFactory.Game.World
 
         int CacheIndex(in ChunkPos chunkPos)
         {
-            return ((chunkPos.x & 0xF) << 8) | ((chunkPos.y & 0xF) << 4) | (chunkPos.z & 0xF);
+            //return ((chunkPos.x & 0xF) << 8) | ((chunkPos.y & 0xF) << 4) | (chunkPos.z & 0xF);
+            return ((chunkPos.x & 0x7) << 8) | ((chunkPos.y & 0x7) << 4) | (chunkPos.z & 0x7);
         }
 
         public Chunk GetChunk(in ChunkPos chunkPos)

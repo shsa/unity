@@ -8,8 +8,8 @@ namespace DefenceFactory.Ecs
     sealed class GameInitSystem : IEcsInitSystem
     {
         readonly EcsWorld _world = default;
-        readonly Random _random = default;
-        readonly GameWorld _gameWorld = default;
+        //readonly Random _random = default;
+        //readonly GameWorld _gameWorld = default;
 
         public void Init()
         {

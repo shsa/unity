@@ -46,8 +46,8 @@ namespace DefenceFactory.Game.World
         {
             return new BlockPos
             {
-                x = (int)pos.X,
-                y = (int)pos.Y
+                x = (int)Math.Round(pos.X),
+                y = (int)Math.Round(pos.Y)
             };
         }
 
@@ -78,7 +78,7 @@ namespace DefenceFactory.Game.World
 
         public override string ToString()
         {
-            return $"({x}, {y}, {z}), ({x >> 4}.{x & 0xF}, {y >> 4}.{y & 0xF}, {z >> 4}.{z & 0xF})";
+            return $"({x}, {y}, {z})";
         }
 
     }

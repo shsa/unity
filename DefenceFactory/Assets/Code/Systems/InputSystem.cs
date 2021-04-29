@@ -31,7 +31,7 @@ namespace DefenceFactory.Ecs
             if (_inventory.GetBlock(out var item))
             {
                 var e = _world.NewEntity();
-                e.Get<InventoryItem>();
+                e.Get<InventoryItem>().Value = item;
             }
 
             if (_input.GetClicked(out pos))

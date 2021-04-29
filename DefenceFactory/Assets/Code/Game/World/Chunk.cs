@@ -11,6 +11,7 @@ namespace DefenceFactory.Game.World
         public GameWorld World { get; private set; }
         public ChunkPos Position { get; private set; }
         public bool IsDestroyed { get; set; } = false;
+        public bool IsChanged { get; set; }
 
         BlockData[] data;
 
@@ -33,6 +34,7 @@ namespace DefenceFactory.Game.World
             if (oldValue != value)
             {
                 data[index] = value;
+                IsChanged = true;
             }
         }
     }

@@ -8,14 +8,14 @@ namespace DefenceFactory
 {
     public class InventoryService : MonoBehaviour, IInventoryService
     {
-        public bool GetBlock(out Game.World.Block block)
+        public bool GetBlock(out BlockType blockType)
         {
             if (Input.GetKeyDown(KeyCode.Alpha1))
             {
-                //Block.
+                blockType = BlockType.Stone;
                 return true;
             }
-            block = default;
+            blockType = BlockType.None;
             return false;
         }
     }

@@ -8,6 +8,7 @@ namespace DefenceFactory
 {
     [RequireComponent(typeof(ViewService))]
     [RequireComponent(typeof(InputService))]
+    [RequireComponent(typeof(InventoryService))]
     sealed class EcsStartup : MonoBehaviour
     {
         EcsWorld _world;
@@ -56,6 +57,7 @@ namespace DefenceFactory
                 .Add(new PlayerMoveSystem())
                 .Add(new ThreadTestSystem())
                 //.Add(new ApplyThreadSystem())
+                .Add(new PlaceItemSystem())
                 .Add(new CreateChunkSystem())
                 .Add(new DestroyChunkSystem())
                 ;
@@ -69,6 +71,7 @@ namespace DefenceFactory
                 .Add(new PlayerViewCreateSystem())
                 .Add(new PlayerViewPositionUpdatedSystem())
                 .Add(new CreateChunkViewSystem())
+                .Add(new UpdateChunkViewSystem())
                 .Add(new DestroyChunkViewSystem())
                 ;
             return systems;
