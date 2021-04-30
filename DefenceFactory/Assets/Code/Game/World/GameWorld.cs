@@ -28,6 +28,11 @@ namespace DefenceFactory.Game.World
             return ((chunkPos.x & 0x7) << 8) | ((chunkPos.y & 0x7) << 4) | (chunkPos.z & 0x7);
         }
 
+        int CacheIndex(in BlockPos blockPos)
+        {
+            return (((blockPos.x >> 4) & 0x7) << 8) | (((blockPos.y >> 4) & 0x7) << 4) | ((blockPos.z >> 4) & 0x7);
+        }
+
         public Chunk GetChunk(in ChunkPos chunkPos)
         {
             var index = CacheIndex(chunkPos);
@@ -38,6 +43,30 @@ namespace DefenceFactory.Game.World
             }
 
             return chunk;
+        }
+
+        public Chunk GetChunk(in BlockPos blockPos)
+        {
+            var index = CacheIndex(blockPos);
+            var chunk = chunkCache[index];
+            if (chunk == null || !chunk.Position.Equals(blockPos))
+            {
+                return null;
+            }
+
+            return chunk;
+        }
+
+        public bool TryGetChunk(in ChunkPos chunkPos, out Chunk chunk)
+        {
+            chunk = GetChunk(chunkPos);
+            return chunk != default;
+        }
+
+        public bool TryGetChunk(in BlockPos blockPos, out Chunk chunk)
+        {
+            chunk = GetChunk(blockPos);
+            return chunk != default;
         }
 
         Chunk CreateChunk(in ChunkPos chunkPos, in int index)
@@ -53,18 +82,63 @@ namespace DefenceFactory.Game.World
         {
             var index = CacheIndex(chunkPos);
             var chunk = chunkCache[index];
-            if (chunk == null)
+            if (chunk == default)
             {
                 return CreateChunk(chunkPos, index);
             }
             if (!chunk.Position.Equals(chunkPos))
             {
-                //destroyedChunks.Push(chunk);
                 chunk.IsDestroyed = true;
                 return CreateChunk(chunkPos, index);
             }
 
             return chunk;
+        }
+
+        public Chunk GetOrCreateChunk(in BlockPos blockPos)
+        {
+            var index = CacheIndex(blockPos);
+            var chunk = chunkCache[index];
+            if (chunk == null)
+            {
+                return CreateChunk(blockPos.ChunkPos, index);
+            }
+            if (!chunk.Position.Equals(blockPos))
+            {
+                chunk.IsDestroyed = true;
+                return CreateChunk(blockPos.ChunkPos, index);
+            }
+
+            return chunk;
+        }
+
+        public BlockData GetBlockData(in BlockPos pos)
+        {
+            if (TryGetChunk(pos, out var chunk))
+            {
+                return chunk.GetBlockData(pos);
+            }
+            return BlockType.None.GetBlockData();
+        }
+
+        public void SetBlockData(in BlockPos blockPos, BlockData value)
+        {
+            var chunk = GetOrCreateChunk(blockPos);
+            chunk.SetBlockData(blockPos, value);
+            var tempPos = new BlockPos();
+            for (var d = DirectionEnum.First; d <= DirectionEnum.Last; d++)
+            {
+                tempPos.Set(blockPos, d.GetDirection());
+                UpdateBlock(tempPos);
+            }
+        }
+
+        public void UpdateBlock(in BlockPos pos)
+        {
+            if (TryGetChunk(pos, out var chunk))
+            {
+                chunk.updateBlock.Push(pos);
+            }
         }
 
         void Generate(in Chunk chunk)

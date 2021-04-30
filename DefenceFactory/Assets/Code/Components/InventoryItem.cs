@@ -5,6 +5,6 @@ namespace DefenceFactory.Ecs
 {
     struct InventoryItem
     {
-        public BlockType Value;
+        public Block Value;
     }
 }

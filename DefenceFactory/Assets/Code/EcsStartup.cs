@@ -35,6 +35,7 @@ namespace DefenceFactory
                 .OneFrame<Ecs.Input>()
                 .OneFrame<Drag>()
                 .OneFrame<PlaceItemFlag>()
+                .OneFrame<UpdateBlock>()
                 .OneFrame<ThreadComponent>()
                 .OneFrame<DestroyedFlag>()
 
@@ -58,6 +59,7 @@ namespace DefenceFactory
                 .Add(new ThreadTestSystem())
                 //.Add(new ApplyThreadSystem())
                 .Add(new PlaceItemSystem())
+                .Add(new UpdateBlockSystem())
                 .Add(new CreateChunkSystem())
                 .Add(new DestroyChunkSystem())
                 ;

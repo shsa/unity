@@ -5,6 +5,6 @@ namespace DefenceFactory
 {
     interface IInventoryService
     {
-        bool GetBlock(out BlockType blockType);
+        bool GetBlock(out Block block);
     }
 }

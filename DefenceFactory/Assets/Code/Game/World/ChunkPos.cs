@@ -36,6 +36,10 @@ namespace DefenceFactory.Game.World
             this.z = z;
         }
 
+        public bool Equals(BlockPos blockPos)
+        {
+            return x == (blockPos.x >> 4) && y == (blockPos.y >> 4) && z == (blockPos.z >> 4);
+        }
 
         public override bool Equals(object obj)
         {

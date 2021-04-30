@@ -11,10 +11,11 @@ namespace DefenceFactory.Game.World
         public static Block[] REGISTER;
 
         public BlockType id { get; private set; }
+        public string Name { get; private set; }
 
         public Block(string name)
         {
-
+            Name = name;
         }
 
         public static Block GetBlock(BlockType objectType)
@@ -33,11 +34,8 @@ namespace DefenceFactory.Game.World
             var count = (int)Enum.GetValues(typeof(BlockType)).Cast<BlockType>().Max() + 1;
             REGISTER = new Block[count];
 
-            //Register(BlockType.Empty, new BlockEmpty());
-            //Register(BlockType.Stone, new BlockStone());
-            //Register(BlockType.Rock, new BlockRPGMakerTileSet("Rock"));
-            //Register(BlockType.Masonry, new BlockRPGMakerTileSet("Masonry"));
-            //Register(BlockType.Cobblestone, new BlockRPGMakerTileSet("Cobblestone"));
+            Register(BlockType.Empty, new Blocks.BlockEmpty());
+            Register(BlockType.Stone, new Blocks.BlockTileSet(ModelEnum.Stone));
         }
     }
 }

@@ -43,5 +43,10 @@ namespace DefenceFactory.Game.World
         {
             return (BlockData)((BT)blockId);
         }
+
+        public static BlockData GetBlockData(this BlockType blockId, Int16 data)
+        {
+            return (BlockData)((BT)blockId | ((BT)data << BlockDataExtension.BlockIdSize));
+        }
     }
 }

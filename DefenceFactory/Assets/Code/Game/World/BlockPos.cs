@@ -31,6 +31,13 @@ namespace DefenceFactory.Game.World
             this.z = z;
         }
 
+        public void Set(in BlockPos pos, in Int3 offset)
+        {
+            this.x = pos.x + offset.X;
+            this.y = pos.y + offset.Y;
+            this.z = pos.z + offset.Z;
+        }
+
         public ChunkPos ChunkPos {
             get {
                 return new ChunkPos(x >> 4, y >> 4, z >> 4);

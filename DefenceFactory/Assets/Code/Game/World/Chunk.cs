@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,8 @@ namespace DefenceFactory.Game.World
         public ChunkPos Position { get; private set; }
         public bool IsDestroyed { get; set; } = false;
         public bool IsChanged { get; set; }
+
+        public ConcurrentStack<BlockPos> updateBlock = new ConcurrentStack<BlockPos>();
 
         BlockData[] data;
 
