@@ -17,13 +17,24 @@ public class Pool<TValue>
         }
         return default(TValue);
     }
+
+    public bool TryPop(out TValue value)
+    {
+        if (_pool.Count > 0)
+        {
+            value = _pool.Pop();
+            return true;
+        }
+        value = default(TValue);
+        return false;
+    }
 }
 
 public class Pool<TKey, TValue>
 {
     private Dictionary<TKey, Pool<TValue>> _pool = new Dictionary<TKey, Pool<TValue>>();
 
-    public void Push(TKey key, TValue value)
+    public void Push(in TKey key, TValue value)
     {
         Pool<TValue> stack;
         if (!_pool.TryGetValue(key, out stack))
@@ -34,7 +45,7 @@ public class Pool<TKey, TValue>
         stack.Push(value);
     }
 
-    public TValue Pop(TKey key)
+    public TValue Pop(in TKey key)
     {
         Pool<TValue> stack;
         if (_pool.TryGetValue(key, out stack))
@@ -42,5 +53,16 @@ public class Pool<TKey, TValue>
             return stack.Pop();
         }
         return default(TValue);
+    }
+
+    public bool TryPop(in TKey key, out TValue value)
+    {
+        Pool<TValue> stack;
+        if (_pool.TryGetValue(key, out stack))
+        {
+            return stack.TryPop(out value);
+        }
+        value = default(TValue);
+        return false;
     }
 }

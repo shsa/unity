@@ -27,7 +27,7 @@ namespace DefenceFactory
                             tempPos.Set(blockPos, offset);
                             if (_gameWorld.GetBlockData(tempPos).GetBlockId() == blockId)
                             {
-                                sets |= d.GetSet();
+                                sets |= d.Set();
                             }
                         }
                         _gameWorld.SetBlockData(blockPos, blockId.GetBlockData());

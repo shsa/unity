@@ -3,8 +3,14 @@ using UnityEngine;
 
 namespace DefenceFactory
 {
-    sealed class BlockView : MonoBehaviour, IView
+    public sealed class BlockView : MonoBehaviour, IView
     {
+        public string BlockName;
+        public int x;
+        public int y;
+        public int index;
+        public bool IsDesroyed;
+
         void IView.Destroy()
         {
             throw new System.NotImplementedException();

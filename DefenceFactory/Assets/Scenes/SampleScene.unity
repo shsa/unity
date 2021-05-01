@@ -298,7 +298,7 @@ MonoBehaviour:
   _root: {fileID: 1254520785}
   _playerView: {fileID: 519420030}
   _camera: {fileID: 519420032}
-  _emptyBlock: {fileID: 8002320854628026304, guid: cd21a4d572e2dba4b8d2a5f0c365b330, type: 3}
+  _emptyBlock: {fileID: 2297925242151190088, guid: 7028b209a87f28b4c97f0018638fa9e4, type: 3}
   _stoneBlock: {fileID: 2297925242151190088, guid: 59a0fc86ead8d174ea70700e1d6673df, type: 3}
   _pool: {fileID: 785184117}
 --- !u!114 &1254520784

@@ -47,9 +47,43 @@ namespace DefenceFactory.Game.World
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static DirectionSet GetSet(this DirectionEnum dir)
+        public static DirectionSet Set(this DirectionEnum dir)
         {
             return dirSets[(int)dir];
+        }
+
+        public static DirectionEnum Next(this DirectionEnum dir)
+        {
+            switch (dir)
+            {
+                case DirectionEnum.N: return DirectionEnum.NE;
+                case DirectionEnum.NE: return DirectionEnum.E;
+                case DirectionEnum.E: return DirectionEnum.SE;
+                case DirectionEnum.SE: return DirectionEnum.S;
+                case DirectionEnum.S: return DirectionEnum.SW;
+                case DirectionEnum.SW: return DirectionEnum.W;
+                case DirectionEnum.W: return DirectionEnum.NW;
+                case DirectionEnum.NW: return DirectionEnum.N;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        public static DirectionEnum Prev(this DirectionEnum dir)
+        {
+            switch (dir)
+            {
+                case DirectionEnum.N: return DirectionEnum.NW;
+                case DirectionEnum.NE: return DirectionEnum.N;
+                case DirectionEnum.E: return DirectionEnum.NE;
+                case DirectionEnum.SE: return DirectionEnum.E;
+                case DirectionEnum.S: return DirectionEnum.SE;
+                case DirectionEnum.SW: return DirectionEnum.S;
+                case DirectionEnum.W: return DirectionEnum.SW;
+                case DirectionEnum.NW: return DirectionEnum.W;
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
         static DirectionEnumExtension()

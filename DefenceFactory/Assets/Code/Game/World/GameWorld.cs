@@ -71,10 +71,16 @@ namespace DefenceFactory.Game.World
 
         Chunk CreateChunk(in ChunkPos chunkPos, in int index)
         {
-            var chunk = new Chunk(this, chunkPos);
-            chunkCache[index] = chunk;
-            Generate(chunk);
+            if (!chunks.TryGetValue(chunkPos, out var chunk))
+            {
+                chunk = new Chunk(this, chunkPos);
+                Generate(chunk);
+                chunks.Add(new ChunkPos(chunkPos.x, chunkPos.y, chunkPos.z), chunk);
+                chunk.IsChanged = true;
+            }
+            chunk.IsDestroyed = false;
             newChunks.Push(chunk);
+            chunkCache[index] = chunk;
             return chunk;
         }
 
