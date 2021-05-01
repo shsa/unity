@@ -11,11 +11,13 @@ namespace DefenceFactory.Game.World
         public static Block[] REGISTER;
 
         public BlockType id { get; private set; }
-        public string Name { get; private set; }
+        public string name { get; private set; }
+        public Model model { get; private set; }
 
-        public Block(string name)
+        public Block(string name, Model model)
         {
-            Name = name;
+            this.name = name;
+            this.model = model;
         }
 
         public static Block GetBlock(BlockType objectType)

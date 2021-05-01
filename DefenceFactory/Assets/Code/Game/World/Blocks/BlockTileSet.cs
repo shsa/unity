@@ -8,9 +8,8 @@ namespace DefenceFactory.Game.World.Blocks
 {
     public class BlockTileSet : Block
     {
-        public BlockTileSet(ModelEnum model) : base(nameof(ModelTypeEnum.TileSet) + "/" + model.ToString())
+        public BlockTileSet(ModelEnum model) : base(model.ToString(), new TileSetModel(model))
         {
-
         }
     }
 }

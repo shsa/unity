@@ -74,13 +74,18 @@ namespace DefenceFactory.Game.World
             if (!chunks.TryGetValue(chunkPos, out var chunk))
             {
                 chunk = new Chunk(this, chunkPos);
+                chunkCache[index] = chunk;
+                // Generate needs after place chunk
                 Generate(chunk);
                 chunks.Add(new ChunkPos(chunkPos.x, chunkPos.y, chunkPos.z), chunk);
                 chunk.IsChanged = true;
             }
+            else
+            {
+                chunkCache[index] = chunk;
+            }
             chunk.IsDestroyed = false;
             newChunks.Push(chunk);
-            chunkCache[index] = chunk;
             return chunk;
         }
 
@@ -134,7 +139,7 @@ namespace DefenceFactory.Game.World
             var tempPos = new BlockPos();
             for (var d = DirectionEnum.First; d <= DirectionEnum.Last; d++)
             {
-                tempPos.Set(blockPos, d.GetDirection());
+                tempPos.Set(blockPos, d.GetVector2());
                 UpdateBlock(tempPos);
             }
         }
@@ -161,6 +166,31 @@ namespace DefenceFactory.Game.World
                 }
             }
 
+            for (int x = min.x; x <= max.x; x++)
+            {
+                for (int y = min.y; y <= max.y; y++)
+                {
+                    pos.Set(x, y, min.z);
+                    var blockId = chunk.GetBlockData(pos).GetBlockId();
+                    chunk.SetBlockData(pos, blockId.GetBlockData(CalcNeighbors(pos)));
+                }
+            }
+        }
+
+        public DirectionSet CalcNeighbors(in BlockPos blockPos)
+        {
+            var meta = DirectionSet.None;
+            var blockId = GetBlockData(blockPos).GetBlockId();
+            var t = new BlockPos();
+            for (var i = DirectionEnum.First; i <= DirectionEnum.Last; i++)
+            {
+                t.Set(blockPos, i.GetVector2());
+                if (GetBlockData(t).GetBlockId() == blockId)
+                {
+                    meta |= i.Set();
+                }
+            }
+            return meta;
         }
     }
 }

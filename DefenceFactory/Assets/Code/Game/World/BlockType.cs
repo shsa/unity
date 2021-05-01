@@ -49,6 +49,11 @@ namespace DefenceFactory.Game.World
             return (BlockData)((BT)blockId | ((BT)meta << BlockDataExtension.BlockIdSize));
         }
 
+        public static BlockData GetBlockData(this BlockType blockId, DirectionSet dirs)
+        {
+            return (BlockData)((BT)blockId | ((BT)dirs << BlockDataExtension.BlockIdSize));
+        }
+
         public static BT GetMeta(this BlockData blockData)
         {
             return (BT)blockData >> BlockDataExtension.BlockIdSize;

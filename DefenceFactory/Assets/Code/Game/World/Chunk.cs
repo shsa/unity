@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace DefenceFactory.Game.World
         public bool IsDestroyed { get; set; } = false;
         public bool IsChanged { get; set; }
 
+        ImmutableHashSet<BlockPos> hashSet = ImmutableHashSet<BlockPos>.Empty;
         public ConcurrentStack<BlockPos> updateBlock = new ConcurrentStack<BlockPos>();
 
         BlockData[] data;

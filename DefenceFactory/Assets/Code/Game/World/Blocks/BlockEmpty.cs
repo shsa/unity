@@ -8,7 +8,7 @@ namespace DefenceFactory.Game.World.Blocks
 {
     public class BlockEmpty : Block
     {
-        public BlockEmpty() : base(nameof(ModelTypeEnum.Simple) + "/" + nameof(ModelEnum.Empty))
+        public BlockEmpty() : base(nameof(ModelEnum.Empty), new SimpleModel(ModelEnum.Empty))
         {
 
         }

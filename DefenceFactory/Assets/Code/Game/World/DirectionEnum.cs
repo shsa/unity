@@ -37,11 +37,11 @@ namespace DefenceFactory.Game.World
 
     public static class DirectionEnumExtension
     {
-        static Int3[] dirs = new Int3[8];
+        static Int2[] dirs = new Int2[8];
         static DirectionSet[] dirSets = new DirectionSet[8];
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ref Int3 GetDirection(this DirectionEnum dir)
+        public static ref Int2 GetVector2(this DirectionEnum dir)
         {
             return ref dirs[(int)dir];
         }
@@ -88,14 +88,14 @@ namespace DefenceFactory.Game.World
 
         static DirectionEnumExtension()
         {
-            dirs[(int)DirectionEnum.N]  = new Int3(0, 1, 0);
-            dirs[(int)DirectionEnum.NE] = new Int3(1, 1, 0);
-            dirs[(int)DirectionEnum.E]  = new Int3(1, 0, 0);
-            dirs[(int)DirectionEnum.SE] = new Int3(1, -1, 0);
-            dirs[(int)DirectionEnum.S]  = new Int3(0, -1, 0);
-            dirs[(int)DirectionEnum.SW] = new Int3(-1, -1, 0);
-            dirs[(int)DirectionEnum.W]  = new Int3(-1, 0, 0);
-            dirs[(int)DirectionEnum.NW] = new Int3(-1, 1, 0);
+            dirs[(int)DirectionEnum.N]  = new Int2(0, 1);
+            dirs[(int)DirectionEnum.NE] = new Int2(1, 1);
+            dirs[(int)DirectionEnum.E]  = new Int2(1, 0);
+            dirs[(int)DirectionEnum.SE] = new Int2(1, -1);
+            dirs[(int)DirectionEnum.S]  = new Int2(0, -1);
+            dirs[(int)DirectionEnum.SW] = new Int2(-1, -1);
+            dirs[(int)DirectionEnum.W]  = new Int2(-1, 0);
+            dirs[(int)DirectionEnum.NW] = new Int2(-1, 1);
 
             dirSets[(int)DirectionEnum.N]   = DirectionSet.N;
             dirSets[(int)DirectionEnum.NE]  = DirectionSet.NE;

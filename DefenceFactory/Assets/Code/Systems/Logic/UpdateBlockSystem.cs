@@ -16,21 +16,11 @@ namespace DefenceFactory
                 if (!chunk.updateBlock.IsEmpty)
                 {
                     BlockPos blockPos;
-                    BlockPos tempPos = new BlockPos();
                     while (chunk.updateBlock.TryPop(out blockPos))
                     {
                         var blockId = _gameWorld.GetBlockData(blockPos).GetBlockId();
-                        var sets = DirectionSet.None;
-                        for (var d = DirectionEnum.First; d <= DirectionEnum.Last; d++)
-                        {
-                            ref var offset = ref d.GetDirection();
-                            tempPos.Set(blockPos, offset);
-                            if (_gameWorld.GetBlockData(tempPos).GetBlockId() == blockId)
-                            {
-                                sets |= d.Set();
-                            }
-                        }
-                        _gameWorld.SetBlockData(blockPos, blockId.GetBlockData());
+                        var sets = _gameWorld.CalcNeighbors(blockPos);
+                        _gameWorld.SetBlockData(blockPos, blockId.GetBlockData(sets));
                     }
                 }
             }

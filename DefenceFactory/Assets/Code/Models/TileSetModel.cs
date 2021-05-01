@@ -11,6 +11,8 @@ namespace DefenceFactory.Models
 {
     public class TileSetModel : Model
     {
+        public string name { get; private set; }
+
         class SampleInfo
         {
             public DirectionSet Mask;
@@ -18,6 +20,8 @@ namespace DefenceFactory.Models
             public Int2 NE;
             public Int2 SW;
             public Int2 SE;
+
+            public BlockView view = default;
 
             /// <summary>
             /// index like TileSetDemo.png
@@ -43,12 +47,13 @@ namespace DefenceFactory.Models
         Texture2D texture;
         int x;
         int y;
-        int tileWidth;
-        int tileHeight;
+        int size;
+
         SampleInfo[] samples = new SampleInfo[256];
 
         class TileHelper
         {
+            public string mask;
             public DirectionEnum direction;
             public DirectionSet neighbors;
             public DirectionSet spaces;
@@ -79,13 +84,16 @@ namespace DefenceFactory.Models
             }
         }
 
-        public TileSetModel(TileSetConfig config)
+        public TileSetModel(Game.Model model)
         {
+            name = $"{model.type}.{model.model}";
+            var json = Resources.Load<TextAsset>($"Models/{model.type}/{model.model}");
+            var config = JsonUtility.FromJson<Models.TileSetConfig>(json.text);
+
             texture = Resources.Load<Texture2D>(config.texture);
             x = config.x;
             y = config.y;
-            tileWidth = 64;
-            tileHeight = 64;
+            size = config.size;
 
             var corners = new Dictionary<DirectionEnum, List<TileHelper>>();
 
@@ -98,10 +106,14 @@ namespace DefenceFactory.Models
                 }
                 var tileItem = new TileHelper
                 {
+                    mask = mask,
+                    column = column,
+                    row = row,
                     neighbors = 0,
                     spaces = 0,
                     ignores = (DirectionSet)~0
                 };
+                list.Add(tileItem);
                 tileItem.Update(mask[0], dir.Prev().Set());
                 tileItem.Update(mask[1], dir.Set());
                 tileItem.Update(mask[2], dir.Next().Set());
@@ -109,27 +121,27 @@ namespace DefenceFactory.Models
 
             add(DirectionEnum.NW, "+++", 2, 1);
             add(DirectionEnum.NW, "+.+", 2, 5);
-            add(DirectionEnum.NW, "..+", 0, 1);
-            add(DirectionEnum.NW, "+..", 2, 3);
+            add(DirectionEnum.NW, ".*+", 0, 1);
+            add(DirectionEnum.NW, "+*.", 2, 3);
             add(DirectionEnum.NW, ".*.", 0, 3);
 
             add(DirectionEnum.NE, "+++", 1, 1);
             add(DirectionEnum.NE, "+.+", 3, 5);
-            add(DirectionEnum.NE, "..+", 1, 3);
-            add(DirectionEnum.NE, "+..", 3, 1);
+            add(DirectionEnum.NE, ".*+", 1, 3);
+            add(DirectionEnum.NE, "+*.", 3, 1);
             add(DirectionEnum.NE, ".*.", 3, 3);
 
             add(DirectionEnum.SW, "+++", 2, 2);
             add(DirectionEnum.SW, "+.+", 2, 4);
-            add(DirectionEnum.SW, "..+", 2, 0);
-            add(DirectionEnum.SW, "+..", 0, 2);
+            add(DirectionEnum.SW, ".*+", 2, 0);
+            add(DirectionEnum.SW, "+*.", 0, 2);
             add(DirectionEnum.SW, ".*.", 0, 0);
 
-            add(DirectionEnum.SE, "+++", 2, 2);
-            add(DirectionEnum.SE, "+.+", 2, 4);
-            add(DirectionEnum.SE, "..+", 2, 0);
-            add(DirectionEnum.SE, "+..", 0, 2);
-            add(DirectionEnum.SE, ".*.", 0, 0);
+            add(DirectionEnum.SE, "+++", 1, 2);
+            add(DirectionEnum.SE, "+.+", 3, 4);
+            add(DirectionEnum.SE, ".*+", 3, 2);
+            add(DirectionEnum.SE, "+*.", 1, 0);
+            add(DirectionEnum.SE, ".*.", 3, 0);
 
             TileHelper find(DirectionEnum dir, DirectionSet sets)
             {
@@ -137,7 +149,7 @@ namespace DefenceFactory.Models
                 foreach (var item in list)
                 {
                     var t = item.ignores & sets;
-                    var b = ((t & item.spaces) == item.spaces)
+                    var b = ((t & item.spaces) == DirectionSet.None)
                         && ((t & item.neighbors) == item.neighbors);
                     if (b)
                     {
@@ -154,8 +166,8 @@ namespace DefenceFactory.Models
             {
                 var nw = find(DirectionEnum.NW, (DirectionSet)i & NW);
                 var ne = find(DirectionEnum.NE, (DirectionSet)i & NE);
-                var sw = find(DirectionEnum.NW, (DirectionSet)i & SW);
-                var se = find(DirectionEnum.NW, (DirectionSet)i & SE);
+                var sw = find(DirectionEnum.SW, (DirectionSet)i & SW);
+                var se = find(DirectionEnum.SE, (DirectionSet)i & SE);
 
                 samples[i] = new SampleInfo((DirectionSet)i, nw.Index, ne.Index, sw.Index, se.Index);
             }
@@ -163,17 +175,37 @@ namespace DefenceFactory.Models
 
         public override string GetKey(long meta)
         {
-            var data = (int)(meta & 0xFF);
-            var sample = samples[data];
-            return "1111";
+            var data = (byte)(meta & 0xFF);
+            return name + "." + Convert.ToString(data, 2);
         }
 
-        public override GameObject GetPrefab(long meta)
+        public override BlockView GetPrefab(long meta)
         {
-            var data = (int)(meta & 0xFF);
+            var data = (byte)(meta & 0xFF);
             var sample = samples[data];
-            throw new NotImplementedException();
-            return null;
+            if (sample.view == default)
+            {
+                var go = new GameObject(GetKey(meta));
+
+                void createPart(Int2 pos, DirectionEnum corner)
+                {
+                    var part = new GameObject(corner.ToString());
+                    part.transform.SetParent(go.transform);
+                    var dir = corner.GetVector2();
+                    part.transform.localPosition = new Vector3(dir.X * 0.25f, dir.Y * 0.25f, 0);
+                    //part.transform.localScale = new Vector3()
+                    var sr = part.AddComponent<SpriteRenderer>();
+                    sr.sprite = Sprite.Create(texture, new Rect(x + pos.X * size, y + pos.Y * size, size, size), new Vector2(0.5f, 0.5f), size * 2);
+                }
+
+                createPart(sample.NW, DirectionEnum.NW);
+                createPart(sample.NE, DirectionEnum.NE);
+                createPart(sample.SW, DirectionEnum.SW);
+                createPart(sample.SE, DirectionEnum.SE);
+
+                sample.view = go.AddComponent<BlockView>();
+            }
+            return sample.view;
         }
     }
 }

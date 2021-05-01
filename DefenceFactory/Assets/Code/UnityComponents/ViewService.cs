@@ -1,6 +1,7 @@
 ﻿using DefenceFactory.Game.World;
 using DG.Tweening;
 using Leopotam.Ecs.Types;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,7 +18,7 @@ namespace DefenceFactory
 
         Pool<ChunkView> chunkPool = new Pool<ChunkView>();
         Pool<string, BlockView> blockPool = new Pool<string, BlockView>();
-        Dictionary<string, Models.Model> models = new Dictionary<string, Models.Model>();
+        Dictionary<Game.Model, Models.Model> models = new Dictionary<Game.Model, Models.Model>();
 
         public IChunkView CreateChunk(Chunk chunk)
         {
@@ -66,28 +67,44 @@ namespace DefenceFactory
             return newBlock;
         }
 
+        Models.Model LoadModel(Game.Model blockModel)
+        {
+            switch (blockModel.type)
+            {
+                case Game.ModelTypeEnum.Simple:
+                    throw new NotImplementedException();
+                case Game.ModelTypeEnum.TileSet:
+                    return new Models.TileSetModel(blockModel);
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        Models.Model GetViewModel(BlockData blockData)
+        {
+            var blockModel = blockData.GetBlock().model;
+            if (!models.TryGetValue(blockModel, out var viewModel))
+            {
+                viewModel = LoadModel(blockModel);
+                models.Add(blockModel, viewModel);
+            }
+            return viewModel;
+        }
+
         public BlockView GetBlockPrefab(BlockData blockData)
         {
             switch (blockData.GetBlockId())
             {
-                case BlockType.Stone: return _stoneBlock;
-                default: return _emptyBlock;
+                case BlockType.Empty: return _emptyBlock;
             }
-            //var modelName = blockData.GetBlock().Name;
-            //if (!models.TryGetValue(modelName, out var model))
-            //{
-            //    var json = Resources.Load<TextAsset>(modelName);
-            //    var config = JsonUtility.FromJson<Models.TileSetConfig>(json.text);
-            //    model = new Models.TileSetModel(config);
-            //    models.Add(modelName, model);
-            //}
-            //var key = model.GetKey(blockData.GetMeta());
-            //if (blockPool.TryPop(key, out var obj))
-            //{
-            //    return obj;
-            //}
-            //var go = model.GetPrefab(blockData.GetMeta());
-            //return go.GetComponent<BlockView>();
+
+            var viewModel = GetViewModel(blockData);
+            var key = viewModel.GetKey(blockData.GetMeta());
+            if (blockPool.TryPop(key, out var obj))
+            {
+                return obj;
+            }
+            return viewModel.GetPrefab(blockData.GetMeta());
         }
 
         public IView CreatePlayerView(float x, float y)

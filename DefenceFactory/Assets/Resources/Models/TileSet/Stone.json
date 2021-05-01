@@ -1,7 +1,8 @@
 {
-  "texture": "TileSet/TileSet_1024.png",
+  "texture": "TileSet/TileSetDemo",
+  "_texture": "TileSet/TileSet_1024",
   "x": 0,
-  "y": 768,
-  "width": 128,
-  "height": 192
+  "y": 0,
+  "_y": 768,
+  "size": 24
 }

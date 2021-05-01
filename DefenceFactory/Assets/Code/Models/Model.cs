@@ -11,6 +11,6 @@ namespace DefenceFactory.Models
     public abstract class Model
     {
         public abstract string GetKey(long meta);
-        public abstract GameObject GetPrefab(long meta);
+        public abstract BlockView GetPrefab(long meta);
     }
 }
