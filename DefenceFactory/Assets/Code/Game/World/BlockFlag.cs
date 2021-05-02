@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace DefenceFactory.Game.World
 {
-    public enum BlockType : UInt16
+    public enum BlockFlag : byte
     {
-        None,
-        Empty,
-        Stone
+        None    = 0x00,
+        Update  = 0x01
     }
 }

@@ -43,14 +43,12 @@ namespace DefenceFactory
 
         public void CreateBlocks(Chunk chunk)
         {
-            var minPos = chunk.Position.MinBlockPos();
-            var maxPos = chunk.Position.MaxBlockPos();
-            transform.localPosition = new Vector3(minPos.x, minPos.y, 0);
+            transform.localPosition = new Vector3(chunk.min.x, chunk.min.y, 0);
 
             var blockPos = new BlockPos();
-            for (var x = minPos.x; x <= maxPos.x; x++)
+            for (var x = chunk.min.x; x <= chunk.max.x; x++)
             {
-                for (var y = minPos.y; y <= maxPos.y; y++)
+                for (var y = chunk.min.y; y <= chunk.max.y; y++)
                 {
                     blockPos.Set(x, y, 0);
                     var blockData = chunk.GetBlockData(blockPos);
@@ -58,7 +56,7 @@ namespace DefenceFactory
                     var block = CreateBlock(blockPrefab);
                     block.x = x;
                     block.y = y;
-                    block.transform.localPosition = new Vector3(x - minPos.x, y - minPos.y, 0);
+                    block.transform.localPosition = new Vector3(x - chunk.min.x, y - chunk.min.y, 0);
                 }
             }
         }

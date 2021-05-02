@@ -7,13 +7,6 @@
       "dependencies": {},
       "hash": "2fabd2f134d514249cce98a9d3f1a54441a39883"
     },
-    "com.leopotam.ecs-threads": {
-      "version": "https://github.com/Leopotam/ecs-threads.git",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "e91127c6ee530fcb84a13d7a2501b5de1d33a804"
-    },
     "com.leopotam.ecs-types": {
       "version": "https://github.com/Leopotam/ecs-types.git",
       "depth": 0,

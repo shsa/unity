@@ -30,13 +30,15 @@ namespace DefenceFactory
                 .Add(LogicSystems())
                 .Add(ViewSystems())
 
+                .Add(new DestroySystem())
+
                 // register one-frame components (order is important):
                 .OneFrame<PositionUpdatedFlag>()
                 .OneFrame<Ecs.Input>()
                 .OneFrame<Drag>()
                 .OneFrame<PlaceItemFlag>()
                 .OneFrame<UpdateBlock>()
-                .OneFrame<ThreadComponent>()
+                //.OneFrame<ThreadChunk>()
                 .OneFrame<DestroyedFlag>()
 
                 // inject service instances here (order doesn't important):
@@ -56,8 +58,9 @@ namespace DefenceFactory
                 .Add(new GameInitSystem())
                 .Add(new PlayerInputSystem())
                 .Add(new PlayerMoveSystem())
-                .Add(new ThreadTestSystem())
-                //.Add(new ApplyThreadSystem())
+                .Add(new StartThreadChunkSystem())
+                .Add(new ThreadChunkSystem())
+                .Add(new ApplyThreadChunkSystem())
                 .Add(new PlaceItemSystem())
                 .Add(new UpdateBlockSystem())
                 .Add(new CreateChunkSystem())

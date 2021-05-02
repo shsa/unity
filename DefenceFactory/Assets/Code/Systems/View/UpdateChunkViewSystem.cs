@@ -15,14 +15,14 @@ namespace DefenceFactory
             foreach (var i in _filter)
             {
                 ref var chunk = ref _filter.Get1(i).Value;
-                if (chunk.IsChanged)
+                if ((chunk.flag & Game.World.ChunkFlag.Redraw) == Game.World.ChunkFlag.Redraw)
                 {
                     var view = _filter.Get2(i).Value as IChunkView;
                     if (view != default)
                     {
                         view.UpdateBlocks(chunk);
                     }
-                    chunk.IsChanged = false;
+                    chunk.flag &= ~Game.World.ChunkFlag.Redraw;
                 }
             }
         }

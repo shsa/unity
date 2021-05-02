@@ -1,7 +1,6 @@
 {
   "dependencies": {
     "com.leopotam.ecs": "https://github.com/Leopotam/ecs.git",
-    "com.leopotam.ecs-threads": "https://github.com/Leopotam/ecs-threads.git",
     "com.leopotam.ecs-types": "https://github.com/Leopotam/ecs-types.git",
     "com.leopotam.ecs-unityintegration": "https://github.com/Leopotam/ecs-unityintegration.git",
     "com.unity.2d.animation": "5.0.4",

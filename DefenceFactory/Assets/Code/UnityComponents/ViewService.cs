@@ -35,7 +35,7 @@ namespace DefenceFactory
             {
                 //chunkView.gameObject.SetActive(true);
             }
-            chunkView.ChunkName = $"{chunk.Position.x}, {chunk.Position.y}";
+            chunkView.ChunkName = $"{chunk.x}, {chunk.y}";
             chunkView.name = "chunk";
             chunkView.CreateBlocks(chunk);
             return chunkView;
@@ -82,7 +82,12 @@ namespace DefenceFactory
 
         Models.Model GetViewModel(BlockData blockData)
         {
-            var blockModel = blockData.GetBlock().model;
+            var block = blockData.GetBlock();
+            if (block == default)
+            {
+                throw new NotImplementedException();
+            }
+            var blockModel = block.model;
             if (!models.TryGetValue(blockModel, out var viewModel))
             {
                 viewModel = LoadModel(blockModel);
@@ -95,6 +100,7 @@ namespace DefenceFactory
         {
             switch (blockData.GetBlockId())
             {
+                case BlockType.None:
                 case BlockType.Empty: return _emptyBlock;
             }
 
@@ -116,9 +122,8 @@ namespace DefenceFactory
         public void DrawChunks()
         {
             var blockPos = BlockPos.From(new Float2(_playerView.transform.localPosition.x, _playerView.transform.localPosition.y));
-            var chunkPos = blockPos.ChunkPos;
-            var min = chunkPos.MinBlockPos();
-            var max = chunkPos.MaxBlockPos();
+            var min = blockPos.ChunkMinPos;
+            var max = blockPos.ChunkMaxPos;
             var start = new Vector3(min.x - 0.5f, min.y - 0.5f, 0);
             var step = new Vector3(max.x - min.x + 1, max.y - min.y + 1, 0);
             var lineSize = 150;

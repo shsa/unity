@@ -40,9 +40,9 @@ namespace DefenceFactory.Game.World
             return k;
         }
 
-        float GetNoise(BlockPos pos, float scale, Int3 offset)
+        float GetNoise(int x, int y, int z, float scale, Int3 offset)
         {
-            return (float)GetNoise(pos.x * scale + offset.X, pos.y * scale + offset.Y, pos.z * scale + offset.Z);
+            return (float)GetNoise(x * scale + offset.X, y * scale + offset.Y, z * scale + offset.Z);
         }
 
         float stoneScale = 0.05f;
@@ -62,11 +62,11 @@ namespace DefenceFactory.Game.World
         Int3 masonryOffset = new Int3(0, 0, 100);
         float cobblestoneScale = 0.05f;
         Int3 cobblestoneOffset = new Int3(100, 0, 0);
-        public virtual BlockType CalcBlockId(BlockPos pos)
+        public virtual BlockType CalcBlockId(int x, int y, int z)
         {
-            if (CalcBlock(pos.x, pos.y, pos.z, out var k))
+            if (CalcBlock(x, y, z, out var k))
             {
-                k = GetNoise(pos, masonryScale, masonryOffset);
+                k = GetNoise(x, y, z, masonryScale, masonryOffset);
                 if (k > 0.5)
                 {
                     return BlockType.Stone;

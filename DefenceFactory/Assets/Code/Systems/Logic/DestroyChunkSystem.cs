@@ -19,9 +19,10 @@ namespace DefenceFactory
             foreach (var i in _filter)
             {
                 ref var chunk = ref _filter.Get1(i).Value;
-                if (chunk.IsDestroyed)
+                if ((chunk.flag & ChunkFlag.Destroy) == ChunkFlag.Destroy)
                 {
                     _filter.GetEntity(i).Get<Ecs.DestroyedFlag>();
+                    chunk.flag &= ~ChunkFlag.Destroy;
                 }
             }
         }

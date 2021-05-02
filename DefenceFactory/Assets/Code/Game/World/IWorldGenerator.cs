@@ -2,6 +2,6 @@
 {
     public interface IWorldGenerator
     {
-        BlockType CalcBlockId(BlockPos pos);
+        BlockType CalcBlockId(int x, int y, int z);
     }
 }

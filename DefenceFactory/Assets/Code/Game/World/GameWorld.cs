@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace DefenceFactory.Game.World
 {
-    public class GameWorld
+    public class GameWorld : IDisposable
     {
-        Dictionary<ChunkPos, Chunk> chunks = new Dictionary<ChunkPos, Chunk>();
+        Dictionary<BlockPos, Chunk> chunks = new Dictionary<BlockPos, Chunk>();
         Chunk[] chunkCache;
-        IWorldGenerator generator;
+        public IWorldGenerator generator { get; private set; }
 
         public ConcurrentStack<Chunk> newChunks = new ConcurrentStack<Chunk>();
         public ConcurrentStack<Chunk> destroyedChunks = new ConcurrentStack<Chunk>();
@@ -21,23 +21,42 @@ namespace DefenceFactory.Game.World
             generator = new WorldGenerator(0);
             chunkCache = new Chunk[16 * 16 * 16];
         }
+        
+        ~GameWorld()
+        {
+            Dispose();
+        }
 
-        int CacheIndex(in ChunkPos chunkPos)
+        public void Dispose()
+        {
+            foreach (var chunk in chunks.Values)
+            {
+                chunk.Dispose();
+            }
+            chunks.Clear();
+        }
+
+        int CacheIndex(int x, int y, int z)
         {
             //return ((chunkPos.x & 0xF) << 8) | ((chunkPos.y & 0xF) << 4) | (chunkPos.z & 0xF);
-            return ((chunkPos.x & 0x7) << 8) | ((chunkPos.y & 0x7) << 4) | (chunkPos.z & 0x7);
+            return (((x >> 4) & 0x7) << 8) | (((y >> 4) & 0x7) << 4) | ((z >> 4) & 0x7);
         }
 
-        int CacheIndex(in BlockPos blockPos)
+        int CacheIndex(in BlockPos pos)
         {
-            return (((blockPos.x >> 4) & 0x7) << 8) | (((blockPos.y >> 4) & 0x7) << 4) | ((blockPos.z >> 4) & 0x7);
+            return CacheIndex(pos.x, pos.y, pos.z);
         }
 
-        public Chunk GetChunk(in ChunkPos chunkPos)
+        public Chunk GetChunk(in BlockPos pos)
         {
-            var index = CacheIndex(chunkPos);
+            return GetChunk(pos.x, pos.y, pos.z);
+        }
+
+        public Chunk GetChunk(int x, int y, int z)
+        {
+            var index = CacheIndex(x, y, z);
             var chunk = chunkCache[index];
-            if (chunk == null || !chunk.Position.Equals(chunkPos))
+            if (chunk == null || !chunk.Equals(x, y, z))
             {
                 return null;
             }
@@ -45,82 +64,66 @@ namespace DefenceFactory.Game.World
             return chunk;
         }
 
-        public Chunk GetChunk(in BlockPos blockPos)
+        public bool TryGetChunk(in BlockPos pos, out Chunk chunk)
         {
-            var index = CacheIndex(blockPos);
-            var chunk = chunkCache[index];
-            if (chunk == null || !chunk.Position.Equals(blockPos))
-            {
-                return null;
-            }
-
-            return chunk;
-        }
-
-        public bool TryGetChunk(in ChunkPos chunkPos, out Chunk chunk)
-        {
-            chunk = GetChunk(chunkPos);
+            chunk = GetChunk(pos);
             return chunk != default;
         }
 
-        public bool TryGetChunk(in BlockPos blockPos, out Chunk chunk)
+        public bool TryGetChunk(int x, int y, int z, out Chunk chunk)
         {
-            chunk = GetChunk(blockPos);
+            chunk = GetChunk(x, y, z);
             return chunk != default;
         }
 
-        Chunk CreateChunk(in ChunkPos chunkPos, in int index)
+        Chunk CreateChunk(int x, int y, int z)
         {
-            if (!chunks.TryGetValue(chunkPos, out var chunk))
+            var pos = BlockPos.CreateChunkPos(x, y, z);
+            if (!chunks.TryGetValue(pos, out var chunk))
             {
-                chunk = new Chunk(this, chunkPos);
-                chunkCache[index] = chunk;
-                // Generate needs after place chunk
-                Generate(chunk);
-                chunks.Add(new ChunkPos(chunkPos.x, chunkPos.y, chunkPos.z), chunk);
-                chunk.IsChanged = true;
+                chunk = new Chunk(this, pos);
+                for (int i = 0; i < chunk.data.Length; i++)
+                {
+                    chunk.data[i] = BlockType.Empty.GetBlockData();
+                }
+                //Generate(chunk);
+                chunk.flag = ChunkFlag.Generate;
+                chunks.Add(pos, chunk);
             }
-            else
-            {
-                chunkCache[index] = chunk;
-            }
-            chunk.IsDestroyed = false;
+            chunkCache[CacheIndex(pos)] = chunk;
             newChunks.Push(chunk);
             return chunk;
         }
 
-        public Chunk GetOrCreateChunk(in ChunkPos chunkPos)
+        public Chunk GetOrCreateChunk(int x, int y, int z)
         {
-            var index = CacheIndex(chunkPos);
+            var index = CacheIndex(x, y, z);
             var chunk = chunkCache[index];
             if (chunk == default)
             {
-                return CreateChunk(chunkPos, index);
+                return CreateChunk(x, y, z);
             }
-            if (!chunk.Position.Equals(chunkPos))
+            if (!chunk.Equals(x, y, z))
             {
-                chunk.IsDestroyed = true;
-                return CreateChunk(chunkPos, index);
+                chunk.flag |= ChunkFlag.Destroy;
+                return CreateChunk(x, y, z);
             }
 
             return chunk;
         }
 
-        public Chunk GetOrCreateChunk(in BlockPos blockPos)
+        public Chunk GetOrCreateChunk(in BlockPos pos)
         {
-            var index = CacheIndex(blockPos);
-            var chunk = chunkCache[index];
-            if (chunk == null)
-            {
-                return CreateChunk(blockPos.ChunkPos, index);
-            }
-            if (!chunk.Position.Equals(blockPos))
-            {
-                chunk.IsDestroyed = true;
-                return CreateChunk(blockPos.ChunkPos, index);
-            }
+            return GetOrCreateChunk(pos.x, pos.y, pos.z);
+        }
 
-            return chunk;
+        public BlockData GetBlockData(int x, int y, int z)
+        {
+            if (TryGetChunk(x, y, z, out var chunk))
+            {
+                return chunk.GetBlockData(x, y, z);
+            }
+            return BlockType.None.GetBlockData();
         }
 
         public BlockData GetBlockData(in BlockPos pos)
@@ -154,23 +157,22 @@ namespace DefenceFactory.Game.World
 
         void Generate(in Chunk chunk)
         {
+            return;
             var pos = new BlockPos();
-            var min = chunk.Position.MinBlockPos();
-            var max = chunk.Position.MaxBlockPos();
-            for (int x = min.x; x <= max.x; x++)
+            for (int x = chunk.min.x; x <= chunk.max.x; x++)
             {
-                for (int y = min.y; y <= max.y; y++)
+                for (int y = chunk.min.y; y <= chunk.max.y; y++)
                 {
-                    pos.Set(x, y, min.z);
-                    chunk.SetBlockData(pos, generator.CalcBlockId(pos).GetBlockData());
+                    pos.Set(x, y, chunk.min.z);
+                    chunk.SetBlockData(pos, generator.CalcBlockId(pos.x, pos.y, pos.z).GetBlockData());
                 }
             }
 
-            for (int x = min.x; x <= max.x; x++)
+            for (int x = chunk.min.x; x <= chunk.max.x; x++)
             {
-                for (int y = min.y; y <= max.y; y++)
+                for (int y = chunk.min.y; y <= chunk.max.y; y++)
                 {
-                    pos.Set(x, y, min.z);
+                    pos.Set(x, y, chunk.min.z);
                     var blockId = chunk.GetBlockData(pos).GetBlockId();
                     chunk.SetBlockData(pos, blockId.GetBlockData(CalcNeighbors(pos)));
                 }
