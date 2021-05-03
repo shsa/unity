@@ -23,6 +23,7 @@ namespace DefenceFactory
                 var blockPos = BlockPos.From(pos);
                 var chunk = _gameWorld.GetOrCreateChunk(blockPos.ChunkMinPos);
                 chunk.SetBlockData(blockPos, item.id.GetBlockData());
+                //chunk.SetFlag(blockPos, BlockFlag.Update);
             }
         }
     }

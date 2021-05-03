@@ -139,20 +139,6 @@ namespace DefenceFactory.Game.World
         {
             var chunk = GetOrCreateChunk(blockPos);
             chunk.SetBlockData(blockPos, value);
-            var tempPos = new BlockPos();
-            for (var d = DirectionEnum.First; d <= DirectionEnum.Last; d++)
-            {
-                tempPos.Set(blockPos, d.GetVector2());
-                UpdateBlock(tempPos);
-            }
-        }
-
-        public void UpdateBlock(in BlockPos pos)
-        {
-            if (TryGetChunk(pos, out var chunk))
-            {
-                chunk.updateBlock.Push(pos);
-            }
         }
 
         void Generate(in Chunk chunk)

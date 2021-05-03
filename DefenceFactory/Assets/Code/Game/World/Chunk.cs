@@ -78,7 +78,21 @@ namespace DefenceFactory.Game.World
             if (oldValue.id != value.id || oldValue.meta != value.meta)
             {
                 data[index] = value;
-                flag |= ChunkFlag.Redraw;
+                if (oldValue.id == value.id)
+                {
+                    SetFlag(pos.x, pos.y, 0, BlockFlag.Update);
+                }
+                else
+                {
+                    for (var d = DirectionEnum.None; d <= DirectionEnum.Last; d++)
+                    {
+                        ref var v = ref d.GetVector2();
+                        if (World.TryGetChunk(pos.x + v.X, pos.y + v.Y, 0, out var chunk))
+                        {
+                            chunk.SetFlag(pos.x + v.X, pos.y + v.Y, 0, BlockFlag.Update);
+                        }
+                    }
+                }
             }
         }
 
@@ -105,6 +119,13 @@ namespace DefenceFactory.Game.World
         public void SetFlag(int x, int y, int z, BlockFlag value)
         {
             var index = GetDataIndex(x, y, z);
+            data_update[index] = value;
+            ProcessFlag(value);
+        }
+
+        public void SetFlag(in BlockPos pos, BlockFlag value)
+        {
+            var index = GetDataIndex(pos.x, pos.y, pos.z);
             data_update[index] = value;
             ProcessFlag(value);
         }
