@@ -12,7 +12,6 @@ namespace DefenceFactory.Game.World
     {
         public BlockType id;
         public Meta meta;
-        public BlockFlag flag;
     }
 
     public static class BlockDataExtension
@@ -36,8 +35,7 @@ namespace DefenceFactory.Game.World
             return new BlockData
             {
                 id = blockId,
-                meta = 0,
-                flag = BlockFlag.None
+                meta = 0
             };
         }
 
@@ -46,8 +44,7 @@ namespace DefenceFactory.Game.World
             return new BlockData
             {
                 id = blockId,
-                meta = meta,
-                flag = BlockFlag.None
+                meta = meta
             };
         }
 
@@ -56,8 +53,7 @@ namespace DefenceFactory.Game.World
             return new BlockData
             {
                 id = blockId,
-                meta = (Int32)dirs,
-                flag = BlockFlag.None
+                meta = (Meta)dirs
             };
         }
 

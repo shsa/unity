@@ -10,40 +10,57 @@ namespace DefenceFactory.Game.World
 {
     public enum DirectionEnum
     {
-        First = 0,
-        N   = 0,
-        NE  = 1,
-        E   = 2,
-        SE  = 3,
-        S   = 4,
-        SW  = 5,
-        W   = 6,
-        NW  = 7,
-        Last = 7
+        None    = 0,
+
+        N       = 1,
+        NE      = 2,
+        E       = 3,
+        SE      = 4,
+        S       = 5,
+        SW      = 6,
+        W       = 7,
+        NW      = 8,
+
+        First = 1,
+        Last = 8
     }
 
     public enum DirectionSet
     {
-        None = 0,
-        N   = 0x01,
-        NE  = 0x02,
-        E   = 0x04,
-        SE  = 0x08,
-        S   = 0x10,
-        SW  = 0x20,
-        W   = 0x40,
-        NW  = 0x80
+        None    = 0x00,
+        N       = 0x01,
+        NE      = 0x02,
+        E       = 0x04,
+        SE      = 0x08,
+        S       = 0x10,
+        SW      = 0x20,
+        W       = 0x40,
+        NW      = 0x80
     }
 
     public static class DirectionEnumExtension
     {
-        static Int2[] dirs = new Int2[8];
-        static DirectionSet[] dirSets = new DirectionSet[8];
+        static Int2[] dirs = new Int2[9];
+        static DirectionSet[] dirSets = new DirectionSet[9];
+        static char[] chars = new char[9];
+        static string[] keys = new string[256];
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref Int2 GetVector2(this DirectionEnum dir)
         {
             return ref dirs[(int)dir];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static char Char(this DirectionEnum dir)
+        {
+            return chars[(int)dir];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string Key(this DirectionSet dirs)
+        {
+            return keys[(int)dirs];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -88,6 +105,7 @@ namespace DefenceFactory.Game.World
 
         static DirectionEnumExtension()
         {
+            dirs[(int)DirectionEnum.None] = new Int2(0, 0);
             dirs[(int)DirectionEnum.N]  = new Int2(0, 1);
             dirs[(int)DirectionEnum.NE] = new Int2(1, 1);
             dirs[(int)DirectionEnum.E]  = new Int2(1, 0);
@@ -97,6 +115,7 @@ namespace DefenceFactory.Game.World
             dirs[(int)DirectionEnum.W]  = new Int2(-1, 0);
             dirs[(int)DirectionEnum.NW] = new Int2(-1, 1);
 
+            dirSets[(int)DirectionEnum.None] = DirectionSet.None;
             dirSets[(int)DirectionEnum.N]   = DirectionSet.N;
             dirSets[(int)DirectionEnum.NE]  = DirectionSet.NE;
             dirSets[(int)DirectionEnum.E]   = DirectionSet.E;
@@ -105,6 +124,33 @@ namespace DefenceFactory.Game.World
             dirSets[(int)DirectionEnum.SW]  = DirectionSet.SW;
             dirSets[(int)DirectionEnum.W]   = DirectionSet.W;
             dirSets[(int)DirectionEnum.NW]  = DirectionSet.NW;
+
+            chars[(int)DirectionEnum.None] = '.';
+            chars[(int)DirectionEnum.N] = 'N';
+            chars[(int)DirectionEnum.NE] = 'n';
+            chars[(int)DirectionEnum.E] = 'E';
+            chars[(int)DirectionEnum.SE] = 'e';
+            chars[(int)DirectionEnum.S] = 'S';
+            chars[(int)DirectionEnum.SW] = 's';
+            chars[(int)DirectionEnum.W] = 'W';
+            chars[(int)DirectionEnum.NW] = 'w';
+
+            for (var i = 0; i < 256; i++)
+            {
+                var key = "";
+                for (var d = DirectionEnum.First; d <= DirectionEnum.Last; d++)
+                {
+                    if (((DirectionSet)i & d.Set()) == d.Set())
+                    {
+                        key += d.Char();
+                    }
+                    else
+                    {
+                        key += '.';
+                    }
+                }
+                keys[i] = key;
+            }
         }
     }
 }

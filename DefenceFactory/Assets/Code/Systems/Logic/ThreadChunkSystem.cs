@@ -71,7 +71,7 @@ namespace DefenceFactory.Ecs
             {
                 for (int y = 0; y <= 15; y++)
                 {
-                    var index = Game.World.Chunk.GetBlockIndex(x, y, 0);
+                    var index = Game.World.Chunk.GetDataIndex(x, y, 0);
                     //chunk.data[index] = generator.CalcBlockId(chunk.pos.x + x, chunk.pos.y + y, chunk.pos.z).GetBlockData();
                     //chunk.flags[index] = BlockFlag.Update;
                 }
@@ -84,7 +84,7 @@ namespace DefenceFactory.Ecs
             {
                 for (int j = 0; j <= 15; j++)
                 {
-                    var index = Game.World.Chunk.GetBlockIndex(i, j, 0);
+                    var index = Game.World.Chunk.GetDataIndex(i, j, 0);
                     //if (chunk.flags[index] == BlockFlag.Update)
                     //{
                     //    var blockId = chunk.data[index].GetBlockId();
@@ -108,7 +108,7 @@ namespace DefenceFactory.Ecs
             {
                 return world.GetBlockData(chunk.x + x, chunk.x + y, chunk.z + z).GetBlockId();
             }
-            return chunk.data[Game.World.Chunk.GetBlockIndex(x, y, z)].GetBlockId();
+            return chunk.data[Game.World.Chunk.GetDataIndex(x, y, z)].GetBlockId();
         }
     }
 }

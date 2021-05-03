@@ -96,7 +96,7 @@ namespace DefenceFactory
             return viewModel;
         }
 
-        public BlockView GetBlockPrefab(BlockData blockData)
+        public BlockView GetBlockPrefab(in BlockData blockData)
         {
             switch (blockData.GetBlockId())
             {
@@ -105,12 +105,13 @@ namespace DefenceFactory
             }
 
             var viewModel = GetViewModel(blockData);
-            var key = viewModel.GetKey(blockData.GetMeta());
+            var meta = blockData.GetMeta();
+            var key = viewModel.GetKey(meta);
             if (blockPool.TryPop(key, out var obj))
             {
                 return obj;
             }
-            return viewModel.GetPrefab(blockData.GetMeta());
+            return viewModel.GetPrefab(meta);
         }
 
         public IView CreatePlayerView(float x, float y)

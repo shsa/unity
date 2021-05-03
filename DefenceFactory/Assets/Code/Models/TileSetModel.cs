@@ -175,8 +175,8 @@ namespace DefenceFactory.Models
 
         public override string GetKey(long meta)
         {
-            var data = (byte)(meta & 0xFF);
-            return name + "." + Convert.ToString(data, 2);
+            var data = (DirectionSet)(meta & 0xFF);
+            return name + "." + data.Key();
         }
 
         public override BlockView GetPrefab(long meta)
@@ -189,7 +189,7 @@ namespace DefenceFactory.Models
 
                 void createPart(Int2 pos, DirectionEnum corner)
                 {
-                    var part = new GameObject(corner.ToString());
+                    var part = new GameObject(corner.ToString() + "." + pos.ToString());
                     part.transform.SetParent(go.transform);
                     var dir = corner.GetVector2();
                     part.transform.localPosition = new Vector3(dir.X * 0.25f, dir.Y * 0.25f, 0);

@@ -26,8 +26,8 @@ namespace DefenceFactory.Ecs
                 ref var thread = ref _filter.Get2(i);
                 //chunk.data = thread.data;
                 //chunk.flags = thread.flags;
-                chunk.flag &= Game.World.ChunkFlag.NotThreadAll;
-                chunk.flag |= Game.World.ChunkFlag.Redraw;
+                //chunk.flag &= Game.World.ChunkFlag.NotThreadAll;
+                //chunk.flag |= Game.World.ChunkFlag.Redraw;
                 //_filter.GetEntity(i).Del<ThreadChunk>();
             }
         }

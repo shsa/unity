@@ -12,17 +12,15 @@ namespace DefenceFactory.Game.World
 {
     public enum ChunkFlag
     {
-        None        = 0x00,
-        Load        = 0x01,
-        Redraw      = 0x02,
-        Destroy     = 0x04,
+        None        = 0x000,
+        Load        = 0x001,
+        Redraw      = 0x002,
+        Destroy     = 0x004,
 
-        Thread      = 0x10,
-        Generate    = 0x12,
-        Update      = 0x14,
+        Generate    = 0x010,
+        Update      = 0x020,
 
-        ThreadAll   = Thread | Generate | Update,
-        NotThreadAll = ~ThreadAll
+        Loaded      = 0x100,
     }
 
     public sealed class Chunk : IDisposable
@@ -36,7 +34,8 @@ namespace DefenceFactory.Game.World
         public HashSet<BlockPos> updateBlocks2 = new HashSet<BlockPos>();
         public ConcurrentStack<BlockPos> updateBlock = new ConcurrentStack<BlockPos>();
 
-        public NativeArray<BlockData> data = default;
+        public BlockData[] data = default;
+        public BlockFlag[] data_update = default;
 
         public BlockPos min { get; private set; }
         public BlockPos max { get; private set; }
@@ -51,7 +50,8 @@ namespace DefenceFactory.Game.World
             min = new BlockPos(x, y, z);
             max = new BlockPos(x | 0xF, y | 0xF, z | 0xF);
 
-            data = new NativeArray<BlockData>(4096, Allocator.Persistent); // 16 * 16 * 16
+            data = new BlockData[4096]; // 16 * 16 * 16
+            data_update = new BlockFlag[4096];
         }
 
         ~Chunk()
@@ -61,26 +61,22 @@ namespace DefenceFactory.Game.World
 
         public void Dispose()
         {
-            if (data != default)
-            {
-                data.Dispose();
-            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetBlockIndex(int x, int y, int z)
+        public static int GetDataIndex(int x, int y, int z)
         {
             return ((y & 0xF) << 8) | ((x & 0xF) << 4) | (z & 0xF);
         }
 
-        public BlockData GetBlockData(int x, int y, int z)
+        public ref BlockData GetBlockData(int x, int y, int z)
         {
-            return data[GetBlockIndex(x, y, z)];
+            return ref data[GetDataIndex(x, y, z)];
         }
 
-        public BlockData GetBlockData(in BlockPos pos)
+        public ref BlockData GetBlockData(in BlockPos pos)
         {
-            return data[pos.GetBlockIndex()];
+            return ref data[pos.GetBlockIndex()];
         }
 
         public void SetBlockData(in BlockPos pos, in BlockData value)
@@ -96,7 +92,7 @@ namespace DefenceFactory.Game.World
 
         public BlockFlag GetFlag(int x, int y, int z)
         {
-            return data[GetBlockIndex(x, y, z)].flag;
+            return data_update[GetDataIndex(x, y, z)];
         }
 
         void ProcessFlag(BlockFlag value)
@@ -109,30 +105,40 @@ namespace DefenceFactory.Game.World
 
         public void AddFlag(int x, int y, int z, BlockFlag value)
         {
-            var index = GetBlockIndex(x, y, z);
-            var item = data[index];
-            item.flag |= value;
-            data[index] = item;
+            var index = GetDataIndex(x, y, z);
+            data_update[index] |= value;
             ProcessFlag(value);
         }
 
         public void SetFlag(int x, int y, int z, BlockFlag value)
         {
-            var index = GetBlockIndex(x, y, z);
-            var item = data[index];
-            item.flag = value;
-            data[index] = item;
+            var index = GetDataIndex(x, y, z);
+            data_update[index] = value;
             ProcessFlag(value);
         }
 
         public bool Equals(int x, int y, int z)
         {
-            return (this.x >> 4) == (x >> 4) && (this.y >> 4) == (y >> 4) && (this.z >> 4) == (z >> 4);
+            return this.x == (x & ~0xF) && this.y == (y & ~0xF) && this.z == (z & ~0xF);
         }
 
         public bool Equals(in BlockPos pos)
         {
             return Equals(pos.x, pos.y, pos.z);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Chunk c)
+            {
+                return x == c.x && y == c.y && z == c.z;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return x.GetHashCode() ^ (y.GetHashCode() << 2) ^ (z.GetHashCode() >> 2);
         }
     }
 }

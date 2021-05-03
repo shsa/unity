@@ -62,7 +62,7 @@ namespace DefenceFactory.Game.World
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetBlockIndex()
         {
-            return Chunk.GetBlockIndex(x, y, z);
+            return Chunk.GetDataIndex(x, y, z);
         }
 
         public static BlockPos From(in Float2 pos)

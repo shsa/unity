@@ -58,7 +58,7 @@ namespace DefenceFactory.Game.World
             var chunk = chunkCache[index];
             if (chunk == null || !chunk.Equals(x, y, z))
             {
-                return null;
+                return default;
             }
 
             return chunk;
