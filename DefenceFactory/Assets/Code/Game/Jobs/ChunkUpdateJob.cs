@@ -15,6 +15,8 @@ namespace DefenceFactory.Game.Jobs
 
     public struct ChunkUpdateJob : IJob
     {
+        public int count;
+
         public int x;
         public int y;
         public int z;

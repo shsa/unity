@@ -62,7 +62,7 @@ namespace DefenceFactory.Game.Jobs
         public static Unity.Mathematics.Random rnd = new Unity.Mathematics.Random(1);
 
         public Chunk chunk;
-        public ChunkGenerateJob job;
+        public BlockDataArray data;
         public JobHandle handle;
 
         ~ChunkGenerateContainer()
@@ -72,9 +72,9 @@ namespace DefenceFactory.Game.Jobs
 
         public void Dispose()
         {
-            if (job.data != default)
+            if (data != default)
             {
-                job.data.Dispose();
+                data.Dispose();
             }
         }
     }

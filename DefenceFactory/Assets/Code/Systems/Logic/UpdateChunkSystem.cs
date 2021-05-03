@@ -146,7 +146,9 @@ namespace DefenceFactory
                     c.jobHandle.Complete();
                     c.data.CopyTo(c.chunk.data);
                     jobs.Remove(c);
-                    c.chunk.flag |= ChunkFlag.Redraw;
+                    c.chunk.flag
+                        .Remove(ChunkFlag.Updating)
+                        .Add(ChunkFlag.Redraw);
                     c.Dispose();
                 }
             }
@@ -159,7 +161,15 @@ namespace DefenceFactory
             foreach (var i in _filter)
             {
                 ref var chunk = ref _filter.Get1(i).Value;
-                if ((chunk.flag & ChunkFlag.Update) == ChunkFlag.Update)
+                if (chunk.count == 0)
+                {
+                    continue;
+                }
+                if (chunk.flag.HasFlag(ChunkFlag.Updating))
+                {
+                    continue;
+                }
+                if (chunk.flag.HasFlag(ChunkFlag.Update))
                 {
                     var container = new Container
                     {
@@ -170,6 +180,7 @@ namespace DefenceFactory
 
                     var job = new ChunkUpdateJob
                     {
+                        count = chunk.count,
                         x = chunk.x,
                         y = chunk.y,
                         z = chunk.z,
@@ -192,7 +203,9 @@ namespace DefenceFactory
                     {
                         chunk.data_update[j] &= ~BlockFlag.Update;
                     }
-                    chunk.flag &= ~ChunkFlag.Update;
+                    chunk.flag
+                        .Add(ChunkFlag.Updating)
+                        .Remove(ChunkFlag.Update);
                 }
             }
         }

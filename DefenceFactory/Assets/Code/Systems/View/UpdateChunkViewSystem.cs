@@ -1,11 +1,14 @@
 using DefenceFactory.Ecs;
+using DefenceFactory.Game.World;
 using Leopotam.Ecs;
+using System.Linq;
+using UnityEngine;
 
 namespace DefenceFactory
 {
     sealed class UpdateChunkViewSystem : IEcsRunSystem
     {
-        private readonly EcsFilter<Chunk, View> _filter = default;
+        private readonly EcsFilter<Ecs.Chunk, View> _filter = default;
 
         void IEcsRunSystem.Run()
         {

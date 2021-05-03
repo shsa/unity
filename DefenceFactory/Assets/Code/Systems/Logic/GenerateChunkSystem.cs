@@ -42,7 +42,7 @@ namespace DefenceFactory
                 {
                     gc.handle.Complete();
                     var chunk = gc.chunk;
-                    gc.job.data.CopyTo(gc.chunk.data);
+                    gc.data.CopyTo(chunk.data);
                     for (int x = chunk.x - 1; x <= (chunk.x + 0x10); x++)
                     {
                         SetBlockUpdate(x, chunk.y - 1, 0);
@@ -58,8 +58,9 @@ namespace DefenceFactory
                         chunk.data_update[i] = BlockFlag.Update;
                     }
                     jobs.Remove(gc.chunk);
-                    gc.chunk.flag |= ChunkFlag.Loaded | ChunkFlag.Update;
+                    chunk.flag |= ChunkFlag.Loaded | ChunkFlag.Update;
                     gc.Dispose();
+                    chunk.count = chunk.data.Where(d => d.id == BlockType.Stone).Count();
                 }
             }
 
@@ -76,18 +77,19 @@ namespace DefenceFactory
                     var container = new ChunkGenerateContainer
                     {
                         chunk = chunk,
-                        job = new ChunkGenerateJob
-                        {
-                            x = chunk.x,
-                            y = chunk.y,
-                            z = chunk.z,
-                            data = new NativeArray<BlockData>(chunk.data, Allocator.TempJob)
-                        }
+                        data = new NativeArray<BlockData>(chunk.data, Allocator.TempJob)
                     };
 
-                    container.handle = container.job.Schedule();
-                    jobs.Add(chunk, container);
+                    var job = new ChunkGenerateJob
+                    {
+                        x = chunk.x,
+                        y = chunk.y,
+                        z = chunk.z,
+                        data = container.data
+                    };
 
+                    container.handle = job.Schedule();
+                    jobs.Add(chunk, container);
                     chunk.flag &= ~ChunkFlag.Generate;
                 }
             }

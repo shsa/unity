@@ -10,21 +10,12 @@ using UnityEngine;
 
 namespace DefenceFactory.Game.World
 {
-    public enum ChunkFlag
-    {
-        None        = 0x000,
-        Load        = 0x001,
-        Redraw      = 0x002,
-        Destroy     = 0x004,
-
-        Generate    = 0x010,
-        Update      = 0x020,
-
-        Loaded      = 0x100,
-    }
-
     public sealed class Chunk : IDisposable
     {
+        static int _index = 0;
+
+        public int index { get; }
+        public int count = 0;
         public GameWorld World { get; private set; }
         public int x;
         public int y;
@@ -42,6 +33,7 @@ namespace DefenceFactory.Game.World
 
         public Chunk(GameWorld world, BlockPos pos)
         {
+            index = _index++;
             World = world;
             x = (pos.x >> 4) << 4;
             y = (pos.y >> 4) << 4; 

@@ -88,7 +88,7 @@ namespace DefenceFactory.Game.World
                 }
                 //Generate(chunk);
                 chunk.flag = ChunkFlag.Generate;
-                chunks.Add(pos, chunk);
+                //chunks.Add(pos, chunk);
             }
             chunkCache[CacheIndex(pos)] = chunk;
             newChunks.Push(chunk);
