@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 namespace DefenceFactory.Game.World
 {
+    using Meta = Int32;
+
     public class Block
     {
         public static Block[] REGISTER;
@@ -18,6 +20,11 @@ namespace DefenceFactory.Game.World
         {
             this.name = name;
             this.model = model;
+        }
+
+        public virtual Meta GetMeta(in IWorldReader world, int x, int y, int z)
+        {
+            return 0;
         }
 
         public static Block GetBlock(BlockType objectType)

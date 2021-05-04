@@ -13,7 +13,7 @@ namespace DefenceFactory.Game.Jobs
     using BlockDataArray = NativeArray<BlockData>;
     using Meta = Int32;
 
-    public struct ChunkUpdateJob : IJob
+    public struct ChunkUpdateJob : IJob, IWorldReader
     {
         public int count;
 
@@ -70,6 +70,12 @@ namespace DefenceFactory.Game.Jobs
             return data;
         }
 
+        Block IWorldReader.GetBlock(int x, int y, int z)
+        {
+            var m = GetMap(x, y, 0);
+            return m[Chunk.GetDataIndex(x & 0xF, y & 0xF, 0)].GetBlock();
+        }
+
         public void Execute()
         {
             for (int i = 0; i <= 0xF; i++)
@@ -78,22 +84,9 @@ namespace DefenceFactory.Game.Jobs
                 {
                     var index = Chunk.GetDataIndex(i, j, 0);
                     var block = data[index];
-                    if ((data_update[index] & BlockFlag.Update) == BlockFlag.Update)
+                    if (data_update[index].HasFlag(BlockFlag.Update))
                     {
-                        var dirs = DirectionSet.None;
-                        for (var d = DirectionEnum.First; d <= DirectionEnum.Last; d++)
-                        {
-                            ref var dir = ref d.GetVector2();
-                            int _x = i + dir.X;
-                            int _y = j + dir.Y;
-                            var m = GetMap(_x, _y, 0);
-                            var neighbourId = m[Chunk.GetDataIndex(_x & 0xF, _y & 0xF, 0)].id;
-                            if (neighbourId == block.id)
-                            {
-                                dirs |= d.Set();
-                            }
-                        }
-                        block.meta = (Meta)dirs;
+                        block.meta = block.GetBlock().GetMeta(this, i, j, z);
                         data[index] = block;
                     }
                 }
