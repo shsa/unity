@@ -75,6 +75,8 @@ namespace DefenceFactory
                     throw new NotImplementedException();
                 case Game.ModelTypeEnum.TileSet:
                     return new Models.TileSetModel(blockModel);
+                case Game.ModelTypeEnum.Pipe:
+                    return new Models.PipeModel(blockModel);
                 default:
                     throw new NotImplementedException();
             }

@@ -186,6 +186,7 @@ namespace DefenceFactory.Models
             if (sample.view == default)
             {
                 var go = new GameObject(GetKey(meta));
+                go.transform.position = new Vector3(0, 0, -1000);
 
                 void createPart(Int2 pos, DirectionEnum corner)
                 {

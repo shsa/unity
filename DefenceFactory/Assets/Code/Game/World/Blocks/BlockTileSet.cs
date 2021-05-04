@@ -6,15 +6,13 @@ using System.Threading.Tasks;
 
 namespace DefenceFactory.Game.World.Blocks
 {
-    using Meta = Int32;
-
     public class BlockTileSet : Block
     {
         public BlockTileSet(ModelEnum model) : base(model.ToString(), new TileSetModel(model))
         {
         }
 
-        public override Meta GetMeta(in IWorldReader world, int x, int y, int z)
+        public override long GetMeta(in IWorldReader world, int x, int y, int z)
         {
             var meta = DirectionSet.None;
             for (var d = DirectionEnum.First; d <= DirectionEnum.Last; d++)
@@ -25,7 +23,7 @@ namespace DefenceFactory.Game.World.Blocks
                     meta |= d.Set();
                 }
             }
-            return (Meta)meta;
+            return (long)meta;
         }
     }
 }

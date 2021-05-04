@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 
 namespace DefenceFactory.Game.World
 {
-    using Meta = Int32;
-
     public class Block
     {
         public static Block[] REGISTER;
@@ -22,7 +20,7 @@ namespace DefenceFactory.Game.World
             this.model = model;
         }
 
-        public virtual Meta GetMeta(in IWorldReader world, int x, int y, int z)
+        public virtual long GetMeta(in IWorldReader world, int x, int y, int z)
         {
             return 0;
         }
@@ -45,6 +43,7 @@ namespace DefenceFactory.Game.World
 
             Register(BlockType.Empty, new Blocks.BlockEmpty());
             Register(BlockType.Stone, new Blocks.BlockTileSet(ModelEnum.Stone));
+            Register(BlockType.Pipe, new Blocks.BlockPipe(ModelEnum.Simple));
         }
     }
 }

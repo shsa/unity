@@ -10,6 +10,7 @@ namespace DefenceFactory.Game.World
     {
         None,
         Empty,
-        Stone
+        Stone,
+        Pipe
     }
 }

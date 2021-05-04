@@ -9,7 +9,8 @@ namespace DefenceFactory.Game
     public enum ModelTypeEnum
     {
         Simple,
-        TileSet
+        TileSet,
+        Pipe
     }
 
     public enum ModelEnum
@@ -24,5 +25,6 @@ namespace DefenceFactory.Game
         Granite,
         Grass,
         IceBrick,
+        Simple
     }
 }

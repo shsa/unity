@@ -15,6 +15,11 @@ namespace DefenceFactory
                 block = Block.GetBlock(BlockType.Stone);
                 return true;
             }
+            if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                block = Block.GetBlock(BlockType.Pipe);
+                return true;
+            }
             block = default;
             return false;
         }

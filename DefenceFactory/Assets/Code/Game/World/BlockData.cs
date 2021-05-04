@@ -7,12 +7,10 @@ using System.Threading.Tasks;
 
 namespace DefenceFactory.Game.World
 {
-    using Meta = Int32;
-
     public struct BlockData
     {
         public BlockType id;
-        public Meta meta;
+        public long meta;
     }
 
     public static class BlockDataExtension
@@ -59,12 +57,12 @@ namespace DefenceFactory.Game.World
             return new BlockData
             {
                 id = blockId,
-                meta = (Meta)dirs
+                meta = (long)dirs
             };
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Meta GetMeta(this BlockData blockData)
+        public static long GetMeta(this BlockData blockData)
         {
             return blockData.meta;
         }

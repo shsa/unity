@@ -103,6 +103,11 @@ namespace DefenceFactory.Game.World
             }
         }
 
+        public static bool HasDir(this DirectionSet dirs, DirectionEnum dir)
+        {
+            return dirs.HasFlag(dir.Set());
+        }
+
         static DirectionEnumExtension()
         {
             dirs[(int)DirectionEnum.None] = new Int2(0, 0);
