@@ -7,10 +7,15 @@ using System.Threading.Tasks;
 
 namespace DefenceFactory.Game.World
 {
+    public enum Meta : long
+    {
+        None = 0
+    }
+
     public struct BlockData
     {
         public BlockType id;
-        public long meta;
+        public Meta meta;
     }
 
     public static class BlockDataExtension
@@ -24,7 +29,7 @@ namespace DefenceFactory.Game.World
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Block GetBlock(this BlockData data)
         {
-            return Block.GetBlock(data.GetBlockId());
+            return Block.GetBlock(data.id);
         }
 
     }
@@ -47,7 +52,7 @@ namespace DefenceFactory.Game.World
             return new BlockData
             {
                 id = blockId,
-                meta = meta
+                meta = (Meta)meta
             };
         }
 
@@ -57,12 +62,12 @@ namespace DefenceFactory.Game.World
             return new BlockData
             {
                 id = blockId,
-                meta = (long)dirs
+                meta = (Meta)dirs
             };
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static long GetMeta(this BlockData blockData)
+        public static Meta GetMeta(this BlockData blockData)
         {
             return blockData.meta;
         }

@@ -27,10 +27,12 @@ namespace DefenceFactory.Ecs
                 ref var pos = ref _filter.Get1(i).Value;
                 var blockPos = new BlockPos((int)pos.X, (int)pos.Y, 0);
                 var chunkPos = blockPos.ChunkMinPos;
+
                 //_gameWorld.GetOrCreateChunk(chunkPos.x, chunkPos.y, 0);
-                for (int x = -3; x <= 3; x++)
+                int offset = 1;
+                for (int x = -offset; x <= offset; x++)
                 {
-                    for (int y = -3; y <= 3; y++)
+                    for (int y = -offset; y <= offset; y++)
                     {
                         _gameWorld.GetOrCreateChunk(chunkPos.x + x * 0x10, chunkPos.y + y * 0x10, 0);
                     }

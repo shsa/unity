@@ -60,7 +60,7 @@ namespace DefenceFactory.Game.World
 
         float masonryScale = 0.05f;
         Int3 masonryOffset = new Int3(0, 0, 100);
-        float cobblestoneScale = 0.05f;
+        //float cobblestoneScale = 0.05f;
         Int3 cobblestoneOffset = new Int3(100, 0, 0);
         public virtual BlockType CalcBlockId(int x, int y, int z)
         {

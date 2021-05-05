@@ -37,7 +37,6 @@ namespace DefenceFactory
                 .OneFrame<Ecs.Input>()
                 .OneFrame<Drag>()
                 .OneFrame<PlaceItemFlag>()
-                .OneFrame<UpdateBlock>()
                 //.OneFrame<ThreadChunk>()
                 .OneFrame<DestroyedFlag>()
 

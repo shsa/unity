@@ -1,6 +1,6 @@
 {
-  "_texture": "TileSet/TileSetDemo",
-  "texture": "TileSet/TileSet_1024",
+  "_texture": "Textures/TileSet/TileSetDemo",
+  "texture": "Textures/TileSet/TileSet_1024",
   "x": 640,
   "_y": 0,
   "y": 768,

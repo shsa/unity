@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 
 namespace DefenceFactory.Game.World
 {
-    public enum BlockType : UInt16
+    public enum WorldLayerEnum
     {
-        None,
-        Empty,
-        Stone,
-        Cobblestone,
-        Sand,
-        Pipe
+        Main = 0,
+        Background = 1,
+
+        First = Main,
+        Last = Background
     }
 }

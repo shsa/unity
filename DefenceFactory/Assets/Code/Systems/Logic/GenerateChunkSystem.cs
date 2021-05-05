@@ -45,13 +45,19 @@ namespace DefenceFactory
                     gc.data.CopyTo(chunk.data);
                     for (int x = chunk.x - 1; x <= (chunk.x + 0x10); x++)
                     {
-                        SetBlockUpdate(x, chunk.y - 1, 0);
-                        SetBlockUpdate(x, chunk.y + 0x10, 0);
+                        for (int z = (int)WorldLayerEnum.First; z <= (int)WorldLayerEnum.Last; z++)
+                        {
+                            SetBlockUpdate(x, chunk.y - 1, z);
+                            SetBlockUpdate(x, chunk.y + 0x10, z);
+                        }
                     }
                     for (int y = chunk.y - 1; y <= (chunk.y + 0x10); y++)
                     {
-                        SetBlockUpdate(chunk.x - 1, y, 0);
-                        SetBlockUpdate(chunk.x + 0x10, y, 0);
+                        for (int z = (int)WorldLayerEnum.First; z <= (int)WorldLayerEnum.Last; z++)
+                        {
+                            SetBlockUpdate(chunk.x - 1, y, z);
+                            SetBlockUpdate(chunk.x + 0x10, y, z);
+                        }
                     }
                     for (int i = 0; i < gc.chunk.data_update.Length; i++)
                     {

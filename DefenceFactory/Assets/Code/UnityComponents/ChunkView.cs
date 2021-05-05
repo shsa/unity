@@ -42,17 +42,25 @@ namespace DefenceFactory
             block.IsDesroyed = true;
         }
 
+        ref BlockData GetBlockData(Chunk chunk, int x, int y)
+        {
+            ref var blockData = ref chunk.GetBlockData(x, y, (int)WorldLayerEnum.Main);
+            if (blockData.id == BlockType.None)
+            {
+                blockData = ref chunk.GetBlockData(x, y, (int)WorldLayerEnum.Background);
+            }
+            return ref blockData;
+        }
+
         public void CreateBlocks(Chunk chunk)
         {
             transform.localPosition = new Vector3(chunk.min.x, chunk.min.y, 0);
 
-            var blockPos = new BlockPos();
             for (var x = chunk.min.x; x <= chunk.max.x; x++)
             {
                 for (var y = chunk.min.y; y <= chunk.max.y; y++)
                 {
-                    blockPos.Set(x, y, 0);
-                    var blockData = chunk.GetBlockData(blockPos);
+                    var blockData = GetBlockData(chunk, x, y);
                     var blockPrefab = ViewService.GetBlockPrefab(blockData);
                     var block = CreateBlock(blockPrefab);
                     block.x = x;

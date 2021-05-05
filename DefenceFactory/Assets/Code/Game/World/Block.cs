@@ -20,7 +20,7 @@ namespace DefenceFactory.Game.World
             this.model = model;
         }
 
-        public virtual long GetMeta(in IWorldReader world, int x, int y, int z)
+        public virtual Meta GetMeta(in IWorldReader world, int x, int y, int z)
         {
             return 0;
         }
@@ -41,8 +41,11 @@ namespace DefenceFactory.Game.World
             var count = (int)Enum.GetValues(typeof(BlockType)).Cast<BlockType>().Max() + 1;
             REGISTER = new Block[count];
 
+            Register(BlockType.None, new Blocks.BlockEmpty());
             Register(BlockType.Empty, new Blocks.BlockEmpty());
             Register(BlockType.Stone, new Blocks.BlockTileSet(ModelEnum.Stone));
+            Register(BlockType.Cobblestone, new Blocks.BlockTileSet(ModelEnum.Cobblestone));
+            Register(BlockType.Sand, new Blocks.BlockTileSet(ModelEnum.Sand));
             Register(BlockType.Pipe, new Blocks.BlockPipe(ModelEnum.Simple));
         }
     }

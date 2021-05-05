@@ -22,41 +22,84 @@ namespace DefenceFactory.Game.Jobs
 
         public BlockDataArray data;
 
-        float CalcNoise(int x, int y, float scaleX, float scaleY)
+        float scale;
+        float CalcNoise(int x, int y)
         {
-            var i = 1000000.0f + (seed + x * scaleX) / 0x10;
-            var j = 1000000.0f + (seed + y * scaleY) / 0x10;
+            var i = seed + x * scale;
+            var j = seed + y * scale;
+
             return Mathf.PerlinNoise(i, j);
         }
 
-        BlockType CalcBlockId(int x, int y, int z)
+        BlockType CalcMainBlockId(int x, int y, int z)
         {
             if (y > 0)
             {
                 return BlockType.Empty;
             }
 
-            var k = CalcNoise(x, y, 1.0f, 1.0f);
-            var t = Math.Max(0, (10.0f + y) / 10.0f);
-            var k1 = Vector2.Lerp(new Vector2(0.5f, 0), new Vector2(0f, 0), t);
-            if (k > k1.x)
+            var k = CalcNoise(x, y);
+
+            var t = Math.Min(1.0f, Math.Abs(y) / 10.0f);
+            var k2 = Vector2.Lerp(new Vector2(1.0f, 0), new Vector2(0.5f, 0), t).x;
+
+            if (k < k2)
             {
                 return BlockType.Stone;
             }
 
-            return BlockType.Empty;
+            return BlockType.None;
+        }
+
+        BlockType CalcBackgroundBlockId(int x, int y, int z)
+        {
+            if (y > 0)
+            {
+                return BlockType.Empty;
+            }
+
+            var k = CalcNoise(x, y);
+
+            var t = Math.Min(1.0f, Math.Abs(y) / 10.0f);
+            var k2 = Vector2.Lerp(new Vector2(0.0f, 0), new Vector2(0.5f, 0), t).x;
+
+            if (k > k2)
+            {
+                return BlockType.Cobblestone;
+            }
+
+            return BlockType.Sand;
         }
 
         public void Execute()
         {
+            scale = 1.0f / 0xF;
+            seed = 10000;
+            var _z = (int)WorldLayerEnum.Main;
             for (int i = 0; i <= 0xF; i++)
             {
                 for (int j = 0; j <= 0xF; j++)
                 {
-                    var index = Chunk.GetDataIndex(x + i, y + j, z);
+                    var index = Chunk.GetDataIndex(x + i, y + j, _z);
                     data[index] = new BlockData
                     {
-                        id = CalcBlockId(x + i, y + j, z),
+                        id = CalcMainBlockId(x + i, y + j, _z),
+                        meta = 0
+                    };
+                }
+            }
+
+            scale = 1.0f / 0x8;
+            seed = 10000;
+            _z = (int)WorldLayerEnum.Background;
+            for (int i = 0; i <= 0xF; i++)
+            {
+                for (int j = 0; j <= 0xF; j++)
+                {
+                    var index = Chunk.GetDataIndex(x + i, y + j, _z);
+                    data[index] = new BlockData
+                    {
+                        id = CalcBackgroundBlockId(x + i, y + j, _z),
                         meta = 0
                     };
                 }
@@ -66,8 +109,6 @@ namespace DefenceFactory.Game.Jobs
 
     public class ChunkGenerateContainer : IDisposable
     {
-        public static Unity.Mathematics.Random rnd = new Unity.Mathematics.Random(1);
-
         public Chunk chunk;
         public BlockDataArray data;
         public JobHandle handle;

@@ -33,7 +33,7 @@ namespace DefenceFactory.Game.Jobs
         [ReadOnly] public BlockDataArray W;
         [ReadOnly] public BlockDataArray NW;
 
-        BlockDataArray GetMap(int x, int y, int z)
+        BlockDataArray GetMap(int x, int y)
         {
             if (x < 0)
             {
@@ -72,22 +72,25 @@ namespace DefenceFactory.Game.Jobs
 
         Block IWorldReader.GetBlock(int x, int y, int z)
         {
-            var m = GetMap(x, y, 0);
-            return m[Chunk.GetDataIndex(x & 0xF, y & 0xF, 0)].GetBlock();
+            var m = GetMap(x, y);
+            return m[Chunk.GetDataIndex(x & 0xF, y & 0xF, z & 0xF)].GetBlock();
         }
 
         public void Execute()
         {
-            for (int i = 0; i <= 0xF; i++)
+            for (int _z = (int)WorldLayerEnum.First; _z <= (int)WorldLayerEnum.Last; _z++)
             {
-                for (int j = 0; j <= 0xF; j++)
+                for (int i = 0; i <= 0xF; i++)
                 {
-                    var index = Chunk.GetDataIndex(i, j, 0);
-                    var block = data[index];
-                    if (data_update[index].HasFlag(BlockFlag.Update))
+                    for (int j = 0; j <= 0xF; j++)
                     {
-                        block.meta = block.GetBlock().GetMeta(this, i, j, z);
-                        data[index] = block;
+                        var index = Chunk.GetDataIndex(i, j, _z);
+                        var block = data[index];
+                        if (data_update[index].HasFlag(BlockFlag.Update))
+                        {
+                            block.meta = block.GetBlock().GetMeta(this, i, j, _z);
+                            data[index] = block;
+                        }
                     }
                 }
             }

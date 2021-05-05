@@ -54,7 +54,6 @@ namespace DefenceFactory.Models
         class TileHelper
         {
             public string mask;
-            public DirectionEnum direction;
             public DirectionSet neighbors;
             public DirectionSet spaces;
             public DirectionSet ignores;
@@ -173,15 +172,15 @@ namespace DefenceFactory.Models
             }
         }
 
-        public override string GetKey(long meta)
+        public override string GetKey(Meta meta)
         {
-            var data = (DirectionSet)(meta & 0xFF);
+            var data = (DirectionSet)((int)meta & 0xFF);
             return name + "." + data.Key();
         }
 
-        public override BlockView GetPrefab(long meta)
+        public override BlockView GetPrefab(Meta meta)
         {
-            var data = (byte)(meta & 0xFF);
+            var data = (byte)((int)meta & 0xFF);
             var sample = samples[data];
             if (sample.view == default)
             {

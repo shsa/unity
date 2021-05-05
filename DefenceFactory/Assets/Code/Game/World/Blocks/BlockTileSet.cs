@@ -22,13 +22,13 @@ namespace DefenceFactory.Game.World.Blocks
             return DirectionSet.None;
         }
 
-        public override long GetMeta(in IWorldReader world, int x, int y, int z)
+        public override Meta GetMeta(in IWorldReader world, int x, int y, int z)
         {
             var meta = CheckDir(world, x, y, z, DirectionEnum.N)
                 | CheckDir(world, x, y, z, DirectionEnum.E)
                 | CheckDir(world, x, y, z, DirectionEnum.S)
                 | CheckDir(world, x, y, z, DirectionEnum.W);
-            return (long)meta;
+            return (Meta)meta;
         }
     }
 }

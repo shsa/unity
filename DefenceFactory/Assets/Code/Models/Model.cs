@@ -10,7 +10,7 @@ namespace DefenceFactory.Models
 {
     public abstract class Model
     {
-        public abstract string GetKey(long meta);
-        public abstract BlockView GetPrefab(long meta);
+        public abstract string GetKey(Meta meta);
+        public abstract BlockView GetPrefab(Meta meta);
     }
 }

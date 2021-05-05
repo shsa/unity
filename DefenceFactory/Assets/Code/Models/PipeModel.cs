@@ -85,14 +85,14 @@ namespace DefenceFactory.Models
             newItem(DirectionSet.S | DirectionSet.W, 4, 90);
         }
 
-        public override string GetKey(long meta)
+        public override string GetKey(Meta meta)
         {
             var dirs = (DirectionSet)meta & exclude;
             var pipe = pipes[(int)dirs];
             return pipe.name;
         }
 
-        public override BlockView GetPrefab(long meta)
+        public override BlockView GetPrefab(Meta meta)
         {
             var dirs = (DirectionSet)meta & exclude;
             var pipe = pipes[(int)dirs];
