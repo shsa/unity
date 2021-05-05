@@ -12,17 +12,22 @@ namespace DefenceFactory.Game.World.Blocks
         {
         }
 
+        DirectionSet CheckDir(in IWorldReader world, int x, int y, int z, DirectionEnum dir)
+        {
+            ref var v = ref dir.GetVector2();
+            if (this == world.GetBlock(x + v.X, y + v.Y, z))
+            {
+                return dir.Set();
+            }
+            return DirectionSet.None;
+        }
+
         public override long GetMeta(in IWorldReader world, int x, int y, int z)
         {
-            var meta = DirectionSet.None;
-            for (var d = DirectionEnum.First; d <= DirectionEnum.Last; d++)
-            {
-                ref var dir = ref d.GetVector2();
-                if (this == world.GetBlock(x + dir.X, y + dir.Y, z))
-                {
-                    meta |= d.Set();
-                }
-            }
+            var meta = CheckDir(world, x, y, z, DirectionEnum.N)
+                | CheckDir(world, x, y, z, DirectionEnum.E)
+                | CheckDir(world, x, y, z, DirectionEnum.S)
+                | CheckDir(world, x, y, z, DirectionEnum.W);
             return (long)meta;
         }
     }

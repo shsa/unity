@@ -31,8 +31,15 @@ namespace DefenceFactory.Game.Jobs
 
         BlockType CalcBlockId(int x, int y, int z)
         {
+            if (y > 0)
+            {
+                return BlockType.Empty;
+            }
+
             var k = CalcNoise(x, y, 1.0f, 1.0f);
-            if (k > 0.5)
+            var t = Math.Max(0, (10.0f + y) / 10.0f);
+            var k1 = Vector2.Lerp(new Vector2(0.5f, 0), new Vector2(0f, 0), t);
+            if (k > k1.x)
             {
                 return BlockType.Stone;
             }
