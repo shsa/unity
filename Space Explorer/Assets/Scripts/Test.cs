@@ -19,6 +19,7 @@ public class Test : MonoBehaviour
 
         var cols = (int)window.width / cellSize;
         var rows = (int)window.height / cellSize;
+        Random.InitState(0);
         for (int y = 0; y < cols; y++)
         {
             for (int x = 0; x < rows; x++)
@@ -67,15 +68,24 @@ public class Test : MonoBehaviour
         var obj = new GameObject($"({x}, {y})");
         obj.transform.SetParent(transform);
         obj.transform.localPosition = new Vector3(cols / 2 - x - 0.5f, rows / 2 - y - 0.5f);
-        var lr = obj.AddComponent<LineRenderer>();
 
-        DrawCircle(lr, 0.5f, 0.02f);
+        var count = Random.Range(1, 5);
+        for (int i = 0; i < count; i++)
+        {
+            var r = Random.Range(0.1f, 0.5f);
+            DrawCircle(obj, r, 0.02f);
+        }
     }
 
-    void DrawCircle(LineRenderer lineRenderer, float r, float width)
+    void DrawCircle(GameObject parent, float r, float width)
     {
         float theta_scale = 0.1f;
-        
+
+        var obj = new GameObject($"circle");
+        obj.transform.SetParent(parent.transform);
+        obj.transform.localPosition = Vector3.zero;
+
+        var lineRenderer = obj.AddComponent<LineRenderer>();
         lineRenderer.material = lineMaterial;
         lineRenderer.startColor = Color.white;
         lineRenderer.endColor = Color.white;
