@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Template name="InputBox" src="project://database/Assets/InputBox.uxml?fileID=9197481963319205126&amp;guid=f566d5b40238591479b9a67d94dd4774&amp;type=3#InputBox" />
+    <Style src="project://database/Assets/stylesheet.uss?fileID=7433441132597879392&amp;guid=8fb7db45a10c6ee4fab53a6529fce5e6&amp;type=3#stylesheet" />
+    <ui:VisualElement style="flex-grow: 1; flex-direction: column; justify-content: flex-end;">
+        <ui:VisualElement style="flex-grow: 1;">
+            <ui:Instance template="InputBox" name="InputBox" style="flex-grow: 1; display: none;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="container" style="flex-basis: 20%; padding-left: 15%; padding-right: 15%; border-top-color: rgb(0, 0, 0); border-top-width: 2px; flex-direction: row; justify-content: space-between; align-items: center;">
+            <ui:Button text="START" display-tooltip-when-elided="true" name="buttonStart" class="button" />
+            <ui:Button text="STOP&#x9;" display-tooltip-when-elided="true" name="buttonStop" class="button" />
+            <ui:Button text="TEST" display-tooltip-when-elided="true" name="buttonTest" class="button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
