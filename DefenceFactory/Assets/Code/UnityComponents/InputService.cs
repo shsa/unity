@@ -1,5 +1,4 @@
 ﻿using Leopotam.Ecs.Types;
-using System;
 using UnityEngine;
 
 namespace DefenceFactory
@@ -21,26 +20,22 @@ namespace DefenceFactory
             return true;
         }
 
-        private DateTime _mouseDownTime;
-        private Vector3 _startScreenPos;
-        private Vector3 _startWorldPos;
-        void UpdateInput()
-        {
-            if (Input.GetMouseButtonDown(0))
-            {
-                _mouseDownTime = DateTime.Now;
-                _startScreenPos = Input.mousePosition;
-                _startWorldPos = _camera.ScreenToWorldPoint(_startScreenPos);
-            }
-        }
-
+        private bool _mouseDown = false;
         bool IInputService.GetCursorCoordinate(out Int2 coord)
         {
-            UpdateInput();
-
             coord = new Int2();
 
-            if (Input.GetMouseButton(0))
+            if (Input.GetMouseButtonDown(0))
+            {
+                _mouseDown = true;
+            }
+            else
+            if (Input.GetMouseButtonUp(0))
+            {
+                _mouseDown = false;
+            }
+
+            if (_mouseDown)
             {
                 var worldPosition = _camera.ScreenToWorldPoint(Input.mousePosition);
                 coord.Set(
@@ -50,71 +45,6 @@ namespace DefenceFactory
                 return true;
             }
             return false;
-        }
-
-        bool IInputService.GetShift(out Float2 coord)
-        {
-            UpdateInput();
-            if (Input.GetMouseButton(0))
-            {
-                var worldPos = _camera.ScreenToWorldPoint(Input.mousePosition);
-                coord = new Float2(worldPos.x - _startWorldPos.x, worldPos.y - _startWorldPos.y);
-                return true;
-            }
-            else
-            {
-                coord = default;
-                return false;
-            }
-        }
-
-        Float2 ScreenToWorldFloat2(Vector3 screenPoint)
-        {
-            var worldPos = _camera.ScreenToWorldPoint(screenPoint);
-            return new Float2(worldPos.x, worldPos.y);
-        }
-
-        bool IInputService.GetClicked(out Float2 coord)
-        {
-            if (Input.GetMouseButtonUp(0))
-            {
-                if ((DateTime.Now - _mouseDownTime).TotalMilliseconds < 500)
-                {
-                    coord = ScreenToWorldFloat2(Input.mousePosition);
-                    return true;
-                }
-            }
-
-            coord = default;
-            return false;
-        }
-
-        private Float2 _startWorldPosFloat2;
-        bool IInputService.GetDrag(out Float2 coord, out DefenceFactory.Ecs.DragEnum state)
-        {
-            UpdateInput();
-            if (Input.GetMouseButtonDown(0))
-            {
-                state = Ecs.DragEnum.Begin;
-                coord = ScreenToWorldFloat2(Input.mousePosition);
-                _startWorldPosFloat2 = coord;
-                return true;
-            }
-
-            if (Input.GetMouseButton(0))
-            {
-                state = Ecs.DragEnum.Current;
-                var c0 = ScreenToWorldFloat2(_startScreenPos);
-                var offset = c0 - _startWorldPosFloat2;
-                coord = ScreenToWorldFloat2(Input.mousePosition) - offset;
-                return true;
-            }
-            else
-            {
-                state = Ecs.DragEnum.None;
-                coord = default;
-                return false;
-            }
         }
     }
 }

@@ -1,5 +1,5 @@
 using DefenceFactory.Ecs;
-using DefenceFactory.Game.World;
+using DefenceFactory.World;
 using Leopotam.Ecs;
 using UnityEngine;
 using Random = System.Random;
@@ -8,7 +8,6 @@ namespace DefenceFactory
 {
     [RequireComponent(typeof(ViewService))]
     [RequireComponent(typeof(InputService))]
-    [RequireComponent(typeof(InventoryService))]
     sealed class EcsStartup : MonoBehaviour
     {
         EcsWorld _world;
@@ -30,20 +29,14 @@ namespace DefenceFactory
                 .Add(LogicSystems())
                 .Add(ViewSystems())
 
-                .Add(new DestroySystem())
-
-                // register one-frame components (order is important):
+                // register one-frame components (order is important), for example:
                 .OneFrame<PositionUpdatedFlag>()
                 .OneFrame<Ecs.Input>()
-                .OneFrame<Drag>()
-                .OneFrame<PlaceItemFlag>()
-                //.OneFrame<ThreadChunk>()
-                .OneFrame<DestroyedFlag>()
+                .OneFrame<ThreadComponent>()
 
-                // inject service instances here (order doesn't important):
+                // inject service instances here (order doesn't important), for example:
                 .Inject(GetComponent<IInputService>())
                 .Inject(GetComponent<IViewService>())
-                .Inject(GetComponent<IInventoryService>())
                 .Inject(new GameWorld())
                 .Inject(new Random())
 
@@ -55,15 +48,9 @@ namespace DefenceFactory
             var systems = new EcsSystems(_world);
             systems
                 .Add(new GameInitSystem())
-                .Add(new PlayerInputSystem())
                 .Add(new PlayerMoveSystem())
-                .Add(new GenerateChunkSystem())
-                .Add(new UpdateChunkSystem())
-                .Add(new ApplyThreadChunkSystem())
-                .Add(new PlaceItemSystem())
-                .Add(new UpdateBlockSystem())
-                .Add(new CreateChunkSystem())
-                .Add(new DestroyChunkSystem())
+                .Add(new ThreadTestSystem())
+                .Add(new ApplyThreadSystem())
                 ;
             return systems;
         }
@@ -74,9 +61,6 @@ namespace DefenceFactory
             systems
                 .Add(new PlayerViewCreateSystem())
                 .Add(new PlayerViewPositionUpdatedSystem())
-                .Add(new CreateChunkViewSystem())
-                .Add(new UpdateChunkViewSystem())
-                .Add(new DestroyChunkViewSystem())
                 ;
             return systems;
         }

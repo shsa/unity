@@ -1,4 +1,4 @@
-﻿using DefenceFactory.Game.World;
+﻿using DefenceFactory.World;
 using Leopotam.Ecs;
 using Leopotam.Ecs.Types;
 using System;
@@ -25,18 +25,8 @@ namespace DefenceFactory.Ecs
             foreach (var i in _filter)
             {
                 ref var pos = ref _filter.Get1(i).Value;
-                var blockPos = new BlockPos((int)pos.X, (int)pos.Y, 0);
-                var chunkPos = blockPos.ChunkMinPos;
-
-                //_gameWorld.GetOrCreateChunk(chunkPos.x, chunkPos.y, 0);
-                int offset = 1;
-                for (int x = -offset; x <= offset; x++)
-                {
-                    for (int y = -offset; y <= offset; y++)
-                    {
-                        _gameWorld.GetOrCreateChunk(chunkPos.x + x * 0x10, chunkPos.y + y * 0x10, 0);
-                    }
-                }
+                var chunkPos = new ChunkPos(pos.X, pos.Y, 0);
+                var chunk = _gameWorld.GetOrCreateChunk(chunkPos);
             }
         }
     }

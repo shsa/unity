@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="VisualElement" style="flex-direction: row; justify-content: center; align-items: flex-end; flex-basis: 20%; flex-wrap: nowrap; flex-grow: 1;">
+        <ui:VisualElement style="justify-content: center; align-items: center; flex-direction: row; flex-wrap: nowrap; padding-bottom: 25px;">
+            <ui:Button text="Button1" display-tooltip-when-elided="true" name="pipe" style="background-image: url(&apos;project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=-1304905567622442630&amp;guid=257756cd5de3afe47a3cfce9e08e21d8&amp;type=3#arrow-down@2x&apos;);" />
+            <ui:Button text="Button2" display-tooltip-when-elided="true" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
